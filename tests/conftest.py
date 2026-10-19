@@ -6,8 +6,14 @@ import os
 TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL", "postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test"
 )
-# Point the application at the test database before anything reads settings.
+# Point the application at the test database before anything reads settings. Tests use
+# the deterministic local retrieval models and never call a real LLM provider.
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+os.environ["EMBEDDING_BACKEND"] = "local"
+os.environ["RERANKER_BACKEND"] = "local"
+os.environ["GROQ_API_KEY"] = ""
+os.environ["GEMINI_API_KEY"] = ""
+os.environ.setdefault("TRACE_DIR", os.path.join(os.path.dirname(__file__), ".traces"))
 
 from dataclasses import dataclass  # noqa: E402
 from datetime import date, datetime, timedelta  # noqa: E402
@@ -45,8 +51,21 @@ def engine():
 
 
 def wipe(engine) -> None:
+    """Operational data is wiped before every test; the knowledge base is ingested once (see ``kb``)."""
     with engine.begin() as conn:
-        conn.execute(text(f"TRUNCATE {', '.join(OPERATIONAL_TABLES)}, kb_chunk, kb_document RESTART IDENTITY CASCADE"))
+        conn.execute(text(f"TRUNCATE {', '.join(OPERATIONAL_TABLES)} RESTART IDENTITY CASCADE"))
+
+
+@pytest.fixture(scope="session")
+def kb(engine):
+    """The real knowledge base, ingested into the test database once per run."""
+    from app.rag.ingest import ingest
+
+    factory = sessionmaker(bind=engine)
+    with factory() as db:
+        result = ingest(db)
+        db.commit()
+    return result
 
 
 @pytest.fixture

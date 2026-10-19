@@ -20,3 +20,7 @@ ignore = ["E501"]
 [tool.ruff.lint.isort]
 known-first-party = ["app", "simulator", "eval"]
 known-third-party = ["alembic"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency markers are meant to be used as argument defaults.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query", "fastapi.Header"]

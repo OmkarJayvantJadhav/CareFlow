@@ -1,4 +1,6 @@
-"""The 17 CareFlow tables (docs §6), in three groups: scheduling, queue, platform.
+"""The CareFlow tables (docs §6), in three groups: scheduling, queue, platform.
+
+The 17 tables of the database design plus ``conversation`` (chat state, docs/DECISIONS.md D-24).
 
 Enumerated columns are plain text guarded by CHECK constraints so that values
 can be extended by a migration without type juggling.
@@ -333,6 +335,11 @@ class KbDocument(Base):
     language: Mapped[str] = mapped_column(String(8))
     last_verified: Mapped[date] = mapped_column(Date)
     source_path: Mapped[str] = mapped_column(String(300), unique=True)
+    # Translations of one document share a doc_key, e.g. "test_preparation/lipid-profile".
+    doc_key: Mapped[str] = mapped_column(String(200), index=True)
+    content_hash: Mapped[str] = mapped_column(String(64))
+
+    chunks: Mapped[list["KbChunk"]] = relationship(back_populates="document", order_by="KbChunk.chunk_index")
 
 
 class KbChunk(Base):
@@ -349,13 +356,18 @@ class KbChunk(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     document_id: Mapped[int] = mapped_column(ForeignKey("kb_document.id", ondelete="CASCADE"), index=True)
+    chunk_index: Mapped[int] = mapped_column(SmallInteger)
     section: Mapped[str] = mapped_column(String(200))
     text: Mapped[str] = mapped_column(Text)
     embedding: Mapped[list[float] | None] = mapped_column(Vector(EMBEDDING_DIM))
+    # Which embedder produced the vector; queries only compare vectors from the same one.
+    embedding_model: Mapped[str] = mapped_column(String(120), index=True)
     # 'simple' configuration: no stemming, works for English, Hindi and Marathi.
     tsv: Mapped[str] = mapped_column(
         TSVECTOR, Computed("to_tsvector('simple', coalesce(section, '') || ' ' || text)", persisted=True)
     )
+
+    document: Mapped[KbDocument] = relationship(back_populates="chunks")
 
 
 class Notification(Base):
@@ -384,6 +396,30 @@ class AuditLog(Base):
     at: Mapped[datetime] = mapped_column(TZ)
 
 
+class Conversation(Base):
+    """Chat state: compact history, the pending confirmation card and counters."""
+
+    __tablename__ = "conversation"
+    __table_args__ = (
+        CheckConstraint(_in("language", LANGUAGES), name="ck_conversation_language"),
+        Index("ix_conversation_user", "user_id"),
+        Index("ix_conversation_session", "session_id"),
+    )
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("app_user.id"))
+    session_id: Mapped[str] = mapped_column(String(64))
+    language: Mapped[str] = mapped_column(String(8), default="en")
+    history: Mapped[list] = mapped_column(JSONB, default=list)
+    summary: Mapped[str] = mapped_column(Text, default="")
+    pending_action: Mapped[dict | None] = mapped_column(JSONB)
+    message_count: Mapped[int] = mapped_column(Integer, default=0)
+    failed_attempts: Mapped[int] = mapped_column(SmallInteger, default=0)
+    handoff_ticket_id: Mapped[int | None] = mapped_column(ForeignKey("handoff_ticket.id"))
+    created_at: Mapped[datetime] = mapped_column(TZ, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(TZ, server_default=func.now())
+
+
 class HandoffTicket(Base):
     __tablename__ = "handoff_ticket"
     __table_args__ = (CheckConstraint(_in("status", HANDOFF_STATUSES), name="ck_handoff_ticket_status"),)
@@ -400,6 +436,7 @@ APPEND_ONLY_TABLES = ("queue_event", "wait_prediction", "audit_log")
 # Everything that demo reset wipes and reloads (FR-34). The knowledge base is
 # reference content, loaded by its own ingestion step, and is left alone.
 OPERATIONAL_TABLES = (
+    "conversation",
     "handoff_ticket",
     "audit_log",
     "notification",
