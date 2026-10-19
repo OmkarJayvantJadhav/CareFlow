@@ -1,0 +1,22 @@
+[project]
+name = "careflow"
+version = "0.1.0"
+description = "AI hospital assistant for OPD booking and live queues (fictional hospital, synthetic data)"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["ui"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "simulator", "eval"]
+known-third-party = ["alembic"]

@@ -1,0 +1,246 @@
+"""Seed data: the fictional hospital, synthetic patients, slots and upcoming bookings.
+
+Seeding is deterministic for a given (seed, reference day), which is what makes
+the demo reset (FR-34) restore exactly the same state.
+"""
+
+from datetime import date, datetime, time, timedelta
+
+import numpy as np
+from sqlalchemy import select, text
+from sqlalchemy.orm import Session
+
+from app.db.models import (
+    OPERATIONAL_TABLES,
+    Appointment,
+    AppUser,
+    CaregiverLink,
+    Department,
+    Doctor,
+    Patient,
+    Slot,
+)
+from app.safety.privacy import mask_phone_number
+from app.timeutil import at
+from app.tools.booking import book_appointment
+from app.tools.permissions import Actor
+from simulator import hospital
+
+PATIENT_COUNT = 400
+SEED_DAYS_AHEAD = 21
+UPCOMING_OCCUPANCY = (0.25, 0.55)
+LANGUAGE_WEIGHTS = {"mr": 0.45, "hi": 0.30, "en": 0.25}
+
+
+def random_phone(rng: np.random.Generator) -> str:
+    return str(rng.integers(6, 10)) + "".join(str(d) for d in rng.integers(0, 10, size=9))
+
+
+def random_patient(rng: np.random.Generator) -> Patient:
+    first = hospital.FIRST_NAMES[rng.integers(len(hospital.FIRST_NAMES))]
+    last = hospital.LAST_NAMES[rng.integers(len(hospital.LAST_NAMES))]
+    langs, weights = zip(*LANGUAGE_WEIGHTS.items(), strict=True)
+    return Patient(
+        synthetic_name=f"{first} {last}",
+        birth_year=int(rng.integers(1940, 2024)),
+        phone_masked=mask_phone_number(random_phone(rng)),
+        preferred_language=str(rng.choice(langs, p=weights)),
+    )
+
+
+def seed_reference(db: Session, rng: np.random.Generator) -> None:
+    departments = {}
+    for name, floor, start, end in hospital.DEPARTMENTS:
+        dept = Department(name=name, floor=floor, opd_start=start, opd_end=end)
+        db.add(dept)
+        departments[name] = dept
+    db.flush()
+    for name, dept, languages, days, minutes in hospital.DOCTORS:
+        db.add(
+            Doctor(
+                department_id=departments[dept].id, name=name, languages=languages, opd_days=days, slot_minutes=minutes
+            )
+        )
+
+    demo_patients = {}
+    for key, (name, birth_year, language, phone) in hospital.DEMO_PATIENTS.items():
+        patient = Patient(
+            synthetic_name=name,
+            birth_year=birth_year,
+            phone_masked=mask_phone_number(phone),
+            preferred_language=language,
+        )
+        db.add(patient)
+        demo_patients[key] = patient
+    db.flush()
+    for _ in range(PATIENT_COUNT):
+        db.add(random_patient(rng))
+
+    users = {}
+    for username, display, role, patient_key in hospital.DEMO_USERS:
+        user = AppUser(
+            username=username,
+            display_name=display,
+            role=role,
+            patient_id=demo_patients[patient_key].id if patient_key else None,
+        )
+        db.add(user)
+        users[username] = user
+    db.flush()
+    for caregiver, patient_key, verified in hospital.CAREGIVER_LINKS:
+        db.add(
+            CaregiverLink(
+                caregiver_user_id=users[caregiver].id, patient_id=demo_patients[patient_key].id, verified=verified
+            )
+        )
+    db.flush()
+
+
+def ensure_slots(db: Session, start: date, end: date) -> int:
+    """Create every OPD slot between two dates (inclusive). Existing slots are kept."""
+    existing = {
+        (doctor_id, start_at)
+        for doctor_id, start_at in db.execute(
+            select(Slot.doctor_id, Slot.start_at).where(
+                Slot.start_at >= at(start, time.min), Slot.start_at < at(end + timedelta(days=1), time.min)
+            )
+        )
+    }
+    created = 0
+    for doctor in db.scalars(select(Doctor).order_by(Doctor.id)):
+        dept = doctor.department
+        step = timedelta(minutes=doctor.slot_minutes)
+        day = start
+        while day <= end:
+            if day.isoweekday() in doctor.opd_days:
+                t, close = at(day, dept.opd_start), at(day, dept.opd_end)
+                while t + step <= close:
+                    if (doctor.id, t) not in existing:
+                        db.add(Slot(doctor_id=doctor.id, start_at=t, end_at=t + step, status="free"))
+                        created += 1
+                    t += step
+            day += timedelta(days=1)
+    db.flush()
+    return created
+
+
+def system_actor(db: Session) -> Actor:
+    user = db.scalars(select(AppUser).where(AppUser.username == "sim-desk")).one()
+    return Actor.from_user(user)
+
+
+def book_as_simulator(db: Session, patient_id: int, slot_id: int, now: datetime) -> dict:
+    return book_appointment(db, system_actor(db), patient_id, slot_id, confirmed=True, now=now, source="simulator")
+
+
+def simulated_patient_ids(db: Session) -> list[int]:
+    """Synthetic patients the simulator may book for; demo accounts are left to the visitor."""
+    demo_ids = set(db.scalars(select(AppUser.patient_id).where(AppUser.patient_id.is_not(None))))
+    demo_ids |= set(db.scalars(select(CaregiverLink.patient_id)))
+    return [p for p in db.scalars(select(Patient.id).order_by(Patient.id)) if p not in demo_ids]
+
+
+def seed_upcoming_bookings(db: Session, rng: np.random.Generator, today: date, days_ahead: int) -> int:
+    """Book a share of upcoming slots through the real booking rules."""
+    booking_time = at(today, time.min)
+    patient_ids = simulated_patient_ids(db)
+    full_doctor = db.scalars(select(Doctor.id).where(Doctor.name == hospital.FULLY_BOOKED_DOCTOR)).one()
+    full_days = _next_opd_days(db, full_doctor, today + timedelta(days=1), 2)
+
+    booked = 0
+    slots = db.scalars(
+        select(Slot)
+        .where(Slot.start_at >= at(today, time.min), Slot.start_at < at(today + timedelta(days=days_ahead), time.min))
+        .order_by(Slot.doctor_id, Slot.start_at)
+    ).all()
+    occupancy: dict[tuple[int, date], float] = {}
+    used: set[tuple[int, int, date]] = set()
+    for slot in slots:
+        day = slot.start_at.astimezone(booking_time.tzinfo).date()
+        key = (slot.doctor_id, day)
+        if key not in occupancy:
+            occupancy[key] = (
+                1.0 if (slot.doctor_id == full_doctor and day in full_days) else float(rng.uniform(*UPCOMING_OCCUPANCY))
+            )
+        if rng.random() >= occupancy[key]:
+            continue
+        for _ in range(10):
+            patient_id = int(rng.choice(patient_ids))
+            if (patient_id, slot.doctor_id, day) not in used:
+                break
+        else:
+            continue
+        used.add((patient_id, slot.doctor_id, day))
+        book_as_simulator(db, patient_id, slot.id, booking_time)
+        booked += 1
+    return booked
+
+
+def _next_opd_days(db: Session, doctor_id: int, start: date, count: int) -> list[date]:
+    doctor = db.get(Doctor, doctor_id)
+    days, day = [], start
+    while len(days) < count:
+        if day.isoweekday() in doctor.opd_days:
+            days.append(day)
+        day += timedelta(days=1)
+    return days
+
+
+def seed_demo_history(db: Session, today: date) -> None:
+    """A few past visits for the demo patients so 'my appointments' has history (FR-16)."""
+    sim = system_actor(db)
+    asha = db.scalars(select(AppUser.patient_id).where(AppUser.username == "asha")).one()
+    vinayak = db.scalars(select(CaregiverLink.patient_id).where(CaregiverLink.verified.is_(True))).first()
+    plans = [(asha, "Dr. Suresh Pawar", 40), (asha, "Dr. Snehal Gokhale", 18), (vinayak, "Dr. Anand Kulkarni", 25)]
+    for patient_id, doctor_name, days_ago in plans:
+        doctor = db.scalars(select(Doctor).where(Doctor.name == doctor_name)).one()
+        day = _next_opd_days(db, doctor.id, today - timedelta(days=days_ago), 1)[0]
+        ensure_slots(db, day, day)
+        slot = db.scalars(
+            select(Slot)
+            .where(Slot.doctor_id == doctor.id, Slot.start_at >= at(day, time.min))
+            .order_by(Slot.start_at)
+            .offset(2)
+        ).first()
+        db.add(
+            Appointment(
+                patient_id=patient_id,
+                slot_id=slot.id,
+                doctor_id=doctor.id,
+                appt_date=day,
+                status="completed",
+                source="simulator",
+                created_by=sim.user_id,
+                created_at=at(day, time.min) - timedelta(days=3),
+            )
+        )
+        slot.status = "booked"
+    db.flush()
+
+
+def seed_all(db: Session, today: date, seed: int = 42, days_ahead: int = SEED_DAYS_AHEAD) -> dict:
+    rng = np.random.default_rng(seed)
+    seed_reference(db, rng)
+    slots = ensure_slots(db, today, today + timedelta(days=days_ahead - 1))
+    seed_demo_history(db, today)
+    booked = seed_upcoming_bookings(db, rng, today, days_ahead)
+    return {
+        "departments": len(hospital.DEPARTMENTS),
+        "doctors": len(hospital.DOCTORS),
+        "slots": slots,
+        "bookings": booked,
+    }
+
+
+def truncate_operational(db: Session) -> None:
+    db.execute(text(f"TRUNCATE {', '.join(OPERATIONAL_TABLES)} RESTART IDENTITY CASCADE"))
+
+
+def reset_demo(db: Session, today: date, seed: int = 42, days_ahead: int = SEED_DAYS_AHEAD) -> dict:
+    """FR-34: wipe operational tables and reload the seed data."""
+    truncate_operational(db)
+    return seed_all(db, today, seed, days_ahead)
+
+
+def is_seeded(db: Session) -> bool:
+    return db.scalar(select(Department.id).limit(1)) is not None
