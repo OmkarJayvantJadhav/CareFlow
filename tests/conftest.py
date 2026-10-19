@@ -1,0 +1,103 @@
+"""Test fixtures. Tests run against a real PostgreSQL + pgvector database
+(TEST_DATABASE_URL), migrated with Alembic once per run and wiped per test."""
+
+import os
+
+TEST_DATABASE_URL = os.environ.get(
+    "TEST_DATABASE_URL", "postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test"
+)
+# Point the application at the test database before anything reads settings.
+os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+
+from dataclasses import dataclass  # noqa: E402
+from datetime import date, datetime, timedelta  # noqa: E402
+
+import numpy as np  # noqa: E402
+import pytest  # noqa: E402
+from alembic import command  # noqa: E402
+from alembic.config import Config  # noqa: E402
+from sqlalchemy import select, text  # noqa: E402
+from sqlalchemy.orm import Session, sessionmaker  # noqa: E402
+
+from app.config import HOSPITAL_TZ  # noqa: E402
+from app.db.models import OPERATIONAL_TABLES, AppUser, Doctor, Patient, Slot  # noqa: E402
+from app.db.session import get_engine, normalize_url  # noqa: E402
+from app.timeutil import at  # noqa: E402
+from app.tools.permissions import Actor  # noqa: E402
+from simulator.seed import ensure_slots, seed_reference  # noqa: E402
+
+# A fixed clock: Monday 19 October 2026, 08:00 in the hospital's time zone.
+NOW = datetime(2026, 10, 19, 8, 0, tzinfo=HOSPITAL_TZ)
+TODAY = NOW.date()
+SATURDAY = date(2026, 10, 24)
+
+
+@pytest.fixture(scope="session")
+def engine():
+    cfg = Config("alembic.ini")
+    cfg.set_main_option("sqlalchemy.url", normalize_url(TEST_DATABASE_URL))
+    eng = get_engine()
+    with eng.begin() as conn:
+        conn.execute(text("DROP SCHEMA public CASCADE"))
+        conn.execute(text("CREATE SCHEMA public"))
+    command.upgrade(cfg, "head")
+    yield eng
+
+
+def wipe(engine) -> None:
+    with engine.begin() as conn:
+        conn.execute(text(f"TRUNCATE {', '.join(OPERATIONAL_TABLES)}, kb_chunk, kb_document RESTART IDENTITY CASCADE"))
+
+
+@pytest.fixture
+def factory(engine):
+    wipe(engine)
+    return sessionmaker(bind=engine, expire_on_commit=False)
+
+
+@dataclass
+class World:
+    db: Session
+
+    def user(self, username: str) -> Actor:
+        return Actor.from_user(self.db.scalars(select(AppUser).where(AppUser.username == username)).one())
+
+    def doctor(self, name: str) -> Doctor:
+        return self.db.scalars(select(Doctor).where(Doctor.name == name)).one()
+
+    def patient(self, name: str) -> Patient:
+        return self.db.scalars(select(Patient).where(Patient.synthetic_name == name)).first()
+
+    def slots(self, doctor: Doctor, day: date) -> list[Slot]:
+        ensure_slots(self.db, day, day)
+        return list(
+            self.db.scalars(
+                select(Slot)
+                .where(Slot.doctor_id == doctor.id, Slot.start_at >= at(day, datetime.min.time()))
+                .where(Slot.start_at < at(day + timedelta(days=1), datetime.min.time()))
+                .order_by(Slot.start_at)
+            )
+        )
+
+    def other_patients(self, n: int) -> list[int]:
+        demo = {self.user("asha").patient_id, self.patient("Vinayak Deshmukh").id}
+        ids = [p for p in self.db.scalars(select(Patient.id).order_by(Patient.id)) if p not in demo]
+        return ids[:n]
+
+    @property
+    def asha(self) -> Actor:
+        return self.user("asha")
+
+    @property
+    def staff(self) -> Actor:
+        return self.user("priya")
+
+
+@pytest.fixture
+def world(factory):
+    db = factory()
+    seed_reference(db, np.random.default_rng(7))
+    db.commit()
+    yield World(db)
+    db.rollback()
+    db.close()

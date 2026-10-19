@@ -1,0 +1,23 @@
+"""Hospital booking policy. These values are business rules enforced in code;
+the knowledge-base policy documents must state the same numbers."""
+
+from datetime import timedelta
+
+RESCHEDULE_CUTOFF = timedelta(hours=12)
+CANCEL_CUTOFF = timedelta(hours=4)
+BOOKING_HORIZON = timedelta(days=30)
+# A slot must start at least this far in the future to be offered or booked.
+BOOKING_LEAD = timedelta(minutes=15)
+WAITLIST_OFFER_HOLD = timedelta(hours=2)
+WAITLIST_MIN_LEAD = timedelta(hours=1)
+# Booked patients arriving later than this after their slot start lose slot order.
+LATE_GRACE = timedelta(minutes=15)
+
+RESCHEDULE_POLICY = (
+    "Appointments can be rescheduled up to 12 hours before the appointment time. "
+    "Within 12 hours, please contact the reception desk."
+)
+CANCEL_POLICY = (
+    "Appointments can be cancelled free of charge up to 4 hours before the appointment time. "
+    "Within 4 hours, the appointment can no longer be cancelled online; please contact the reception desk."
+)
