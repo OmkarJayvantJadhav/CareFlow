@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
     # LLM providers, "provider:model". Providers: groq, gemini, ollama (NFR-16).
     llm_primary: str = "groq:llama-3.3-70b-versatile"
-    llm_fallback: str = "gemini:gemini-2.0-flash"
+    llm_fallback: str = "gemini:gemini-3.5-flash"
     groq_api_key: str | None = None
     gemini_api_key: str | None = None
     ollama_base_url: str = "http://localhost:11434"
@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     token_ttl_hours: int = 12
 
     trace_dir: str = "traces"
+    warm_up_retriever: bool = True  # load the retrieval models when the API starts
 
     # FR-22: the merge rule is configurable; "slot_order" = booked patients keep
     # slot order and walk-ins fill gaps, "alternate" = 1:1 booked/walk-in.

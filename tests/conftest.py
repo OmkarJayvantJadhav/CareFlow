@@ -13,6 +13,7 @@ os.environ["EMBEDDING_BACKEND"] = "local"
 os.environ["RERANKER_BACKEND"] = "local"
 os.environ["GROQ_API_KEY"] = ""
 os.environ["GEMINI_API_KEY"] = ""
+os.environ["WARM_UP_RETRIEVER"] = "false"
 os.environ.setdefault("TRACE_DIR", os.path.join(os.path.dirname(__file__), ".traces"))
 
 from dataclasses import dataclass  # noqa: E402

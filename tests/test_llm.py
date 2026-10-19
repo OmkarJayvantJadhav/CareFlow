@@ -6,7 +6,15 @@ import httpx
 import pytest
 
 from app.agent.budget import estimate_prompt, estimate_text, fit_to_budget
-from app.agent.llm import FallbackLLM, LLMUnavailable, OpenAICompatibleProvider, RateLimited, make_provider
+from app.agent.llm import (
+    GEMINI_SKIP_SIGNATURE,
+    FallbackLLM,
+    LLMUnavailable,
+    OpenAICompatibleProvider,
+    RateLimited,
+    make_provider,
+    parse_tool_calls,
+)
 from app.config import Settings
 
 
@@ -85,14 +93,24 @@ def test_tc19_primary_rate_limited_is_served_by_fallback():
 
 
 def test_server_error_falls_back_without_retry():
+    calls = []
+
+    def broken(request):
+        calls.append(1)
+        return httpx.Response(500)
+
     llm = FallbackLLM(
-        [
-            provider(lambda r: httpx.Response(503)),
-            provider(lambda r: httpx.Response(200, json=completion("ok")), "gemini"),
-        ],
+        [provider(broken), provider(lambda r: httpx.Response(200, json=completion("ok")), "gemini")],
         sleep=lambda s: None,
     )
-    assert llm.chat([], [], 10).text == "ok"
+    assert llm.chat([], [], 10).text == "ok" and len(calls) == 1
+
+
+def test_overloaded_provider_is_retried_once():
+    replies = iter([httpx.Response(503), httpx.Response(200, json=completion("ok"))])
+    sleeps = []
+    llm = FallbackLLM([provider(lambda r: next(replies), "gemini")], sleep=sleeps.append)
+    assert llm.chat([], [], 10).text == "ok" and sleeps == [1.0]
 
 
 def test_all_providers_down_raises_unavailable():
@@ -109,7 +127,7 @@ def test_all_providers_down_raises_unavailable():
 def test_provider_factory():
     settings = Settings(groq_api_key="g", gemini_api_key=None, ollama_base_url="http://ollama:11434")
     assert make_provider("groq:llama-3.3-70b-versatile", settings).base_url == "https://api.groq.com/openai/v1"
-    assert make_provider("gemini:gemini-2.0-flash", settings) is None  # no key configured
+    assert make_provider("gemini:gemini-3.5-flash", settings) is None  # no key configured
     local = make_provider("ollama:qwen2.5:7b", settings)
     assert local.model == "qwen2.5:7b" and local.base_url == "http://ollama:11434/v1"
     with pytest.raises(ValueError):
@@ -162,3 +180,29 @@ def test_budget_never_starts_history_with_an_orphan_tool_result():
     ]
     prompt = fit_to_budget(system, history, [{"role": "user", "content": "next"}], [], 200)
     assert prompt[1]["role"] != "tool"
+
+
+def test_gemini_thought_signatures_are_sent_back_and_stripped_for_others():
+    signed = {"google": {"thought_signature": "abc"}}
+    raw = [{"id": "c1", "function": {"name": "search_doctors", "arguments": "{}"}, "extra_content": signed}]
+    call = parse_tool_calls(raw)[0]
+    assert call.as_message()["extra_content"] == signed
+    history = [
+        {"role": "assistant", "tool_calls": [call.as_message()]},
+        {
+            "role": "assistant",
+            "tool_calls": [{"id": "x", "type": "function", "function": {"name": "f", "arguments": "{}"}}],
+        },
+    ]
+    seen = {}
+
+    def handler(request):
+        seen[request.url.host] = json.loads(request.content)["messages"]
+        return httpx.Response(200, json=completion("ok"))
+
+    provider(handler, "gemini").chat(history, [], 10)
+    provider(handler, "groq").chat(history, [], 10)
+    gemini = [m["tool_calls"][0]["extra_content"] for m in seen["gemini.test"]]
+    assert gemini == [signed, GEMINI_SKIP_SIGNATURE]  # its own signature, else the placeholder
+    assert all("extra_content" not in m["tool_calls"][0] for m in seen["groq.test"])
+    assert "extra_content" in history[0]["tool_calls"][0]  # the stored history is not modified

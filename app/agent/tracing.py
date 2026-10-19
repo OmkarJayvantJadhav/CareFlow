@@ -17,10 +17,11 @@ from app.config import get_settings
 from app.safety.privacy import mask_payload
 from app.timeutil import now_ist
 
-# USD per million tokens at list price (the demo itself runs on free tiers).
+# USD per million tokens at paid-tier list price, as published in Oct 2026; an estimate only
+# (the demo itself runs on free tiers). Unknown models are counted as 0.
 PRICES = {
     "groq:llama-3.3-70b-versatile": (0.59, 0.79),
-    "gemini:gemini-2.0-flash": (0.10, 0.40),
+    "gemini:gemini-3.5-flash": (1.50, 9.00),
 }
 
 _recent: deque[dict] = deque(maxlen=200)
