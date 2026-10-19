@@ -3,7 +3,7 @@
 Groq, Gemini and Ollama all expose OpenAI-compatible chat-completions APIs with
 tool calling, so one client class serves all three; switching providers is a
 configuration change ("provider:model"). ``FallbackLLM`` retries a rate-limited
-provider once with backoff and then moves to the next one.
+or overloaded provider (429 / 503) once with backoff and then moves to the next one.
 """
 
 import json
@@ -30,13 +30,17 @@ class ToolCall:
     arguments: dict | None
     raw_arguments: str = ""
     parse_error: str | None = None
+    extra: dict | None = None  # provider data that must be sent back, e.g. Gemini's thought signature
 
     def as_message(self) -> dict:
-        return {
+        message = {
             "id": self.id,
             "type": "function",
             "function": {"name": self.name, "arguments": self.raw_arguments or json.dumps(self.arguments or {})},
         }
+        if self.extra:
+            message["extra_content"] = self.extra
+        return message
 
 
 @dataclass
@@ -55,6 +59,8 @@ class LLMError(Exception):
 
 
 class RateLimited(LLMError):
+    """429, or 503 "high demand": worth one retry after a short wait."""
+
     def __init__(self, message: str, retry_after: float | None = None):
         super().__init__(message)
         self.retry_after = retry_after
@@ -90,9 +96,33 @@ def parse_tool_calls(raw: Sequence[dict] | None) -> list[ToolCall]:
                 arguments=arguments,
                 raw_arguments=args_text,
                 parse_error=error,
+                extra=item.get("extra_content") if isinstance(item.get("extra_content"), dict) else None,
             )
         )
     return calls
+
+
+# Gemini 3 requires the thought signature it returned with a function call to be sent back with
+# that call within the same turn. Calls it did not make (the chat layer's confirmed write, or a
+# turn served by another provider) carry this documented placeholder instead.
+GEMINI_SKIP_SIGNATURE = {"google": {"thought_signature": "skip_thought_signature_validator"}}
+
+
+def prepare_messages(provider: str, messages: list[dict]) -> list[dict]:
+    """Give every tool call the provider-specific fields it needs, and strip them for the others."""
+    out = []
+    for m in messages:
+        if m.get("role") != "assistant" or not m.get("tool_calls"):
+            out.append(m)
+            continue
+        calls = []
+        for call in m["tool_calls"]:
+            clean = {k: v for k, v in call.items() if k != "extra_content"}
+            if provider == "gemini":
+                clean["extra_content"] = call.get("extra_content") or GEMINI_SKIP_SIGNATURE
+            calls.append(clean)
+        out.append({**m, "tool_calls": calls})
+    return out
 
 
 class OpenAICompatibleProvider:
@@ -116,7 +146,12 @@ class OpenAICompatibleProvider:
         return f"{self.provider}:{self.model}"
 
     def chat(self, messages: list[dict], tools: list[dict], max_tokens: int) -> LLMResponse:
-        body: dict[str, Any] = {"model": self.model, "messages": messages, "temperature": 0, "max_tokens": max_tokens}
+        body: dict[str, Any] = {
+            "model": self.model,
+            "messages": prepare_messages(self.provider, messages),
+            "temperature": 0,
+            "max_tokens": max_tokens,
+        }
         if tools:
             body["tools"] = tools
             body["tool_choice"] = "auto"
@@ -129,13 +164,14 @@ class OpenAICompatibleProvider:
         except httpx.HTTPError as err:
             raise LLMError(f"{self.name}: {type(err).__name__}") from None
         latency = (time.perf_counter() - started) * 1000
-        if response.status_code == 429:
+        if response.status_code in (429, 503):
             retry_after = response.headers.get("retry-after")
             try:
                 wait = float(retry_after) if retry_after else None
             except ValueError:
                 wait = None
-            raise RateLimited(f"{self.name}: rate limited", wait)
+            reason = "rate limited" if response.status_code == 429 else "overloaded"
+            raise RateLimited(f"{self.name}: {reason}", wait)
         if response.status_code >= 400:
             raise LLMError(f"{self.name}: HTTP {response.status_code}")
         try:
@@ -186,7 +222,7 @@ def make_provider(spec: str, settings: Settings, client: httpx.Client | None = N
 
 
 class FallbackLLM:
-    """Primary first; on a 429 retry once after a short backoff, then fall back (docs §12)."""
+    """Primary first; on a 429 or 503 retry once after a short backoff, then fall back (docs §12)."""
 
     def __init__(self, providers: Sequence[LLM], sleep: Callable[[float], None] = time.sleep):
         self.providers = list(providers)

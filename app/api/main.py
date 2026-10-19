@@ -1,6 +1,8 @@
 """FastAPI application: /api/v1 REST endpoints, chat, health."""
 
 import logging
+import threading
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -14,6 +16,7 @@ from app.api.routes import router
 from app.config import HOSPITAL_NAME, get_settings
 from app.db.models import KbChunk
 from app.db.session import get_engine, session_factory
+from app.rag.retriever import get_retriever
 from app.safety.privacy import install_log_masking
 from app.tools.errors import ToolError
 
@@ -21,7 +24,30 @@ DEMO_BANNER = "Demo with a fictional hospital. Not for medical use."
 
 install_log_masking()
 log = logging.getLogger("careflow.api")
-app = FastAPI(title="CareFlow API", version="0.2.0", description=f"{HOSPITAL_NAME} (fictional). {DEMO_BANNER}")
+
+
+def _warm_up() -> None:
+    """Load the retrieval models in the background so the first question does not wait for them."""
+    try:
+        with session_factory()() as db:
+            get_retriever(db)
+    except Exception:  # noqa: BLE001 - the first request will try again and report the error
+        log.exception("retriever warm-up failed")
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    if get_settings().warm_up_retriever:
+        threading.Thread(target=_warm_up, name="retriever-warm-up", daemon=True).start()
+    yield
+
+
+app = FastAPI(
+    title="CareFlow API",
+    version="0.2.0",
+    description=f"{HOSPITAL_NAME} (fictional). {DEMO_BANNER}",
+    lifespan=lifespan,
+)
 
 
 @app.exception_handler(ToolError)

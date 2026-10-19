@@ -39,8 +39,10 @@ Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECIS
 - **Hybrid retrieval** (`app/rag/`) — pgvector dense search + BM25, rank fusion, a multilingual
   cross-encoder re-ranker, the user's-language version of each cited section, and a relevance threshold.
   When the neural models cannot be downloaded it falls back to local models automatically.
-- **LLM providers** — Groq (primary), Gemini (fallback) and Ollama (local) behind one interface. A 429 is
-  retried once, then served by the fallback; if every provider fails, `/chat` returns 503.
+- **LLM providers** — Groq (primary), Gemini (fallback) and Ollama (local) behind one interface. A 429 or
+  503 is retried once, then served by the fallback; if every provider fails, `/chat` returns 503.
+  Free-tier quotas are small (on 19 Oct 2026 the Gemini free tier allowed 20 requests per day for
+  `gemini-3.5-flash`), so a Groq key is recommended for the primary.
 - **REST API** — demo login, doctor search, slots, book / reschedule / cancel, history, waiting list,
   health. These endpoints share the agent's service functions, so the rules are identical.
 - **Live queue** — staff endpoints for walk-ins, check-in, calling, consultations, missed turns, priority
@@ -157,7 +159,7 @@ Environment variables (see `.env.example`); names follow docs §12.
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `DATABASE_URL` | local Postgres | Postgres connection string (Neon's `postgresql://…` form is accepted) |
-| `LLM_PRIMARY`, `LLM_FALLBACK` | `groq:llama-3.3-70b-versatile`, `gemini:gemini-2.0-flash` | `provider:model`; providers `groq`, `gemini`, `ollama` |
+| `LLM_PRIMARY`, `LLM_FALLBACK` | `groq:llama-3.3-70b-versatile`, `gemini:gemini-3.5-flash` | `provider:model`; providers `groq`, `gemini`, `ollama` |
 | `GROQ_API_KEY`, `GEMINI_API_KEY`, `OLLAMA_BASE_URL` | — | Provider credentials / local Ollama address |
 | `EMBEDDING_BACKEND`, `RERANKER_BACKEND` | `auto` | `auto`, `local`, or force the neural model (`fastembed` / `cross-encoder`) |
 | `EMBEDDING_MODEL`, `RERANKER_MODEL`, `MODEL_CACHE_DIR` | multilingual MiniLM, bge-reranker-v2-m3 (int8) | Retrieval models and their cache |
@@ -165,6 +167,7 @@ Environment variables (see `.env.example`); names follow docs §12.
 | `PROMPT_TOKEN_BUDGET`, `RAG_TOP_K` | 3000, 4 | Token budget per agent step; chunks passed to the LLM |
 | `AUTH_SECRET` | demo value | Signs demo tokens — set a long random value when deployed |
 | `TRACE_DIR` | `traces` | JSON-lines traces of every turn (masked) |
+| `WARM_UP_RETRIEVER` | `true` | Load the retrieval models in the background when the API starts |
 | `QUEUE_MERGE_RULE` | `slot_order` | `slot_order` (booked keep slot order, walk-ins fill gaps) or `alternate` |
 | `DEMO_MODE`, `SIMULATOR_SEED` | `true`, `42` | Demo login and reset; seed for all synthetic data |
 
