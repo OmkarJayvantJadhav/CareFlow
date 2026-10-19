@@ -28,7 +28,7 @@ from app.agent.prompts import PROMPT_VERSION, system_prompt
 from app.agent.tools import ToolContext, dumps, execute_confirmed
 from app.agent.tracing import Trace
 from app.config import get_settings
-from app.db.models import AppUser, Conversation, Patient
+from app.db.models import Appointment, AppUser, Conversation, Patient
 from app.rag.text import normalize
 from app.safety.emergency import check_emergency
 from app.safety.language import detect_language
@@ -87,6 +87,25 @@ def actor_patients(db: Session, actor: Actor) -> dict[int, str]:
     else:
         ids = []
     return {pid: db.get(Patient, pid).synthetic_name for pid in ids}
+
+
+def displaced_notes(db: Session, patients: dict[int, str], now: datetime) -> list[str]:
+    """FR-27: appointments the hospital cancelled because the doctor is unavailable are offered for rebooking."""
+    if not patients:
+        return []
+    rows = db.scalars(
+        select(Appointment).where(
+            Appointment.patient_id.in_(list(patients)),
+            Appointment.status == "displaced",
+            Appointment.appt_date >= to_ist(now).date(),
+        )
+    ).all()
+    return [
+        f"Note: {patients[a.patient_id]}'s appointment {a.id} with {a.doctor.name} on {a.appt_date.isoformat()} was "
+        "cancelled by the hospital because the doctor is unavailable. Tell the user and offer a new slot "
+        "(same department; rescheduling is free and allowed now)."
+        for a in rows
+    ]
 
 
 def _load_conversation(
@@ -294,6 +313,8 @@ def handle_chat(
     # 5. The agent.
     ctx = ToolContext(db, actor, now, language, conv.id, trace, patients=patients)
     prompt = system_prompt(actor.role, user.display_name, patients, language, to_ist(now))
+    for note in displaced_notes(db, patients, now):
+        prompt += f"\n{note}"
     if conv.summary:
         prompt += f"\nEarlier in this conversation:\n{conv.summary}"
     try:

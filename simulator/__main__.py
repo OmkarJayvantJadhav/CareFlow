@@ -10,10 +10,12 @@ import argparse
 import json
 import sys
 import time as wallclock
+from contextlib import nullcontext
 from datetime import date, timedelta
 
 from app.config import get_settings
 from app.db.session import session_scope
+from app.queue.predictions import predictions_disabled
 from app.safety.privacy import install_log_masking
 from app.timeutil import now_ist
 from simulator.day import history_days, replay_day
@@ -66,7 +68,9 @@ def main(argv: list[str] | None = None) -> int:
     failed = False
     for day in days:
         started = wallclock.perf_counter()
-        with session_scope() as db:
+        # Training-data replays skip live predictions; a single replayed day keeps them, like the live system.
+        quiet = predictions_disabled() if args.command == "history" else nullcontext()
+        with session_scope() as db, quiet:
             replay = replay_day(db, day, args.seed)
         with session_scope() as db:
             report = validate_day(db, day)

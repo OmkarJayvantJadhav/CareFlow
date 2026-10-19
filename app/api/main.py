@@ -8,6 +8,8 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import func, select, text
 
 from app.agent.llm import build_llm
+from app.api.queue_routes import router as queue_router
+from app.api.queue_routes import ws_router
 from app.api.routes import router
 from app.config import HOSPITAL_NAME, get_settings
 from app.db.models import KbChunk
@@ -74,3 +76,5 @@ def health() -> JSONResponse:
 
 
 app.include_router(router)
+app.include_router(queue_router)
+app.include_router(ws_router)
