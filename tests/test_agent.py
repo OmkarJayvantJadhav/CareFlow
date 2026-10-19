@@ -455,3 +455,54 @@ def test_s29_every_turn_is_traced_with_masked_text(clinic):
     kinds = [s["kind"] for s in trace["spans"]]
     assert kinds.count("llm") == 2 and "tool" in kinds and "emergency_check" in kinds
     assert trace["prompt_tokens"] == 200 and "9876543210" not in json.dumps(trace)
+
+
+# --------------------------------------------------------------------------- queue (US-08, FR-27)
+
+
+def test_s30_how_long_is_my_wait(clinic):
+    from app.queue import engine
+
+    world, _, _ = clinic
+    pawar = world.doctor("Dr. Suresh Pawar")
+    slots = world.slots(pawar, NOW.date())
+    appt = book_appointment(world.db, world.asha, world.asha.patient_id, slots[2].id, confirmed=True, now=NOW)
+    engine.check_in(world.db, world.staff, appt["appointment_id"], now=NOW)
+    world.db.commit()
+    llm = ScriptedLLM(
+        [
+            lambda m: {"get_queue_status": {}},
+            lambda m: {"predict_wait_time": {"entry_id": last_result(m)["entries"][0]["entry_id"]}},
+            lambda m: f"Your wait is {last_result(m)['say']}.",
+        ]
+    )
+    reply = say(world, world.asha, "How long is my wait?", llm)
+    status = json.loads([msg for msg in llm.calls[1] if msg["role"] == "tool"][-1]["content"])["entries"][0]
+    assert status["token"] == "B01" and status["wait"].startswith(("about", "less than"))
+    assert "about" in reply.reply or "less than" in reply.reply
+
+
+def test_s31_queue_status_of_someone_else_is_refused(clinic):
+    from app.queue import engine
+
+    world, _, _ = clinic
+    pawar = world.doctor("Dr. Suresh Pawar")
+    walk = engine.register_walk_in(world.db, world.staff, pawar.id, patient_id=world.other_patients(1)[0], now=NOW)
+    world.db.commit()
+    llm = ScriptedLLM([lambda m: {"predict_wait_time": {"entry_id": walk["entry_id"]}}, lambda m: "I can't see that."])
+    reply = say(world, world.asha, "what's the wait for token W01?", llm)
+    assert reply.actions[0]["error"] == "FORBIDDEN"
+
+
+def test_s32_displaced_patient_is_offered_rebooking(clinic):
+    from app.queue import engine
+
+    world, kulkarni, slots = clinic
+    appt = book_appointment(world.db, world.asha, world.asha.patient_id, slots[0].id, confirmed=True, now=NOW)
+    session = engine.get_or_create_session(world.db, kulkarni.id, SATURDAY)
+    engine.record_doctor_event(world.db, world.staff, session.id, "unavailable", reason="conference", now=NOW)
+    world.db.commit()
+    llm = ScriptedLLM([lambda m: "Your Saturday appointment was cancelled by the hospital; shall I find a new slot?"])
+    say(world, world.asha, "hello", llm)
+    system = llm.calls[0][0]["content"]
+    assert f"appointment {appt['appointment_id']}" in system and "rescheduling is free" in system

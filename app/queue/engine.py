@@ -24,12 +24,13 @@ from app.db.models import (
     Slot,
 )
 from app.queue.merge import QueueItem, merge_order
+from app.queue.predictions import latest_estimate, refresh_predictions
 from app.safety.privacy import mask_payload, mask_phone_number
 from app.timeutil import at, resolve_now, to_ist
 from app.tools.audit import write_tool
 from app.tools.errors import ToolError
 from app.tools.notify import notify
-from app.tools.permissions import Actor, can_manage_patient, require_role
+from app.tools.permissions import Actor, can_manage_patient, linked_patient_ids, require_role
 from app.tools.serialize import entry_dict
 
 DOCTOR_EVENTS = ("break", "delay", "emergency", "resume", "unavailable")
@@ -113,12 +114,12 @@ def _auto_resume(db: Session, session: QueueSession, now: datetime) -> None:
 
 
 def projection_start(session: QueueSession, now: datetime) -> datetime:
-    """The earliest time the doctor can see the next patient: not before OPD opens,
-    and not before a break, delay or emergency is over."""
-    candidates = [now, at(session.date, session.doctor.department.opd_start)]
-    if session.busy_until:
-        candidates.append(session.busy_until)
-    return max(candidates)
+    """Where the merge rule's projection of the doctor's day starts: now, but not before OPD opens.
+
+    Breaks, delays and emergencies are deliberately ignored here so that they never
+    reorder the queue (TC-10); the wait estimates add the doctor's unavailability instead.
+    """
+    return max(now, at(session.date, session.doctor.department.opd_start))
 
 
 def ordered_waiting(db: Session, session: QueueSession, now: datetime) -> list[QueueEntry]:
@@ -153,6 +154,12 @@ def recompute_positions(db: Session, session: QueueSession, now: datetime) -> li
         entry.position = None
     db.flush()
     return ordered
+
+
+def _after_event(db: Session, session: QueueSession, now: datetime) -> None:
+    """FR-23/FR-25: positions and wait predictions are recomputed after every queue event."""
+    recompute_positions(db, session, now)
+    refresh_predictions(db, session, now)
 
 
 # --------------------------------------------------------------------------- arrivals
@@ -211,7 +218,7 @@ def check_in(db: Session, actor: Actor, appointment_id: int, now: datetime | Non
     db.add(entry)
     db.flush()
     _event(db, session, "check_in", now, entry_id=entry.id, token=entry.token)
-    recompute_positions(db, session, now)
+    _after_event(db, session, now)
     return entry_dict(entry)
 
 
@@ -264,7 +271,7 @@ def register_walk_in(
     db.add(entry)
     db.flush()
     _event(db, session, "walk_in", now, entry_id=entry.id, token=entry.token)
-    recompute_positions(db, session, now)
+    _after_event(db, session, now)
     return entry_dict(entry)
 
 
@@ -297,7 +304,7 @@ def call_next(db: Session, actor: Actor, session_id: int, now: datetime | None =
     if session.started_at is None:
         session.started_at = now
     _event(db, session, "call", now, entry_id=entry.id, token=entry.token)
-    recompute_positions(db, session, now)
+    _after_event(db, session, now)
     return entry_dict(entry)
 
 
@@ -311,7 +318,7 @@ def start_consultation(db: Session, actor: Actor, entry_id: int, now: datetime |
     entry.status = "in_consultation"
     entry.consult_start = now
     _event(db, session, "consult_start", now, entry_id=entry.id)
-    db.flush()
+    _after_event(db, session, now)
     return entry_dict(entry)
 
 
@@ -328,7 +335,7 @@ def end_consultation(db: Session, actor: Actor, entry_id: int, now: datetime | N
         entry.appointment.status = "completed"
         entry.appointment.updated_at = now
     _event(db, session, "consult_end", now, entry_id=entry.id)
-    recompute_positions(db, session, now)
+    _after_event(db, session, now)
     return entry_dict(entry)
 
 
@@ -342,7 +349,7 @@ def mark_missed_turn(db: Session, actor: Actor, entry_id: int, now: datetime | N
         raise ToolError("INVALID_STATE", "Only a called patient can miss their turn.")
     entry.status = "missed"
     _event(db, session, "missed_turn", now, entry_id=entry.id)
-    recompute_positions(db, session, now)
+    _after_event(db, session, now)
     return entry_dict(entry)
 
 
@@ -359,7 +366,7 @@ def mark_returned(db: Session, actor: Actor, entry_id: int, now: datetime | None
     entry.requeued_at = now
     entry.called_at = None
     _event(db, session, "return", now, entry_id=entry.id)
-    recompute_positions(db, session, now)
+    _after_event(db, session, now)
     return entry_dict(entry)
 
 
@@ -377,7 +384,7 @@ def set_priority(db: Session, actor: Actor, entry_id: int, priority: int, now: d
     previous = entry.priority
     entry.priority = priority
     _event(db, session, "priority", now, entry_id=entry.id, previous=previous, priority=priority)
-    recompute_positions(db, session, now)
+    _after_event(db, session, now)
     return entry_dict(entry)
 
 
@@ -418,7 +425,7 @@ def record_doctor_event(
         _event(db, session, "unavailable", now, reason=reason)
         affected = _handle_unavailable(db, session, now)
         return {"session_id": session.id, "doctor_status": session.doctor_status, "affected": affected}
-    recompute_positions(db, session, now)
+    _after_event(db, session, now)
     return {
         "session_id": session.id,
         "doctor_status": session.doctor_status,
@@ -552,6 +559,7 @@ def get_queue_status(db: Session, actor: Actor, entry_id: int, now: datetime | N
     return {
         **entry_dict(entry),
         "ahead": ahead,
+        "estimate": latest_estimate(db, entry.id, now) if entry.status == "waiting" else None,
         "doctor_id": session.doctor_id,
         "doctor_name": session.doctor.name,
         "doctor_status": session.doctor_status,
@@ -577,3 +585,25 @@ def session_snapshot(db: Session, session_id: int) -> dict:
         "doctor_status": session.doctor_status,
         "entries": [entry_dict(e) for e in entries],
     }
+
+
+def active_entries_for(db: Session, actor: Actor, now: datetime | None = None) -> list[dict]:
+    """Today's open queue entries for a patient or a caregiver's linked patients."""
+    now = resolve_now(now)
+    if actor.role == "patient":
+        patient_ids = [actor.patient_id]
+    elif actor.role == "caregiver":
+        patient_ids = sorted(linked_patient_ids(db, actor))
+    else:
+        return []
+    entries = db.scalars(
+        select(QueueEntry)
+        .join(QueueSession, QueueSession.id == QueueEntry.session_id)
+        .where(
+            QueueSession.date == now.date(),
+            QueueEntry.patient_id.in_(patient_ids),
+            QueueEntry.status.in_(("waiting", "called", "in_consultation", "missed")),
+        )
+        .order_by(QueueEntry.id)
+    ).all()
+    return [{**get_queue_status(db, actor, e.id, now), "patient_name": e.patient.synthetic_name} for e in entries]

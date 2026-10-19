@@ -1,0 +1,57 @@
+{
+  "version": "lgbm-v1-4db5f69cf8",
+  "features": [
+    "position",
+    "ahead",
+    "in_room",
+    "walk_in",
+    "late_or_returned",
+    "priority",
+    "minutes_waited",
+    "slot_offset",
+    "booked_ahead",
+    "walk_ins_ahead",
+    "upcoming_booked",
+    "queue_length",
+    "slot_minutes",
+    "doctor_avg",
+    "today_mean_consult",
+    "today_done",
+    "room_elapsed",
+    "minutes_since_open",
+    "hour",
+    "weekday",
+    "alternate_rule",
+    "expected_naive"
+  ],
+  "doctor_avg": {
+    "Dr. Suresh Pawar": 9.416,
+    "Dr. Ritu Agarwal": 14.517,
+    "Dr. Rohit Malhotra": 13.67,
+    "Dr. Joseph Mathew": 13.41,
+    "Dr. Snehal Gokhale": 14.512,
+    "Dr. Neha Kapoor": 14.074,
+    "Dr. Aparna Deshpande": 14.707,
+    "Dr. Ayesha Khan": 20.068,
+    "Dr. Nitin Chavan": 9.328,
+    "Dr. Sunita Patwardhan": 18.793,
+    "Dr. Vikram Bhosale": 13.957,
+    "Dr. Kavita Joshi": 9.473,
+    "Dr. Prakash Shinde": 15.016,
+    "Dr. Lakshmi Rao": 9.964,
+    "Dr. Imran Shaikh": 9.815,
+    "Dr. Farah Siddiqui": 14.003,
+    "Dr. Anand Kulkarni": 13.29,
+    "Dr. Meera Iyer": 19.629
+  },
+  "calibration": {
+    "low_adjust": 0.5188,
+    "high_adjust": 2.7335,
+    "target_coverage": 0.8
+  },
+  "trees": {
+    "mid": 287,
+    "low": 94,
+    "high": 166
+  }
+}

@@ -286,6 +286,8 @@ class SessionSimulator:
             if rng.random() < self.p.missed_turn_rate:
                 clock += timedelta(minutes=2)
                 self.advance_to(clock)
+                if self.stats.unavailable:  # the called patient's entry was closed
+                    break
                 engine.mark_missed_turn(db, actor, called["entry_id"], now=clock)
                 self.stats.missed_turns += 1
                 if rng.random() < self.p.return_after_miss_rate:
@@ -293,6 +295,8 @@ class SessionSimulator:
                 continue
             clock += timedelta(minutes=1)
             self.advance_to(clock)
+            if self.stats.unavailable:  # the called patient's entry was closed
+                break
             engine.start_consultation(db, actor, called["entry_id"], now=clock)
             clock += _minutes(self.consult_minutes())
             self.advance_to(clock)

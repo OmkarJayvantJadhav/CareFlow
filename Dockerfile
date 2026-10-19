@@ -6,6 +6,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PORT=7860 \
     MODEL_CACHE_DIR=/home/careflow/models
 
+# LightGBM needs the OpenMP runtime, which the slim image does not ship.
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+
 # Hugging Face Spaces runs containers as uid 1000.
 RUN useradd --create-home --uid 1000 careflow
 WORKDIR /home/careflow/app

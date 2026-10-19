@@ -11,13 +11,13 @@ to be proven by an automated evaluation suite.
 The full specification is in [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md).
 Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 
-## Current state: Phase 2 — Agent + RAG ✅
+## Current state: Phase 3 — Queue + ML ✅
 
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 1. Foundation | Schema + migrations, hospital simulator, seed data, core booking and queue functions | Done |
-| 2. Agent + RAG | Knowledge base, hybrid retrieval + re-ranker, agent loop, safety gate, chat API | **Done** (see "What has and has not been verified") |
-| 3. Queue + ML | Queue events over WebSocket, wait-time model + baselines, queue tools | Not started |
+| 2. Agent + RAG | Knowledge base, hybrid retrieval + re-ranker, agent loop, safety gate, chat API | Done (see "What has and has not been verified") |
+| 3. Queue + ML | Queue events over WebSocket, wait-time model + baselines, queue tools | **Done** — model beats both baselines |
 | 4. Evaluation | 120 agent scenarios, user simulator, RAG/ML/safety sets, results table | Not started |
 | 5. Ship | Patient and staff UI, admin dashboard, analytics agent, deployment | Not started |
 
@@ -43,14 +43,33 @@ Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECIS
   retried once, then served by the fallback; if every provider fails, `/chat` returns 503.
 - **REST API** — demo login, doctor search, slots, book / reschedule / cancel, history, waiting list,
   health. These endpoints share the agent's service functions, so the rules are identical.
+- **Live queue** — staff endpoints for walk-ins, check-in, calling, consultations, missed turns, priority
+  and doctor events. Every change is pushed over a WebSocket (`/ws/queue/{session}`) as queue, prediction and
+  doctor-status updates, with a polling fallback. A doctor's break never reorders the queue.
+- **Wait-time prediction** — after every queue event each waiting patient gets an estimate with a
+  range ("about 35 min (25–50)") from a LightGBM model trained on 90 simulated days. When three people
+  are ahead, a (mocked) "your turn is near" message is sent. The agent can answer "how long is my
+  wait?" and offers rebooking when a doctor becomes unavailable.
 - From Phase 1: the database, booking rules, queue engine, audit log, masking and simulator.
+
+### Results so far (real runs, details in [`eval/results/`](eval/results/README.md))
+
+| Metric (held-out test days) | Position × 10 min | Position × doctor average | Model |
+| --- | --- | --- | --- |
+| Wait-time MAE (min) | 29.78 | 29.38 | **17.91** |
+| P90 absolute error (min) | 84.88 | 84.07 | **44.20** |
+| Range coverage | — | — | **77.7%** (target 75–85%) |
+
+Agent, RAG and safety evaluations are Phase 4; no numbers exist for them yet.
 
 ### What has and has not been verified
 
-- **Verified here:** 226 automated tests on Python 3.11 and 3.13, including 29 agent scenarios with a
+- **Verified here:** 246 automated tests on Python 3.11 and 3.13, including 32 agent scenarios with a
   scripted LLM (booking end to end, cards, expiry, slot taken, duplicates, reschedule and cancel windows,
   waiting list, caregivers, injection attempts, citations, unanswerable questions, emergencies, handoff,
-  step limits, token budget). Also verified: the Docker Compose stack and the live HTTP API.
+  step limits, token budget, queue status), the queue API with live WebSocket updates, and a full simulated
+  day with live predictions. The Docker image is built and smoke-tested (LightGBM and the trained model
+  load) in CI; the development sandbox cannot reach Debian's package mirrors to build it locally.
 - **Not verified here:** the development sandbox cannot reach Groq, Ollama or Hugging Face, and has no
   LLM key. So no conversation with a real LLM has been run yet, and the neural embedding and re-ranking
   models have not been loaded. All retrieval checks used the local fallback models. Real-model behaviour
@@ -111,7 +130,8 @@ to skip the download attempt (about 40 s) and use the local retrieval models dir
 | `python -m simulator seed [--if-empty]` | Departments, doctors, demo accounts, 400 synthetic patients, 21 days of slots and bookings |
 | `python -m simulator reset` | Demo reset: wipe operational data and reload exactly the same seed |
 | `python -m simulator replay-day --date YYYY-MM-DD` | Simulate a full OPD day and check its invariants |
-| `python -m simulator history --days 90` | Replay past days (training data for Phase 3) |
+| `python -m simulator history --days 90` | Replay past days without live predictions (training data) |
+| `python -m app.ml.train --end YYYY-MM-DD` | Train and evaluate the wait-time model on those days; writes `app/ml/artifacts/` and `eval/results/ml_wait_time.json` |
 | `python -m simulator.kb.build` | Regenerate the Markdown knowledge base from `simulator/kb/` |
 | `python -m app.rag.ingest [--if-needed] [--chunker structure\|fixed]` | Chunk, embed and load the knowledge base |
 | `python -m app.rag.preload` | Download the neural retrieval models (done in the Docker build) |
@@ -170,7 +190,8 @@ app/
   rag/        chunking, embeddings, re-rankers, hybrid retriever, ingestion
   safety/     emergency check, language detection, medical-advice guard, injection filter, masking
   tools/      booking, waiting list, handoff, permissions, audit, policy — the deterministic rules
-  queue/      merge rule and queue engine
+  queue/      merge rule, queue engine, live predictions, WebSocket broadcaster
+  ml/         wait-time features, dataset, model, training (artifacts/ holds the trained model)
   db/         SQLAlchemy models and sessions
 alembic/      migrations
 simulator/    fictional hospital, seed data, day replay, invariant checks
@@ -202,7 +223,12 @@ docs/         specification and DECISIONS.md
 | FR-18 citations | `app/agent/loop.py` | s10, s16, s18 |
 | FR-19 "I don't know" + offer a person | `app/agent/loop.py`, retriever threshold | s17, `test_knowledge.py` |
 | FR-20 document metadata | `knowledge/` front matter, `kb_document` | `test_knowledge.py` |
-| FR-21–23, 27, 28 queue | `app/queue/` | `test_queue.py`, TC-09, TC-12, TC-13 |
+| FR-21–23, 27, 28 queue | `app/queue/engine.py`, `app/api/queue_routes.py` | `test_queue.py`, `test_queue_api.py`, TC-09, TC-12, TC-13 |
+| FR-24 estimate with a range | `app/ml/`, `app/queue/predictions.py` | `test_wait_time.py`, s30 |
+| FR-25 recompute after every event | `engine._after_event` | TC-10, TC-11 |
+| FR-26 live push / NFR-02 within 2 s | `app/queue/broadcast.py`, `/ws/queue/{id}` | TC-20 |
+| FR-27 rebooking offered in chat | `app/agent/chat.py::displaced_notes` | s32 |
+| NFR-06 MAE below both baselines | `app/ml/train.py` | `eval/results/ml_wait_time.json` |
 | FR-33 audit log | `app/tools/audit.py` | TC-16 |
 | FR-34 demo reset | `simulator/seed.py` | TC-17 |
 | NFR-07 roles in tools | every service function | `test_permissions.py`, s14, s15 |
@@ -219,4 +245,7 @@ docs/         specification and DECISIONS.md
 - No real-LLM conversation and no neural-model retrieval has been run in the development sandbox yet
   (see "What has and has not been verified").
 - The local fallback retrieval models handle Marathi inflections less well than the neural models.
+- The wait-time model is trained on synthetic days whose queues are short; real OPDs may differ.
+- The live WebSocket broadcaster runs in one process (the demo deployment); several API processes
+  would need a shared message bus.
 - Notifications are mocked (stored in the `notification` table, never sent).

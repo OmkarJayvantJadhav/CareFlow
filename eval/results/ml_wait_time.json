@@ -1,0 +1,114 @@
+{
+  "run_at": "2026-10-20T01:51:32+05:30",
+  "model_version": "lgbm-v1-4db5f69cf8",
+  "lightgbm_version": "4.7.0",
+  "data": {
+    "source": "simulator history (python -m simulator history)",
+    "splits": {
+      "train": [
+        "2026-07-21",
+        "2026-09-18"
+      ],
+      "val": [
+        "2026-09-19",
+        "2026-10-03"
+      ],
+      "test": [
+        "2026-10-04",
+        "2026-10-18"
+      ]
+    },
+    "rows": {
+      "train": 38890,
+      "val": 11589,
+      "test": 9736
+    },
+    "sessions": {
+      "train": 520,
+      "val": 130,
+      "test": 120
+    }
+  },
+  "validation": {
+    "model": {
+      "mae": 16.42,
+      "p90_abs_error": 41.5,
+      "range_coverage": 0.8007,
+      "mean_range_width": 50.42,
+      "by_kind": {
+        "booked": {
+          "mae": 10.84,
+          "p90_abs_error": 23.64
+        },
+        "walk_in": {
+          "mae": 21.97,
+          "p90_abs_error": 52.99
+        }
+      }
+    },
+    "position_x_10": {
+      "mae": 25.47,
+      "p90_abs_error": 72.06
+    },
+    "position_x_doctor_avg": {
+      "mae": 23.82,
+      "p90_abs_error": 68.07
+    }
+  },
+  "test": {
+    "model": {
+      "mae": 17.91,
+      "p90_abs_error": 44.2,
+      "range_coverage": 0.7767,
+      "mean_range_width": 49.08,
+      "by_kind": {
+        "booked": {
+          "mae": 11.93,
+          "p90_abs_error": 23.35
+        },
+        "walk_in": {
+          "mae": 23.77,
+          "p90_abs_error": 51.47
+        }
+      }
+    },
+    "position_x_10": {
+      "mae": 29.78,
+      "p90_abs_error": 84.88
+    },
+    "position_x_doctor_avg": {
+      "mae": 29.38,
+      "p90_abs_error": 84.07
+    }
+  },
+  "feature_importance_gain": {
+    "expected_naive": 164028.7,
+    "ahead": 72633.4,
+    "slot_offset": 56040.1,
+    "position": 39468.9,
+    "today_mean_consult": 33752.2,
+    "minutes_since_open": 22028.4,
+    "queue_length": 17120.8,
+    "doctor_avg": 15812.4,
+    "hour": 13263.2,
+    "upcoming_booked": 12985.2,
+    "booked_ahead": 11336.7,
+    "walk_ins_ahead": 8973.2,
+    "minutes_waited": 8826.5,
+    "today_done": 8472.7,
+    "weekday": 8072.3,
+    "room_elapsed": 5524.4,
+    "late_or_returned": 2070.9,
+    "walk_in": 2030.3,
+    "in_room": 708.5,
+    "slot_minutes": 660.7,
+    "priority": 295.9,
+    "alternate_rule": 0.0
+  },
+  "seconds": 10.3,
+  "gate": {
+    "beats_position_x_10": true,
+    "beats_position_x_doctor_avg": true,
+    "coverage_in_75_85": true
+  }
+}

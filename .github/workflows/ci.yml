@@ -42,3 +42,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build image
         run: docker build --build-arg PRELOAD_MODELS=false -t careflow:ci .
+      - name: Smoke-test the image (LightGBM and the trained wait-time model load)
+        run: >
+          docker run --rm --entrypoint python careflow:ci -c
+          "from app.ml.model import LightGbmModel, ARTIFACT_DIR; m = LightGbmModel(ARTIFACT_DIR); print(m.version)"

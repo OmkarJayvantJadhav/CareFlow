@@ -1,5 +1,6 @@
 """Foundation gate: the simulator replays a full hospital day (and TC-17 demo reset)."""
 
+import heapq
 from datetime import date
 
 import pytest
@@ -91,3 +92,40 @@ def test_tc17_demo_reset_restores_seed_snapshot(seeded):
     reset_demo(seeded, TODAY, seed=42, days_ahead=3)
     seeded.commit()
     assert snapshot(seeded) == before
+
+
+def test_doctor_leaving_between_call_and_consultation(seeded, monkeypatch):
+    """Regression: the doctor becomes unavailable while a called patient walks in."""
+    from datetime import timedelta
+
+    import numpy as np
+
+    from app.db.models import Doctor
+    from app.queue import engine
+    from simulator.day import SessionSimulator
+
+    class LeavesAfterFirstCall(SessionSimulator):
+        def plan(self):
+            super().plan()
+            self.pending = [p for p in self.pending if p[2] != "unavailable"]
+            heapq.heapify(self.pending)
+
+    real_call_next = engine.call_next
+    sim_holder = {}
+
+    def call_next(*args, **kwargs):
+        called = real_call_next(*args, **kwargs)
+        sim = sim_holder["sim"]
+        if called and not sim.left_scheduled:
+            sim.left_scheduled = True
+            sim.schedule(kwargs["now"] + timedelta(seconds=30), "unavailable")
+        return called
+
+    monkeypatch.setattr(engine, "call_next", call_next)
+    doctor = seeded.scalars(select(Doctor).where(Doctor.name == "Dr. Suresh Pawar")).one()
+    sim = LeavesAfterFirstCall(seeded, doctor, REPLAY_DAY, np.random.default_rng(3), SimParams(missed_turn_rate=0.0))
+    sim.left_scheduled = False
+    sim_holder["sim"] = sim
+    stats = sim.run()
+    seeded.commit()
+    assert sim.left_scheduled and stats.unavailable and stats.seen == 0

@@ -24,6 +24,7 @@ from sqlalchemy.orm import Session
 from app.agent.messages import display_date
 from app.agent.tracing import Trace
 from app.db.models import Appointment, Doctor, Patient
+from app.queue import engine as queue_engine
 from app.rag.retriever import get_retriever
 from app.safety.injection import neutralize
 from app.timeutil import to_ist
@@ -100,6 +101,14 @@ class WaitingListArgs(Args):
 
 class PatientArgs(Args):
     patient_id: int = Field(gt=0)
+
+
+class QueueStatusArgs(Args):
+    entry_id: int | None = Field(None, gt=0, description="Leave out to list the user's queue entries for today")
+
+
+class EntryArgs(Args):
+    entry_id: int = Field(gt=0)
 
 
 class EmergencyArgs(Args):
@@ -224,6 +233,47 @@ def run_get_patient_appointments(ctx: ToolContext, args: PatientArgs) -> dict:
         "patient": result["patient_name"],
         "upcoming": [_appointment_view(a) for a in result["upcoming"]],
         "past": [_appointment_view(a) for a in result["past"][:5]],
+    }
+
+
+def _queue_view(status: dict) -> dict:
+    estimate = status.get("estimate") or {}
+    return {
+        "entry_id": status["entry_id"],
+        "token": status["token"],
+        "doctor": status["doctor_name"],
+        "status": status["status"],
+        "position": status["position"],
+        "people_ahead": status["ahead"],
+        "wait": estimate.get("display"),
+        "doctor_status": status["doctor_status"],
+    }
+
+
+def run_get_queue_status(ctx: ToolContext, args: QueueStatusArgs) -> dict:
+    if args.entry_id is not None:
+        return _queue_view(queue_engine.get_queue_status(ctx.db, ctx.actor, args.entry_id, now=ctx.now))
+    entries = queue_engine.active_entries_for(ctx.db, ctx.actor, ctx.now)
+    if not entries:
+        return {"entries": [], "note": "No one is checked in today; check in at the reception desk first."}
+    return {"entries": [{**_queue_view(e), "patient": e["patient_name"]} for e in entries]}
+
+
+def run_predict_wait_time(ctx: ToolContext, args: EntryArgs) -> dict:
+    status = queue_engine.get_queue_status(ctx.db, ctx.actor, args.entry_id, now=ctx.now)
+    estimate = status.get("estimate")
+    if not estimate:
+        return {
+            "entry_id": args.entry_id,
+            "status": status["status"],
+            "note": "No estimate: the patient is not waiting.",
+        }
+    return {
+        "entry_id": args.entry_id,
+        "estimate_min": estimate["predicted_min"],
+        "range_min": [estimate["low_min"], estimate["high_min"]],
+        "say": estimate["display"],
+        "doctor_status": status["doctor_status"],
     }
 
 
@@ -389,6 +439,16 @@ TOOLS: dict[str, ToolSpec] = {
             "get_patient_appointments",
             "Show a patient's upcoming and past appointments.",
             PatientArgs, "read", run_get_patient_appointments, "Looking up appointments",
+        ),
+        ToolSpec(
+            "get_queue_status",
+            "Today's queue position, people ahead and wait estimate for the user's checked-in patients.",
+            QueueStatusArgs, "read", run_get_queue_status, "Checking the queue",
+        ),
+        ToolSpec(
+            "predict_wait_time",
+            "Wait estimate with a low-high range for one queue entry. Always give the range, not a single number.",
+            EntryArgs, "read", run_predict_wait_time, "Estimating the wait",
         ),
         ToolSpec(
             "book_appointment",
