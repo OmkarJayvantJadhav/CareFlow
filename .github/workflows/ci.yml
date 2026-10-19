@@ -41,4 +41,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build image
-        run: docker build -t careflow:ci .
+        run: docker build --build-arg PRELOAD_MODELS=false -t careflow:ci .

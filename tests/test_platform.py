@@ -15,9 +15,9 @@ def test_migrations_match_models(engine):
     assert diff == []
 
 
-def test_schema_has_17_tables_and_pgvector(engine):
+def test_schema_has_the_17_designed_tables_plus_conversation_and_pgvector(engine):
     tables = set(inspect(engine).get_table_names()) - {"alembic_version"}
-    assert len(tables) == 17
+    assert len(tables) == 18 and "conversation" in tables
     with engine.connect() as conn:
         assert conn.execute(text("SELECT 1 FROM pg_extension WHERE extname = 'vector'")).scalar() == 1
 
@@ -27,9 +27,14 @@ def test_double_booking_indexes_exist(engine):
     assert {"uq_appointment_active_slot", "uq_appointment_active_patient_doctor_day"} <= indexes
 
 
-def test_health(engine):
+def test_health(engine, kb):
     response = TestClient(app).get("/api/v1/health")
     assert response.status_code == 200
     body = response.json()
-    assert body["status"] == "ok" and body["checks"] == {"database": "ok", "pgvector": "ok"}
+    checks = body["checks"]
+    assert checks["database"] == "ok" and checks["pgvector"] == "ok"
+    assert checks["knowledge"]["chunks"] == kb["chunks"]
+    assert checks["knowledge"]["embedding_models"] == [kb["embedder"]]
+    # No LLM key is configured in tests, so chat is unavailable and the status says so.
+    assert checks["llm_providers"] == "none configured" and body["status"] == "degraded"
     assert "Not for medical use" in body["banner"]
