@@ -127,11 +127,12 @@ def world(factory):
 @pytest.fixture
 def frozen_clock(monkeypatch):
     """Freeze the application clock (everything that reads now_ist) at NOW."""
+    import app.api.admin_routes
     import app.api.auth
     import app.api.queue_routes
     import app.api.routes
     import app.timeutil
 
-    for module in (app.timeutil, app.api.auth, app.api.queue_routes, app.api.routes):
+    for module in (app.timeutil, app.api.auth, app.api.queue_routes, app.api.routes, app.api.admin_routes):
         monkeypatch.setattr(module, "now_ist", lambda: NOW)
     return NOW

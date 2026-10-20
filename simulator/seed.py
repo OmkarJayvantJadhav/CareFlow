@@ -242,5 +242,10 @@ def reset_demo(db: Session, today: date, seed: int = 42, days_ahead: int = SEED_
     return seed_all(db, today, seed, days_ahead)
 
 
+def top_up_slots(db: Session, today: date, days_ahead: int = SEED_DAYS_AHEAD) -> int:
+    """Keep the next ``days_ahead`` days bookable on a long-running demo (only missing slots are added)."""
+    return ensure_slots(db, today, today + timedelta(days=days_ahead - 1))
+
+
 def is_seeded(db: Session) -> bool:
     return db.scalar(select(Department.id).limit(1)) is not None

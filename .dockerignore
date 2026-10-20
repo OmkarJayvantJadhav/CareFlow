@@ -1,10 +1,15 @@
 .git
+.github
 .venv
 **/__pycache__
 .pytest_cache
 .ruff_cache
 .env
 ui/node_modules
-eval/results
+ui/dist
+eval/runs
+eval/.cache
+eval/.traces
+eval/datasets
+tests
 traces
-tests/.traces

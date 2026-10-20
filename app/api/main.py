@@ -3,13 +3,16 @@
 import logging
 import threading
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select, text
 
 from app.agent.llm import build_llm
+from app.api.admin_routes import router as admin_router
 from app.api.queue_routes import router as queue_router
 from app.api.queue_routes import ws_router
 from app.api.routes import router
@@ -18,6 +21,7 @@ from app.db.models import KbChunk
 from app.db.session import get_engine, session_factory
 from app.rag.retriever import get_retriever
 from app.safety.privacy import install_log_masking
+from app.timeutil import now_ist
 from app.tools.errors import ToolError
 
 DEMO_BANNER = "Demo with a fictional hospital. Not for medical use."
@@ -35,11 +39,31 @@ def _warm_up() -> None:
         log.exception("retriever warm-up failed")
 
 
+def _keep_slots_open(stop: threading.Event) -> None:
+    """A demo that runs for weeks keeps the next 21 days bookable (checked every 6 hours)."""
+    from simulator.seed import is_seeded, top_up_slots
+
+    while not stop.is_set():
+        try:
+            with session_factory()() as db:
+                if is_seeded(db):
+                    added = top_up_slots(db, now_ist().date())
+                    db.commit()
+                    if added:
+                        log.info("added %d slots", added)
+        except Exception:  # noqa: BLE001 - try again next time
+            log.exception("slot top-up failed")
+        stop.wait(6 * 3600)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    stop = threading.Event()
     if get_settings().warm_up_retriever:
         threading.Thread(target=_warm_up, name="retriever-warm-up", daemon=True).start()
+        threading.Thread(target=_keep_slots_open, args=(stop,), name="slot-top-up", daemon=True).start()
     yield
+    stop.set()
 
 
 app = FastAPI(
@@ -102,5 +126,21 @@ def health() -> JSONResponse:
 
 
 app.include_router(router)
+app.include_router(admin_router)
 app.include_router(queue_router)
 app.include_router(ws_router)
+
+# The built React app (ui/dist) is served from the same origin, so one container serves everything.
+UI_DIST = Path(__file__).resolve().parents[2] / "ui" / "dist"
+if (UI_DIST / "index.html").exists():
+    app.mount("/assets", StaticFiles(directory=UI_DIST / "assets"), name="assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str) -> FileResponse:
+        """Static files from the build, and index.html for every client-side route."""
+        if path.startswith(("api/", "ws/")):
+            raise HTTPException(status_code=404)
+        candidate = (UI_DIST / path).resolve()
+        if path and candidate.is_file() and candidate.is_relative_to(UI_DIST):
+            return FileResponse(candidate)
+        return FileResponse(UI_DIST / "index.html", headers={"Cache-Control": "no-cache"})
