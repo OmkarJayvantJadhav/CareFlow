@@ -1,8 +1,8 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { LANGS, type Key } from "../i18n";
+import { LANGS } from "../i18n";
 import { useSession } from "../session";
 
-const NAV: Record<string, { to: string; label: Key }[]> = {
+const NAV = {
   patient: [
     { to: "/chat", label: "navChat" },
     { to: "/appointments", label: "navAppointments" },
@@ -38,7 +38,13 @@ export default function Layout() {
         <div className="topbar-tools">
           <div className="segmented" role="group" aria-label={t("chooseLanguage")}>
             {LANGS.map((l) => (
-              <button key={l.code} type="button" aria-pressed={lang === l.code} onClick={() => setLang(l.code)} lang={l.code}>
+              <button
+                key={l.code}
+                type="button"
+                aria-pressed={lang === l.code}
+                onClick={() => setLang(l.code)}
+                lang={l.code}
+              >
                 {l.label}
               </button>
             ))}

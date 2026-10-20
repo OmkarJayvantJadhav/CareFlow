@@ -1,29 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api, type Appointment } from "../api";
+import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
-import type { Key } from "../i18n";
 import { useSession } from "../session";
-
-interface History {
-  patient_id: number;
-  patient_name: string;
-  upcoming: Appointment[];
-  past: Appointment[];
-}
 
 /** S3: upcoming and past appointments; changes go through the chat so they get a confirmation card. */
 export default function Appointments() {
   const { user, t } = useSession();
   const navigate = useNavigate();
-  const [histories, setHistories] = useState<History[] | null>(null);
-  const [error, setError] = useState<unknown>(null);
+  const [histories, setHistories] = useState(null);
+  const [error, setError] = useState(null);
 
   const load = useCallback(async () => {
     setError(null);
     try {
-      const ids = user!.patients.map((p) => p.patient_id);
-      setHistories(await Promise.all(ids.map((id) => api<History>(`/patients/${id}/appointments`))));
+      const ids = user.patients.map((p) => p.patient_id);
+      setHistories(await Promise.all(ids.map((id) => api(`/patients/${id}/appointments`))));
     } catch (err) {
       setError(err);
     }
@@ -33,11 +25,11 @@ export default function Appointments() {
     void load();
   }, [load]);
 
-  function ask(kind: "rescheduleAsk" | "cancelAsk", a: Appointment) {
+  function ask(kind, a) {
     navigate("/chat", { state: { prefill: t(kind, { doctor: a.doctor_name, date: a.date, time: a.time }) } });
   }
 
-  function list(items: Appointment[], actions: boolean) {
+  function list(items, actions) {
     if (items.length === 0) return <p className="muted">{t("none")}</p>;
     return (
       <div className="grid">
@@ -46,7 +38,7 @@ export default function Appointments() {
             <div className="row" style={{ justifyContent: "space-between" }}>
               <strong>{a.doctor_name}</strong>
               <span className={`pill ${a.status === "displaced" ? "warn" : a.status === "booked" ? "ok" : ""}`}>
-                {t(`status_${a.status}` as Key)}
+                {t(`status_${a.status}`)}
               </span>
             </div>
             <div className="muted">{a.department}</div>

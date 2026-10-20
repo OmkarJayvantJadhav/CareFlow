@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "vite build",
     "test": "vitest run",
-    "lint": "tsc --noEmit"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@fontsource/noto-sans": "5.1.1",
@@ -17,14 +17,16 @@
     "react-router-dom": "6.28.0"
   },
   "devDependencies": {
+    "@eslint/js": "9.17.0",
     "@testing-library/jest-dom": "6.6.3",
     "@testing-library/react": "16.1.0",
-    "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1",
     "@vitejs/plugin-react": "4.3.4",
     "axe-core": "^4.10.2",
+    "eslint": "9.17.0",
+    "eslint-plugin-react": "7.37.2",
+    "eslint-plugin-react-hooks": "5.1.0",
+    "globals": "15.14.0",
     "jsdom": "25.0.1",
-    "typescript": "5.6.3",
     "vite": "5.4.11",
     "vitest": "2.1.8"
   }

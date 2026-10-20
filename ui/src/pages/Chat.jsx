@@ -1,27 +1,16 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { api, type ChatReply, type Citation, type Confirmation } from "../api";
+import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
-import type { Key, Lang } from "../i18n";
 import { useSession } from "../session";
 
-interface Message {
-  id: number;
-  role: "user" | "assistant";
-  text: string;
-  citations?: Citation[];
-  steps?: string[];
-  confirmation?: Confirmation | null;
-  offerHandoff?: boolean;
-}
-
-const NO: Record<Lang, string> = { en: "No, I want to change it.", hi: "नहीं, मुझे बदलना है।", mr: "नाही, मला बदलायचे आहे." };
-const PERSON: Record<Lang, string> = {
+const NO = { en: "No, I want to change it.", hi: "नहीं, मुझे बदलना है।", mr: "नाही, मला बदलायचे आहे." };
+const PERSON = {
   en: "I want to talk to a person.",
   hi: "मुझे किसी इंसान से बात करनी है।",
   mr: "मला माणसाशी बोलायचे आहे.",
 };
-const SUMMARY_LABELS: [string, Key][] = [
+const SUMMARY_LABELS = [
   ["patient", "patientLabel"],
   ["doctor", "doctorLabel"],
   ["date", "dateLabel"],
@@ -30,13 +19,15 @@ const SUMMARY_LABELS: [string, Key][] = [
 ];
 
 /** Assistant text with **bold** shown as bold; everything else as plain text (never HTML). */
-function formatted(text: string): ReactNode[] {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
-    part.startsWith("**") && part.endsWith("**") ? <strong key={i}>{part.slice(2, -2)}</strong> : part,
-  );
+function formatted(text) {
+  return text
+    .split(/(\*\*[^*]+\*\*)/g)
+    .map((part, i) =>
+      part.startsWith("**") && part.endsWith("**") ? <strong key={i}>{part.slice(2, -2)}</strong> : part,
+    );
 }
 
-function AssistantText({ text }: { text: string }) {
+function AssistantText({ text }) {
   const { t } = useSession();
   const long = text.split("\n").length > 6 || text.length > 480;
   const [open, setOpen] = useState(false);
@@ -52,9 +43,9 @@ function AssistantText({ text }: { text: string }) {
   );
 }
 
-function Sources({ citations }: { citations: Citation[] }) {
+function Sources({ citations }) {
   const { t } = useSession();
-  const [shown, setShown] = useState<number | null>(null);
+  const [shown, setShown] = useState(null);
   const detail = citations.find((c) => c.ref === shown);
   return (
     <div>
@@ -81,17 +72,7 @@ function Sources({ citations }: { citations: Citation[] }) {
   );
 }
 
-function ConfirmCard({
-  card,
-  busy,
-  onConfirm,
-  onChange,
-}: {
-  card: Confirmation;
-  busy: boolean;
-  onConfirm: () => void;
-  onChange: () => void;
-}) {
+function ConfirmCard({ card, busy, onConfirm, onChange }) {
   const { t } = useSession();
   // Count down from when the card arrived, using the server's remaining time (not the device clock).
   const [deadline] = useState(() => Date.now() + card.expires_in_seconds * 1000);
@@ -143,7 +124,7 @@ function ConfirmCard({
   );
 }
 
-function EmergencyPanel({ onBack }: { onBack: () => void }) {
+function EmergencyPanel({ onBack }) {
   const { t } = useSession();
   return (
     <section className="emergency" role="alert" aria-live="assertive">
@@ -163,26 +144,26 @@ function EmergencyPanel({ onBack }: { onBack: () => void }) {
 export default function Chat() {
   const { t, lang } = useSession();
   const location = useLocation();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [conversationId, setConversationId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<string>(() => (location.state as { prefill?: string } | null)?.prefill ?? "");
+  const [messages, setMessages] = useState([]);
+  const [conversationId, setConversationId] = useState(null);
+  const [draft, setDraft] = useState(() => location.state?.prefill ?? "");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<unknown>(null);
+  const [error, setError] = useState(null);
   const [emergency, setEmergency] = useState(false);
   const nextId = useRef(1);
-  const endRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const endRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView?.({ block: "end" });
   }, [messages, busy]);
 
-  async function exchange(body: { message?: string; confirm_action_id?: string }, shown?: string) {
+  async function exchange(body, shown) {
     setBusy(true);
     setError(null);
     if (shown) setMessages((m) => [...m, { id: nextId.current++, role: "user", text: shown }]);
     try {
-      const reply = await api<ChatReply>("/chat", {
+      const reply = await api("/chat", {
         method: "POST",
         body: { ...body, conversation_id: conversationId, language: lang },
       });
@@ -208,14 +189,14 @@ export default function Chat() {
     }
   }
 
-  function send(text: string) {
+  function send(text) {
     const message = text.trim();
     if (!message || busy) return;
     setDraft("");
     void exchange({ message }, message);
   }
 
-  function onSubmit(e: FormEvent) {
+  function onSubmit(e) {
     e.preventDefault();
     send(draft);
   }
@@ -239,7 +220,7 @@ export default function Chat() {
             <div className="card">
               <p style={{ marginTop: 0 }}>{t("suggestions")}</p>
               <div className="row">
-                {(["suggestBook", "suggestFast", "suggestWait"] as Key[]).map((k) => (
+                {["suggestBook", "suggestFast", "suggestWait"].map((k) => (
                   <button key={k} type="button" className="secondary" onClick={() => send(t(k))}>
                     {t(k)}
                   </button>
@@ -266,7 +247,7 @@ export default function Chat() {
                 <ConfirmCard
                   card={m.confirmation}
                   busy={busy}
-                  onConfirm={() => void exchange({ confirm_action_id: m.confirmation!.action_id }, t("confirm"))}
+                  onConfirm={() => void exchange({ confirm_action_id: m.confirmation.action_id }, t("confirm"))}
                   onChange={() => {
                     void exchange({ message: NO[lang] }, NO[lang]);
                     inputRef.current?.focus();

@@ -1,21 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api, socketUrl, type QueueStatus as Status } from "../api";
+import { api, socketUrl } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
-import type { Key } from "../i18n";
 import { useSession } from "../session";
 
 const POLL_MS = 5000;
 
-function EntryCard({ initial }: { initial: Status }) {
+function EntryCard({ initial }) {
   const { t } = useSession();
-  const [status, setStatus] = useState<Status>(initial);
+  const [status, setStatus] = useState(initial);
   const [updated, setUpdated] = useState(() => new Date());
   const [live, setLive] = useState(false);
-  const [error, setError] = useState<unknown>(null);
+  const [error, setError] = useState(null);
 
   const refresh = useCallback(async () => {
     try {
-      setStatus(await api<Status>(`/queue/entries/${initial.entry_id}/status`));
+      setStatus(await api(`/queue/entries/${initial.entry_id}/status`));
       setUpdated(new Date());
       setError(null);
     } catch (err) {
@@ -24,10 +23,10 @@ function EntryCard({ initial }: { initial: Status }) {
   }, [initial.entry_id]);
 
   // Live updates over the WebSocket; if it cannot connect or drops, poll every 5 s (FR-26, NFR-02).
-  const socket = useRef<WebSocket | null>(null);
+  const socket = useRef(null);
   useEffect(() => {
     let closed = false;
-    let poll: number | undefined;
+    let poll;
     const startPolling = () => {
       setLive(false);
       if (poll === undefined) poll = window.setInterval(refresh, POLL_MS);
@@ -57,7 +56,7 @@ function EntryCard({ initial }: { initial: Status }) {
     };
   }, [initial.session_id, refresh]);
 
-  const doctorKey = `doctor_${status.doctor_status}` as Key;
+  const doctorKey = `doctor_${status.doctor_status}`;
   return (
     <section className="card" aria-labelledby={`entry-${status.entry_id}`}>
       <div className="row" style={{ justifyContent: "space-between" }}>
@@ -100,7 +99,7 @@ function EntryCard({ initial }: { initial: Status }) {
           <div>
             <strong>{t(doctorKey, { minutes: status.delay_minutes })}</strong>
           </div>
-          <div className="muted">{t(`entry_${status.status}` as Key)}</div>
+          <div className="muted">{t(`entry_${status.status}`)}</div>
         </div>
       </div>
       <p className="muted" aria-live="polite">
@@ -114,12 +113,12 @@ function EntryCard({ initial }: { initial: Status }) {
 /** S4: token, people ahead, wait estimate with range, doctor status, updated live. */
 export default function QueueStatus() {
   const { t } = useSession();
-  const [entries, setEntries] = useState<Status[] | null>(null);
-  const [error, setError] = useState<unknown>(null);
+  const [entries, setEntries] = useState(null);
+  const [error, setError] = useState(null);
   const load = useCallback(async () => {
     setError(null);
     try {
-      setEntries((await api<{ entries: Status[] }>("/queue/mine")).entries);
+      setEntries((await api("/queue/mine")).entries);
     } catch (err) {
       setError(err);
     }

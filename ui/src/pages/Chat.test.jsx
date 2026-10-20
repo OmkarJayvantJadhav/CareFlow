@@ -16,12 +16,12 @@ const base = {
   offer_handoff: false,
 };
 
-function mockReplies(...replies: object[]) {
-  const calls: { body: Record<string, unknown> }[] = [];
-  globalThis.fetch = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+function mockReplies(...replies) {
+  const calls = [];
+  globalThis.fetch = vi.fn(async (_url, init) => {
     calls.push({ body: JSON.parse(String(init?.body ?? "{}")) });
     return new Response(JSON.stringify({ ...base, ...replies.shift() }), { status: 200 });
-  }) as typeof fetch;
+  });
   return calls;
 }
 
@@ -35,7 +35,7 @@ function renderChat() {
   );
 }
 
-function type(text: string) {
+function type(text) {
   fireEvent.change(screen.getByLabelText("Type your message…"), { target: { value: text } });
   fireEvent.click(screen.getByRole("button", { name: "Send" }));
 }
@@ -59,14 +59,30 @@ describe("chat", () => {
         confirmation: {
           action_id: "abc123",
           tool: "book_appointment",
-          summary: { patient: "Asha Patil", doctor: "Dr. Anand Kulkarni", department: "Cardiology", date: "Saturday 24 Oct 2026", time: "09:00" },
+          summary: {
+            patient: "Asha Patil",
+            doctor: "Dr. Anand Kulkarni",
+            department: "Cardiology",
+            date: "Saturday 24 Oct 2026",
+            time: "09:00",
+          },
           expires_at: expires,
           expires_in_seconds: 300,
         },
       },
       {
         reply: "Done. Fast for 10–12 hours [1].",
-        citations: [{ ref: 1, title: "Lipid profile", section: "Before the test", collection: "test_preparation", language: "en", source_path: "knowledge/en/test_preparation/lipid-profile.md", last_verified: "2026-10-01" }],
+        citations: [
+          {
+            ref: 1,
+            title: "Lipid profile",
+            section: "Before the test",
+            collection: "test_preparation",
+            language: "en",
+            source_path: "knowledge/en/test_preparation/lipid-profile.md",
+            last_verified: "2026-10-01",
+          },
+        ],
       },
     );
     renderChat();

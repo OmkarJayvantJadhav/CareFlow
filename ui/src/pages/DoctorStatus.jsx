@@ -1,22 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
-import type { Key } from "../i18n";
 import { useSession } from "../session";
-import type { DutyDoctor } from "../staff";
-
 /** S7: breaks, delays and unavailability; shows how many patients were informed. */
 export default function DoctorStatus() {
   const { t } = useSession();
-  const [doctors, setDoctors] = useState<DutyDoctor[] | null>(null);
-  const [minutes, setMinutes] = useState<Record<number, string>>({});
-  const [notice, setNotice] = useState<string | null>(null);
-  const [error, setError] = useState<unknown>(null);
-  const [busy, setBusy] = useState<number | null>(null);
+  const [doctors, setDoctors] = useState(null);
+  const [minutes, setMinutes] = useState({});
+  const [notice, setNotice] = useState(null);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(null);
 
   const load = useCallback(async () => {
     try {
-      setDoctors((await api<{ doctors: DutyDoctor[] }>("/staff/today")).doctors);
+      setDoctors((await api("/staff/today")).doctors);
       setError(null);
     } catch (err) {
       setError(err);
@@ -26,17 +23,18 @@ export default function DoctorStatus() {
     void load();
   }, [load]);
 
-  async function event(d: DutyDoctor, type: "break" | "delay" | "resume" | "unavailable") {
+  async function event(d, type) {
     if (type === "unavailable" && !window.confirm(t("confirmUnavailable", { doctor: d.doctor_name }))) return;
     setBusy(d.doctor_id);
     setError(null);
     setNotice(null);
     try {
       const sessionId =
-        d.session_id ?? (await api<{ session_id: number }>(`/staff/doctors/${d.doctor_id}/session`, { method: "POST" })).session_id;
-      const body: { type: string; minutes?: number } = { type };
-      if (type === "break" || type === "delay") body.minutes = Number(minutes[d.doctor_id] || (type === "break" ? 15 : 20));
-      const result = await api<{ affected?: unknown[] }>(`/queue/sessions/${sessionId}/events`, { method: "POST", body });
+        d.session_id ?? (await api(`/staff/doctors/${d.doctor_id}/session`, { method: "POST" })).session_id;
+      const body = { type };
+      if (type === "break" || type === "delay")
+        body.minutes = Number(minutes[d.doctor_id] || (type === "break" ? 15 : 20));
+      const result = await api(`/queue/sessions/${sessionId}/events`, { method: "POST", body });
       if (type === "unavailable") setNotice(t("affected", { count: result.affected?.length ?? 0 }));
       await load();
     } catch (err) {
@@ -68,7 +66,8 @@ export default function DoctorStatus() {
               <div className="muted">{d.department}</div>
               <p>
                 <span className={`pill ${d.doctor_status === "available" ? "ok" : "warn"}`}>
-                  {d.doctor_status === "available" ? "●" : "⏱"} {t(`doctor_${d.doctor_status}` as Key, { minutes: d.delay_minutes })}
+                  {d.doctor_status === "available" ? "●" : "⏱"}{" "}
+                  {t(`doctor_${d.doctor_status}`, { minutes: d.delay_minutes })}
                 </span>
               </p>
               {!unavailable && (
@@ -86,10 +85,20 @@ export default function DoctorStatus() {
                     />
                   </div>
                   <div className="row">
-                    <button type="button" className="secondary" disabled={busy !== null} onClick={() => event(d, "break")}>
+                    <button
+                      type="button"
+                      className="secondary"
+                      disabled={busy !== null}
+                      onClick={() => event(d, "break")}
+                    >
                       {t("markBreak")}
                     </button>
-                    <button type="button" className="secondary" disabled={busy !== null} onClick={() => event(d, "delay")}>
+                    <button
+                      type="button"
+                      className="secondary"
+                      disabled={busy !== null}
+                      onClick={() => event(d, "delay")}
+                    >
                       {t("markDelay")}
                     </button>
                     {d.doctor_status !== "available" && (
@@ -97,7 +106,12 @@ export default function DoctorStatus() {
                         {t("markResume")}
                       </button>
                     )}
-                    <button type="button" className="quiet" disabled={busy !== null} onClick={() => event(d, "unavailable")}>
+                    <button
+                      type="button"
+                      className="quiet"
+                      disabled={busy !== null}
+                      onClick={() => event(d, "unavailable")}
+                    >
                       {t("markUnavailable")}
                     </button>
                   </div>

@@ -1,23 +1,14 @@
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
 import { useSession } from "../session";
 
-interface Answer {
-  answer: string;
-  sql: string | null;
-  columns: string[];
-  rows: unknown[][];
-  row_count: number;
-  truncated: boolean;
-}
-
-function csvCell(value: unknown): string {
+function csvCell(value) {
   const text = value === null || value === undefined ? "" : String(value);
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-export function toCsv(columns: string[], rows: unknown[][]): string {
+export function toCsv(columns, rows) {
   return [columns, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
 }
 
@@ -25,18 +16,18 @@ export function toCsv(columns: string[], rows: unknown[][]): string {
 export default function Analytics() {
   const { t } = useSession();
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState<Answer | null>(null);
-  const [error, setError] = useState<unknown>(null);
+  const [answer, setAnswer] = useState(null);
+  const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  async function ask(e: FormEvent) {
+  async function ask(e) {
     e.preventDefault();
     if (!question.trim()) return;
     setBusy(true);
     setError(null);
     setAnswer(null);
     try {
-      setAnswer(await api<Answer>("/admin/analytics", { method: "POST", body: { question: question.trim() } }));
+      setAnswer(await api("/admin/analytics", { method: "POST", body: { question: question.trim() } }));
     } catch (err) {
       setError(err);
     } finally {
@@ -91,7 +82,8 @@ export default function Analytics() {
             <>
               <div className="row" style={{ justifyContent: "space-between", margin: "8px 0" }}>
                 <span className="muted">
-                  {t("rows", { count: answer.row_count })} {answer.truncated ? t("truncated", { count: answer.row_count }) : ""}
+                  {t("rows", { count: answer.row_count })}{" "}
+                  {answer.truncated ? t("truncated", { count: answer.row_count }) : ""}
                 </span>
                 <button type="button" className="secondary" onClick={download}>
                   {t("exportCsv")}
