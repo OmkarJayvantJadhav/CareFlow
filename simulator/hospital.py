@@ -2,8 +2,6 @@
 
 from datetime import time
 
-HOSPITAL = "Indravani General Hospital"
-
 # name, floor, OPD start, OPD end
 DEPARTMENTS = [
     ("General Medicine", 1, time(9, 0), time(14, 0)),

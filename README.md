@@ -179,7 +179,7 @@ npm run build      # ui/dist, which the API then serves at http://localhost:8000
 | `python -m app.ml.train --end YYYY-MM-DD` | Train and evaluate the wait-time model on those days; writes `app/ml/artifacts/` and `eval/results/ml_wait_time.json` |
 | `python -m simulator.kb.build` | Regenerate the Markdown knowledge base from `simulator/kb/` |
 | `python -m app.rag.ingest [--if-needed] [--chunker structure\|fixed]` | Chunk, embed and load the knowledge base |
-| `python -m app.rag.preload` | Download the neural retrieval models (done in the Docker build) |
+| `python -m app.rag.preload` | Download the neural retrieval models (the Docker build does it with `--build-arg PRELOAD_MODELS=true`) |
 
 ### Tests
 
@@ -247,6 +247,7 @@ app/
   tools/      booking, waiting list, handoff, permissions, audit, policy — the deterministic rules
   queue/      merge rule, queue engine, live predictions, WebSocket broadcaster
   ml/         wait-time features, dataset, model, training (artifacts/ holds the trained model)
+  analytics/  analytics agent and the read-only SQL guard
   db/         SQLAlchemy models and sessions
 alembic/      migrations
 simulator/    fictional hospital, seed data, day replay, invariant checks

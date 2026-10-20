@@ -11,7 +11,7 @@
     "repeats": 5,
     "stopped_early": "groq:openai/gpt-oss-120b: daily quota used up (groq:openai/gpt-oss-120b: daily quota used up)",
     "new_runs": 25,
-    "store": "/tmp/claude-0/-home-user-CareFlow/088209e1-13ee-5e15-bbb0-82a3826e8400/scratchpad/runs/agent/groq-openai-gpt-oss-120b.jsonl"
+    "store": "eval/runs/agent/groq-openai-gpt-oss-120b.jsonl"
   },
   "summary": {
     "scenarios_total": 120,

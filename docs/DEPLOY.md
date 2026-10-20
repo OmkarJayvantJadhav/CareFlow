@@ -41,14 +41,7 @@ after 15 minutes without visitors; the first request then takes about a minute.
 "Patient" → ask "Book a Marathi-speaking cardiologist on Saturday" → confirm the card → see it under
 My appointments. `/api/v1/health` should say `"status": "ok"`.
 
-## 3. Optional: Hugging Face Spaces (paid plan)
-
-With a plan that allows Docker Spaces: create a Docker Space, add the secrets above plus `AUTH_SECRET` and
-the variable `DEMO_MODE=true`, then in GitHub add the secret `HF_TOKEN` (a write token) and the variable
-`HF_SPACE` (`your-name/careflow`). The **Deploy to Hugging Face Spaces** workflow then uploads every push to
-`main`. Without `HF_SPACE` the workflow does nothing.
-
-## 4. Monitoring
+## 3. Monitoring
 
 * Add a free uptime monitor (e.g. UptimeRobot) on `/api/v1/health` every 30 minutes; alert after two failures.
 * The admin dashboard shows median latency, LLM errors and cost for recent chat turns on the server, and the

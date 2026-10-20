@@ -24,13 +24,6 @@ class Actor:
         return cls(user_id=user.id, role=user.role, patient_id=user.patient_id)
 
 
-def load_actor(db: Session, user_id: int) -> Actor:
-    user = db.get(AppUser, user_id)
-    if user is None:
-        raise ToolError("FORBIDDEN", "Unknown user.")
-    return Actor.from_user(user)
-
-
 def linked_patient_ids(db: Session, actor: Actor) -> set[int]:
     if actor.role != "caregiver":
         return set()

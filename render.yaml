@@ -20,8 +20,6 @@ services:
         value: local
       - key: RERANKER_BACKEND
         value: local
-      - key: PRELOAD_MODELS # Docker build argument: do not bake the unused neural models in
-        value: "false"
       - key: DATABASE_URL
         sync: false
       - key: GROQ_API_KEY

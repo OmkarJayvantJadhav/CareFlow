@@ -6,7 +6,7 @@ RUN npm ci --no-audit --no-fund
 COPY ui/ ./
 RUN npm run build
 
-# Stage 2: the API, which also serves the built UI on one port (Hugging Face Spaces: 7860).
+# Stage 2: the API, which also serves the built UI on one port (7860).
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -18,7 +18,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # LightGBM needs the OpenMP runtime, which the slim image does not ship.
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
 
-# Hugging Face Spaces runs containers as uid 1000.
+# Run as an unprivileged user.
 RUN useradd --create-home --uid 1000 careflow
 WORKDIR /home/careflow/app
 
@@ -36,9 +36,10 @@ COPY --chown=careflow:careflow eval/results ./eval/results
 COPY --chown=careflow:careflow --from=ui /ui/dist ./ui/dist
 
 USER careflow
-# Bake the multilingual embedding and re-ranking models into the image so cold starts
-# do not download them (docs §12). Skipped with --build-arg PRELOAD_MODELS=false.
-ARG PRELOAD_MODELS=true
+# The demo uses the local retriever (render.yaml, D-67). To serve the neural embedding and
+# re-ranking models instead, bake them in with --build-arg PRELOAD_MODELS=true so cold starts
+# do not download them.
+ARG PRELOAD_MODELS=false
 RUN if [ "$PRELOAD_MODELS" = "true" ]; then python -m app.rag.preload; fi
 
 EXPOSE 7860

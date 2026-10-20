@@ -566,7 +566,7 @@ def _run(args) -> int:
             repeats=args.repeats,
             stopped_early=stopped,
             new_runs=new_runs,
-            store=str(store.path),
+            store=f"eval/runs/{store.path.relative_to(RUNS_DIR).as_posix()}",  # where the log is committed
         ),  # fmt: skip
         "summary": summary,
         "failures": [

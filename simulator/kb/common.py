@@ -58,8 +58,6 @@ LANGUAGE_NAMES = {
     "mr": T("Marathi", "मराठी", "मराठी"),
 }
 
-HOSPITAL = T("Indravani General Hospital", "इंद्रवाणी जनरल हॉस्पिटल", "इंद्रवाणी जनरल हॉस्पिटल")
-
 
 def list_of(items: list[T]) -> T:
     """'a, b and c' in each language."""
