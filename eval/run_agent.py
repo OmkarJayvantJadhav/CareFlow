@@ -358,13 +358,18 @@ def run_scenario(scenario: dict, agent_llm, sim_llm) -> dict:
                         db, actor, session_id, text, agent_llm, conversation_id=conversation_id, now=EVAL_NOW
                     )
                     error = None
+                except QuotaExhausted:
+                    raise  # not a result: the run is discarded and repeated when quota is available
                 except LLMUnavailable as err:
                     reply, error = None, f"LLM_UNAVAILABLE: {err}"
                 except Exception as err:  # noqa: BLE001 - ToolError from the chat layer and the like
-                    reply, error = None, getattr(err, "code", type(err).__name__)
+                    reply, error = None, f"{getattr(err, 'code', type(err).__name__)}: {getattr(err, 'message', err)}"
                 db.flush()
                 latency = round((clock.perf_counter() - t0) * 1000, 1)
                 if reply is None:
+                    causes = [sp["error"] for t in transcript.traces[-1:] for sp in t.get("spans", [])
+                              if sp.get("kind") == "llm" and sp.get("error")]  # fmt: skip
+                    error = f"{error} ({causes[-1]})" if causes else error
                     transcript.turns.append(Turn(text, "", "", False, False, None, [], [], latency, error=error))
                     end_reason = "error"
                     break
