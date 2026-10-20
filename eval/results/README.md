@@ -3,6 +3,8 @@
 Every number here comes from a real run, stored next to this file with its configuration.
 Agent, RAG and safety evaluations (Phase 4) have not been run yet.
 
+<!-- details below are kept -->
+
 ## Wait-time model (docs §14.3) — `ml_wait_time.json`
 
 Run: 20 Oct 2026, model `lgbm-v1-4db5f69cf8` (LightGBM 4.7.0), data from

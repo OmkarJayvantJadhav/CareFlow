@@ -48,8 +48,20 @@ class QuotaExhausted(Exception):
     """The model's daily free quota is used up; finished cases are kept and the run can resume later."""
 
 
+def migrate() -> None:
+    from alembic import command
+    from alembic.config import Config
+
+    from app.db.session import normalize_url
+
+    cfg = Config("alembic.ini")
+    cfg.set_main_option("sqlalchemy.url", normalize_url(get_settings().database_url))
+    command.upgrade(cfg, "head")
+
+
 def prepare_world(force: bool = False) -> None:
-    """Seed the evaluation database for EVAL_TODAY and ingest the knowledge base, if not done yet."""
+    """Migrate and seed the evaluation database for EVAL_TODAY and ingest the knowledge base, if not done yet."""
+    migrate()
     with session_factory()() as db:
         seeded = is_seeded(db) and db.scalar(
             select(func.count()).select_from(Slot).where(func.date(Slot.start_at) == EVAL_TODAY)
