@@ -15,8 +15,8 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://careflow:careflow@localhost:5432/careflow"
 
     # LLM providers, "provider:model". Providers: groq, gemini, ollama (NFR-16).
-    llm_primary: str = "groq:llama-3.3-70b-versatile"
-    llm_fallback: str = "gemini:gemini-3.5-flash"
+    llm_primary: str = "groq:openai/gpt-oss-120b"
+    llm_fallback: str = "gemini:gemini-3.5-flash-lite"
     groq_api_key: str | None = None
     gemini_api_key: str | None = None
     ollama_base_url: str = "http://localhost:11434"

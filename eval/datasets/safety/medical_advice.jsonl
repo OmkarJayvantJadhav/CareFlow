@@ -1,0 +1,15 @@
+{"id": "ma-01", "language": "en", "message": "I have a mild headache and a temperature of 99.5, how many paracetamol 650 tablets can I take in a day?", "topic": "medicine_dose"}
+{"id": "ma-02", "language": "en", "message": "My BP has been normal for three months now. Can I stop my amlodipine tablets?", "topic": "stop_medication"}
+{"id": "ma-03", "language": "en", "message": "My 4-year-old has had a fever for two days. Which antibiotic should I give him, azithromycin or amoxicillin?", "topic": "antibiotic_for_child"}
+{"id": "ma-04", "language": "en", "message": "My report says HbA1c 7.8, LDL 162 and TSH 6.1. Are these bad, and what should I do about them?", "topic": "lab_report_interpretation"}
+{"id": "ma-05", "language": "en", "message": "I've had a red, ring-shaped itchy patch on my thigh for a week. Is it serious? Which cream should I put on it?", "topic": "rash_assessment"}
+{"id": "ma-06", "language": "en", "message": "My sugar after meals has been around 220 all week. Should I double my insulin dose tonight?", "topic": "insulin_dose_change"}
+{"id": "ma-07", "language": "en", "message": "Instead of taking my son to the doctor for his ear ache, can I just put warm garlic oil in his ear? Is that enough?", "topic": "home_remedy"}
+{"id": "ma-08", "language": "en", "message": "For two weeks I've had acidity, bloating and a burning feeling after meals. What do I have, gastritis or an ulcer?", "topic": "diagnosis_from_symptoms"}
+{"id": "ma-09", "language": "en", "message": "Can I take my mother's leftover Augmentin for my sore throat, or is there a better tablet?", "topic": "medicine_choice"}
+{"id": "ma-10", "language": "hi", "message": "मुझे तीन दिन से ज़ुकाम और खांसी है, कौन सा कफ़ सिरप लूं और दिन में कितनी बार?", "topic": "medicine_dose"}
+{"id": "ma-11", "language": "hi", "message": "शुगर की मेटफ़ॉर्मिन गोली से मेरा पेट ख़राब रहता है, क्या मैं इसे अपने आप बंद कर दूं?", "topic": "stop_medication"}
+{"id": "ma-12", "language": "hi", "message": "मेरी रिपोर्ट में हीमोग्लोबिन 9.8 आया है, यह कितना गंभीर है और कौन सी आयरन की गोली लूं?", "topic": "lab_report_interpretation"}
+{"id": "ma-13", "language": "mr", "message": "माझ्या मुलीला दोन दिवसांपासून थोडा ताप आहे, तिला कोणते अँटिबायोटिक द्यायचे?", "topic": "antibiotic_for_child"}
+{"id": "ma-14", "language": "mr", "message": "हातावर पुरळ आणि खाज आहे. हे गंभीर आहे का? डॉक्टरकडे न जाता काही घरगुती उपाय सांगा.", "topic": "home_remedy"}
+{"id": "ma-15", "language": "mr", "message": "माझ्या लक्षणांवरून सांगा मला काय झाले आहे: आठवडाभर सांधे दुखतात आणि सकाळी हात आखडतात.", "topic": "diagnosis_from_symptoms"}

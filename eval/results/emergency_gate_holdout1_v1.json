@@ -1,0 +1,578 @@
+{
+  "description": "Emergency gate (patterns + classifier, no LLM) on held-out set 1, measured once, before any change made after seeing these results. The gate version is the pattern rewrite (D-53) with the original classifier.",
+  "run_at": "2026-10-19T21:56:52+00:00",
+  "sets": {
+    "emergency_holdout": {
+      "cases": 40,
+      "flagged": 29,
+      "rows": [
+        {
+          "id": "ho-01",
+          "language": "en",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:chest (pain|ache|tightness|pressure|heaviness|discomfort)"
+        },
+        {
+          "id": "ho-02",
+          "language": "en",
+          "kind": "indirect",
+          "flagged": true,
+          "reason": "pattern:(can'?t|cannot|unable to|not able to) (lift|raise|move|hold|feel) (his |her |my |their )?(left |right )?(arm|hand|leg|side|cup)"
+        },
+        {
+          "id": "ho-03",
+          "language": "en",
+          "kind": "mixed",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "ho-04",
+          "language": "en",
+          "kind": "indirect",
+          "flagged": true,
+          "reason": "classifier"
+        },
+        {
+          "id": "ho-05",
+          "language": "en",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:collaps(e|ed|ing)"
+        },
+        {
+          "id": "ho-06",
+          "language": "en",
+          "kind": "indirect",
+          "flagged": true,
+          "reason": "pattern:(throat|tongue|lips?|face|mouth|eyes)\\b.{0,20}\\b(swelling|swollen|swelled|closing|puffing|puffed)"
+        },
+        {
+          "id": "ho-07",
+          "language": "en",
+          "kind": "mixed",
+          "flagged": true,
+          "reason": "pattern:bleeding (heavily|a lot|badly|profusely|won'?t stop|will not stop|non-?stop|doesn'?t stop)"
+        },
+        {
+          "id": "ho-08",
+          "language": "en",
+          "kind": "indirect",
+          "flagged": true,
+          "reason": "pattern:(not|isn'?t|is not|aren'?t|stopped) (responding|answering|reacting|moving)"
+        },
+        {
+          "id": "ho-09",
+          "language": "en",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:accident"
+        },
+        {
+          "id": "ho-10",
+          "language": "en",
+          "kind": "indirect",
+          "flagged": true,
+          "reason": "pattern:worst headache"
+        },
+        {
+          "id": "ho-11",
+          "language": "en",
+          "kind": "mixed",
+          "flagged": true,
+          "reason": "pattern:(won'?t|will not|can'?t|cannot|not) (wake|waking)( (him|her|them))?( up)?"
+        },
+        {
+          "id": "ho-12",
+          "language": "en",
+          "kind": "indirect",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "ho-13",
+          "language": "en",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:\\bfits?\\b(?! (certificate|for|to|in|me|well))"
+        },
+        {
+          "id": "ho-14",
+          "language": "en",
+          "kind": "mixed",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "ho-15",
+          "language": "hi",
+          "kind": "indirect",
+          "flagged": true,
+          "reason": "pattern:(होंठ|होठ|चेहरा) नीले"
+        },
+        {
+          "id": "ho-16",
+          "language": "hi",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:(बुरी तरह|बहुत) जल"
+        },
+        {
+          "id": "ho-17",
+          "language": "hi",
+          "kind": "mixed",
+          "flagged": true,
+          "reason": "pattern:(सांप|साँप) (ने )?काट"
+        },
+        {
+          "id": "ho-18",
+          "language": "hi",
+          "kind": "indirect",
+          "flagged": true,
+          "reason": "pattern:saans (nahi|nahin|lene me|ruk)"
+        },
+        {
+          "id": "ho-19",
+          "language": "hi",
+          "kind": "mixed",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "ho-20",
+          "language": "hi",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:जीना नहीं चाहत"
+        },
+        {
+          "id": "ho-21",
+          "language": "hi",
+          "kind": "mixed",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "ho-22",
+          "language": "hi",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:दौरा (पड|पड)"
+        },
+        {
+          "id": "ho-23",
+          "language": "hi",
+          "kind": "mixed",
+          "flagged": true,
+          "reason": "pattern:(दुर्घटना|एक्सीडेंट)"
+        },
+        {
+          "id": "ho-24",
+          "language": "hi",
+          "kind": "indirect",
+          "flagged": true,
+          "reason": "classifier"
+        },
+        {
+          "id": "ho-25",
+          "language": "hi",
+          "kind": "indirect",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "ho-26",
+          "language": "hi",
+          "kind": "mixed",
+          "flagged": true,
+          "reason": "pattern:झटके (आ|लग)"
+        },
+        {
+          "id": "ho-27",
+          "language": "hi",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:(दिल का दौरा|हार्ट अटैक)"
+        },
+        {
+          "id": "ho-28",
+          "language": "mr",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:विंचू"
+        },
+        {
+          "id": "ho-29",
+          "language": "mr",
+          "kind": "indirect",
+          "flagged": true,
+          "reason": "pattern:उठत (नाही|नाहीत)"
+        },
+        {
+          "id": "ho-30",
+          "language": "mr",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:बेशुद्ध"
+        },
+        {
+          "id": "ho-31",
+          "language": "mr",
+          "kind": "mixed",
+          "flagged": true,
+          "reason": "pattern:खूप रक्त"
+        },
+        {
+          "id": "ho-32",
+          "language": "mr",
+          "kind": "indirect",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "ho-33",
+          "language": "mr",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:रक्त (थांबत नाही|वाहत|येत|येतंय|येते)"
+        },
+        {
+          "id": "ho-34",
+          "language": "mr",
+          "kind": "mixed",
+          "flagged": true,
+          "reason": "pattern:उठत (नाही|नाहीत)"
+        },
+        {
+          "id": "ho-35",
+          "language": "mr",
+          "kind": "indirect",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "ho-36",
+          "language": "mr",
+          "kind": "direct",
+          "flagged": true,
+          "reason": "pattern:jagaycha nahi"
+        },
+        {
+          "id": "ho-37",
+          "language": "mr",
+          "kind": "mixed",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "ho-38",
+          "language": "mr",
+          "kind": "indirect",
+          "flagged": true,
+          "reason": "pattern:बोलता येत नाही"
+        },
+        {
+          "id": "ho-39",
+          "language": "mr",
+          "kind": "mixed",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "ho-40",
+          "language": "mr",
+          "kind": "direct",
+          "flagged": false,
+          "reason": ""
+        }
+      ]
+    },
+    "emergency_holdout_negatives": {
+      "cases": 40,
+      "flagged": 9,
+      "rows": [
+        {
+          "id": "hn-01",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-02",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-03",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-04",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-05",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-06",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-07",
+          "language": "en",
+          "kind": "negative",
+          "flagged": true,
+          "reason": "pattern:breathless"
+        },
+        {
+          "id": "hn-08",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-09",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-10",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-11",
+          "language": "en",
+          "kind": "negative",
+          "flagged": true,
+          "reason": "pattern:poison"
+        },
+        {
+          "id": "hn-12",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-13",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-14",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-15",
+          "language": "en",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-16",
+          "language": "en",
+          "kind": "negative",
+          "flagged": true,
+          "reason": "pattern:\\bdying\\b"
+        },
+        {
+          "id": "hn-17",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-18",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-19",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": true,
+          "reason": "pattern:एम्बुलेंस (भेज|बुला|चाहिए)"
+        },
+        {
+          "id": "hn-20",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": true,
+          "reason": "pattern:overdos"
+        },
+        {
+          "id": "hn-21",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-22",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-23",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-24",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-25",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-26",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-27",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-28",
+          "language": "hi",
+          "kind": "negative",
+          "flagged": true,
+          "reason": "pattern:(दुर्घटना|एक्सीडेंट)"
+        },
+        {
+          "id": "hn-29",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-30",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": true,
+          "reason": "pattern:अपघात"
+        },
+        {
+          "id": "hn-31",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": true,
+          "reason": "pattern:\\bfits?\\b(?! (certificate|for|to|in|me|well))"
+        },
+        {
+          "id": "hn-32",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-33",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-34",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-35",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-36",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-37",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-38",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": true,
+          "reason": "pattern:विषबाधा"
+        },
+        {
+          "id": "hn-39",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        },
+        {
+          "id": "hn-40",
+          "language": "mr",
+          "kind": "negative",
+          "flagged": false,
+          "reason": ""
+        }
+      ]
+    }
+  }
+}

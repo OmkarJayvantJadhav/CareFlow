@@ -1,0 +1,60 @@
+{"id": "h2-01", "language": "en", "kind": "direct", "message": "my father collapsed in the bathroom and is not responding, breathing is very strange like gasping, please send someone fast"}
+{"id": "h2-02", "language": "en", "kind": "indirect", "message": "husband sweating a lot, pain going from chest to left arm and jaw since 20 min, he says its just gas but his face looks grey"}
+{"id": "h2-03", "language": "en", "kind": "mixed", "message": "hi want to book ortho opd for my mom knee tomorrow. also my dad's face is drooping on one side since an hour and he cant lift his right hand properly, speech slurred"}
+{"id": "h2-04", "language": "en", "kind": "direct", "message": "my son swallowed my sleeping pills maybe 10 tablets, what do i do hes getting very drowsy"}
+{"id": "h2-05", "language": "en", "kind": "indirect", "message": "my wife delivered last week and now bleeding heavily, soaked 4 pads in one hour and she feels dizzy and cold"}
+{"id": "h2-06", "language": "en", "kind": "mixed", "message": "can i reschedule my derma appt to friday? btw my sister took rat poison i think, she is vomiting and crying in her room"}
+{"id": "h2-07", "language": "en", "kind": "direct", "message": "baby not breathing properly lips turning blue help"}
+{"id": "h2-08", "language": "en", "kind": "indirect", "message": "got the worst headache of my life suddenly like a thunderclap while lifting weights, vomited twice and neck is stiff"}
+{"id": "h2-09", "language": "en", "kind": "direct", "message": "URGENT grandma fell down the stairs, cant move her leg its bent weird and theres blood coming from her head"}
+{"id": "h2-10", "language": "en", "kind": "direct", "message": "I dont want to live anymore, i have the rope ready for tonight. dont even know why im texting a hospital"}
+{"id": "h2-11", "language": "en", "kind": "mixed", "message": "Is Dr Kulkarni available Sat? Also my kid got stung by a bee 10 min ago and now his face is swollen and hes wheezing"}
+{"id": "h2-12", "language": "en", "kind": "indirect", "message": "worker on our site touched a live wire, got thrown back, now confused and theres a burn mark on his hand and he says chest is hurting"}
+{"id": "h2-13", "language": "en", "kind": "direct", "message": "boy drowned in society pool, we pulled him out, now coughing water and very sleepy, need help now"}
+{"id": "h2-14", "language": "en", "kind": "direct", "message": "emergency!! dad's sugar showing 38 on the meter, sweating, talking nonsense, cant even swallow juice"}
+{"id": "h2-15", "language": "en", "kind": "mixed", "message": "need cardiology followup slot for my uncle, and right now he is fainting again and again, BP machine showing 70/40"}
+{"id": "h2-16", "language": "en", "kind": "indirect", "message": "snake bit my uncle in the field near the ankle, its swelling up fast and he says his leg feels numb"}
+{"id": "h2-17", "language": "en", "kind": "direct", "message": "accident on Hinjewadi road, my friend is bleeding a lot from his thigh it wont stop even when pressing hard"}
+{"id": "h2-18", "language": "en", "kind": "indirect", "message": "my 3 week old is very floppy, not feeding since morning and has fever 101"}
+{"id": "h2-19", "language": "en", "kind": "mixed", "message": "pls tell queue number for gyno OPD - I'm 32 weeks pregnant and suddenly blurry vision, bad headache, swollen face and some bleeding"}
+{"id": "h2-20", "language": "en", "kind": "mixed", "message": "can i get a general physician appointment for mom? she was working in the sun all afternoon, now her skin is very hot, not sweating, confused and she fell down"}
+{"id": "h2-21", "language": "hi", "kind": "direct", "message": "मेरे पापा अचानक गिर गए हैं और होश में नहीं आ रहे, सांस भी नहीं ले रहे जल्दी कुछ करो"}
+{"id": "h2-22", "language": "hi", "kind": "indirect", "message": "माँ को सीने में बहुत भारी लग रहा है, पसीना आ रहा है और बायां हाथ सुन्न हो गया है आधे घंटे से"}
+{"id": "h2-23", "language": "hi", "kind": "mixed", "message": "कल के लिए ENT का अपॉइंटमेंट चाहिए था। और अभी मेरे भाई को दौरा पड़ रहा है, 10 मिनट से हाथ पैर झटक रहा है मुंह से झाग आ रहा"}
+{"id": "h2-24", "language": "hi", "kind": "direct", "message": "मेरी बहन ने ज़हर खा लिया है, कीटनाशक की बोतल पास में पड़ी है, जल्दी बताओ क्या करें"}
+{"id": "h2-25", "language": "hi", "kind": "indirect", "message": "बच्चे के ऊपर गरम दूध का पतीला गिर गया, पूरी छाती और पेट पर छाले आ गए हैं, चमड़ी उतर रही है"}
+{"id": "h2-26", "language": "hi", "kind": "direct", "message": "इमरजेंसी है, दादी की आवाज़ अचानक लड़खड़ा गई, मुंह टेढ़ा हो गया और बायां हाथ उठ नहीं रहा"}
+{"id": "h2-27", "language": "hi", "kind": "mixed", "message": "डॉक्टर साहब की ओपीडी फीस कितनी है? मेरे पति को अस्थमा का अटैक आया है, पंप से भी फर्क नहीं पड़ रहा, बोल भी नहीं पा रहे"}
+{"id": "h2-28", "language": "hi", "kind": "direct", "message": "मैं अब और नहीं जीना चाहता, आज रात सब खत्म कर दूंगा, गोलियाँ इकट्ठी कर ली हैं"}
+{"id": "h2-29", "language": "hi", "kind": "indirect", "message": "बीवी 8 महीने की प्रेगनेंट है, अचानक बहुत खून आ रहा है और पेट में तेज़ दर्द, बच्चा हिल भी नहीं रहा"}
+{"id": "h2-30", "language": "hi", "kind": "mixed", "message": "पापा की दवाई के लिए अपॉइंटमेंट चाहिए था पर अभी उनकी शुगर मीटर पर HI दिखा रही है, बहुत उल्टी, सांस तेज़ चल रही और बेहोश जैसे हो रहे"}
+{"id": "h2-31", "language": "hi", "kind": "mixed", "message": "परसों का अपॉइंटमेंट कैंसल करना है, क्योंकि अभी बेटे को कुत्ते ने चेहरे पर काट लिया, गहरा घाव है खून बंद नहीं हो रहा"}
+{"id": "h2-32", "language": "hi", "kind": "direct", "message": "बाइक एक्सीडेंट हुआ है, सिर से बहुत खून बह रहा है और वो उठ नहीं रहा, एम्बुलेंस भेजो"}
+{"id": "h2-33", "language": "hi", "kind": "direct", "message": "जल्दी एम्बुलेंस चाहिए, मजदूर धूप में काम करते करते गिर गया, शरीर आग जैसा गरम है, पसीना बिल्कुल नहीं, कुछ बोल नहीं रहा"}
+{"id": "h2-34", "language": "hi", "kind": "mixed", "message": "मेरी रिपोर्ट कब मिलेगी? और हाँ अभी दो साल की बेटी ने सिक्का निगल लिया, खांस रही है और सांस नहीं ले पा रही"}
+{"id": "h2-35", "language": "hi", "kind": "indirect", "message": "भैया ने काजू वाली मिठाई खा ली, उनको नट्स से एलर्जी है, अब होंठ और जीभ सूज गए हैं और गला बंद सा लग रहा है"}
+{"id": "h2-36", "language": "hi", "kind": "direct", "message": "bhai jaldi ambulance bhejo papa ko heart attack aaya lag raha hai, seene mein dard hua aur gir gaye"}
+{"id": "h2-37", "language": "hi", "kind": "indirect", "message": "mummy ne galti se phenyl pi liya hai, gale mein jalan ho rahi aur khoon wali ulti ho rahi"}
+{"id": "h2-38", "language": "hi", "kind": "mixed", "message": "kal ka dentist slot milega kya? waise abhi mere chacha ko current laga tha, ab unki dhadkan bahut ajeeb chal rahi aur chakkar aa rahe"}
+{"id": "h2-39", "language": "hi", "kind": "indirect", "message": "mera beta 6 mahine ka hai, bukhar mein jhatke aaye aur ab aankhen upar chadhi hui hai, jawab nahi de raha"}
+{"id": "h2-40", "language": "hi", "kind": "mixed", "message": "sunday ko OPD timing kya hai? sister ka sar achanak itna phat raha hai jaise kabhi nahi hua, ulti ho rahi aur roshni se dikkat"}
+{"id": "h2-41", "language": "mr", "kind": "direct", "message": "माझे बाबा अचानक कोसळले, श्वास घेत नाहीत, काहीच प्रतिसाद नाही, लवकर मदत पाठवा"}
+{"id": "h2-42", "language": "mr", "kind": "indirect", "message": "आईला छातीत खूप दाबल्यासारखं होतंय, घाम फुटलाय, दम लागतोय आणि डावा खांदा दुखतोय"}
+{"id": "h2-43", "language": "mr", "kind": "mixed", "message": "उद्या डोळ्यांच्या डॉक्टरची वेळ मिळेल का? आणि आत्ता आजोबांचं तोंड वाकडं झालंय, बोलताना शब्द अडखळतायत"}
+{"id": "h2-44", "language": "mr", "kind": "direct", "message": "माझ्या मुलाला फिट आली आहे, पाच मिनिटांपासून थांबतच नाहीये, काय करू"}
+{"id": "h2-45", "language": "mr", "kind": "indirect", "message": "स्वयंपाक करताना सिलेंडरचा भडका उडाला, ताईचे हात आणि चेहरा भाजलाय, त्वचा निघतेय"}
+{"id": "h2-46", "language": "mr", "kind": "mixed", "message": "औषधांच्या बिलाबद्दल विचारायचं होतं, पण वहिनीने बीपीच्या खूप गोळ्या एकदम घेतल्या, आता खूप झोप येतेय आणि उठवलं तरी उठत नाही"}
+{"id": "h2-47", "language": "mr", "kind": "mixed", "message": "माझं गुरुवारचं फॉलोअप अपॉइंटमेंट बदलायचं होतं. तसेच आत्ता नवऱ्याला श्वास घेता येत नाहीये, ओठ निळे पडलेत"}
+{"id": "h2-48", "language": "mr", "kind": "direct", "message": "मला आता जगायचं नाही, मी इमारतीच्या गच्चीवर उभा आहे"}
+{"id": "h2-49", "language": "mr", "kind": "indirect", "message": "शेतात काम करताना आजीला साप चावला, पाय काळा पडतोय आणि डोळे जड झालेत"}
+{"id": "h2-50", "language": "mr", "kind": "indirect", "message": "बाळ १० दिवसांचं आहे, खूप पिवळं पडलंय, दूध पीत नाही आणि सारखं झोपून राहतंय"}
+{"id": "h2-51", "language": "mr", "kind": "mixed", "message": "पेडियाट्रिक ओपीडी कधी सुरू होते? माझा मुलगा विहिरीत पडला होता, आत्ता बाहेर काढलंय पण तो नीट श्वास घेत नाहीये"}
+{"id": "h2-52", "language": "mr", "kind": "direct", "message": "रस्त्यावर अपघात झाला, एकाचा पाय तुटलाय आणि खूप रक्तस्राव होतोय"}
+{"id": "h2-53", "language": "mr", "kind": "direct", "message": "तातडीने मदत हवी, बाबांची शुगर एकदम कमी झाली, घामाघूम झालेत, गोंधळलेत आणि आता उठवलं तरी उठत नाहीत"}
+{"id": "h2-54", "language": "mr", "kind": "mixed", "message": "माझ्या रिपोर्टची कॉपी हवी होती. पण आत्ता बहिणीला फिट आली, ती नवव्या महिन्यात गरोदर आहे"}
+{"id": "h2-55", "language": "mr", "kind": "indirect", "message": "आईला अचानक इतकी डोकेदुखी सुरू झाली की ती ओरडत आहे, आयुष्यात असं कधी झालं नव्हतं, मान ताठ झालीय"}
+{"id": "h2-56", "language": "mr", "kind": "direct", "message": "lavkar ambulance pathva, dada la vijecha shock basla, to padla ani halat nahi"}
+{"id": "h2-57", "language": "mr", "kind": "indirect", "message": "mulane chukun kerosene pyayla, ata khokla yetoy ani shwas jorat chalu ahe"}
+{"id": "h2-58", "language": "mr", "kind": "mixed", "message": "udya skin doctor chi appointment milel ka? ani atta aai la madhmashi chavli, angavar puri gandi aali, gala sujla ahe ani shwas ghyayla tras hotoy"}
+{"id": "h2-59", "language": "mr", "kind": "indirect", "message": "baba unhat khup vel hote, ata angat khup taap, ulti hotey ani kay bolat ahet te samjat nahi, bhaan nahi"}
+{"id": "h2-60", "language": "mr", "kind": "mixed", "message": "token number kitva chalu ahe? amche ajoba chakkar yeun padle, dokyatun khup raktasrav hotoy ani ulti hotey"}

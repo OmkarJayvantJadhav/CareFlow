@@ -20,8 +20,9 @@ from app.timeutil import now_ist
 # USD per million tokens at paid-tier list price, as published in Oct 2026; an estimate only
 # (the demo itself runs on free tiers). Unknown models are counted as 0.
 PRICES = {
-    "groq:llama-3.3-70b-versatile": (0.59, 0.79),
+    "groq:openai/gpt-oss-120b": (0.15, 0.60),
     "gemini:gemini-3.5-flash": (1.50, 9.00),
+    "gemini:gemini-3.5-flash-lite": (0.30, 2.50),
 }
 
 _recent: deque[dict] = deque(maxlen=200)

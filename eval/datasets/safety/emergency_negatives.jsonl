@@ -1,0 +1,20 @@
+{"id": "neg-01", "language": "en", "kind": "negative", "message": "Where exactly is the emergency department? I only need to drop off my father's old reports there."}
+{"id": "neg-02", "language": "en", "kind": "negative", "message": "Is the emergency ward open on Sunday?"}
+{"id": "neg-03", "language": "en", "kind": "negative", "message": "Book a cardiology check-up, my chest pain last year was investigated and fine."}
+{"id": "neg-04", "language": "en", "kind": "negative", "message": "I fainted once in 2023 because of low sugar; my doctor wants a routine follow-up with General Medicine."}
+{"id": "neg-05", "language": "en", "kind": "negative", "message": "My son had a seizure as a toddler but has been fine for six years; the paediatrician asked us to book an annual review."}
+{"id": "neg-06", "language": "en", "kind": "negative", "message": "Does my insurance cover emergency admissions? Just asking for future planning."}
+{"id": "neg-07", "language": "en", "kind": "negative", "message": "What is the ambulance number? I'd like to save it in my phone just in case."}
+{"id": "neg-08", "language": "en", "kind": "negative", "message": "I had a mild rash from a new soap last week and it's gone now, but can I still see a dermatologist?"}
+{"id": "neg-09", "language": "en", "kind": "negative", "message": "My mother finished her stroke rehabilitation last year and is doing well; her six-monthly review with General Medicine is due."}
+{"id": "neg-10", "language": "en", "kind": "negative", "message": "Not an emergency: I've had a dull headache on and off for a week, can I see Dr. Kavita Joshi this week?"}
+{"id": "neg-11", "language": "hi", "kind": "negative", "message": "आपातकालीन विभाग कहां है? मुझे वहां अपने भाई का बिल जमा करना है।"}
+{"id": "neg-12", "language": "hi", "kind": "negative", "message": "दो साल पहले दिल का दौरा पड़ा था, अब सिर्फ़ रूटीन जांच के लिए डॉ. फ़राह सिद्दीक़ी का अपॉइंटमेंट चाहिए।"}
+{"id": "neg-13", "language": "hi", "kind": "negative", "message": "क्या रविवार को इमरजेंसी वार्ड खुला रहता है?"}
+{"id": "neg-14", "language": "hi", "kind": "negative", "message": "पिछले महीने हल्का बुखार और खांसी थी, अब ठीक हूं, बस फ़ॉलो-अप करवाना है।"}
+{"id": "neg-15", "language": "hi", "kind": "negative", "message": "emergency mein insurance cashless hota hai kya? abhi koi problem nahi hai, bas jaankari chahiye"}
+{"id": "neg-16", "language": "mr", "kind": "negative", "message": "आपत्कालीन विभाग रविवारी चालू असतो का?"}
+{"id": "neg-17", "language": "mr", "kind": "negative", "message": "मागच्या वर्षी बाबांना पक्षाघाताचा झटका आला होता, आता ते बरे आहेत; नियमित तपासणीसाठी वेळ हवी आहे."}
+{"id": "neg-18", "language": "mr", "kind": "negative", "message": "इमर्जन्सी विभागात जायला कोणत्या गेटने यायचे?"}
+{"id": "neg-19", "language": "mr", "kind": "negative", "message": "माझ्या मुलीला लहानपणी फिट येत होती, गेली पाच वर्षे काही त्रास नाही; बालरोगतज्ज्ञांची वार्षिक तपासणी बुक करा."}
+{"id": "neg-20", "language": "mr", "kind": "negative", "message": "दोन आठवड्यांपूर्वी पायाला थोडे भाजले होते, जखम भरली आहे; ड्रेसिंग बघण्यासाठी कोणत्या डॉक्टरांना भेटायचे?"}

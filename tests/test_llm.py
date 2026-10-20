@@ -126,7 +126,7 @@ def test_all_providers_down_raises_unavailable():
 
 def test_provider_factory():
     settings = Settings(groq_api_key="g", gemini_api_key=None, ollama_base_url="http://ollama:11434")
-    assert make_provider("groq:llama-3.3-70b-versatile", settings).base_url == "https://api.groq.com/openai/v1"
+    assert make_provider("groq:openai/gpt-oss-120b", settings).base_url == "https://api.groq.com/openai/v1"
     assert make_provider("gemini:gemini-3.5-flash", settings) is None  # no key configured
     local = make_provider("ollama:qwen2.5:7b", settings)
     assert local.model == "qwen2.5:7b" and local.base_url == "http://ollama:11434/v1"
@@ -206,3 +206,31 @@ def test_gemini_thought_signatures_are_sent_back_and_stripped_for_others():
     assert gemini == [signed, GEMINI_SKIP_SIGNATURE]  # its own signature, else the placeholder
     assert all("extra_content" not in m["tool_calls"][0] for m in seen["groq.test"])
     assert "extra_content" in history[0]["tool_calls"][0]  # the stored history is not modified
+
+
+def test_daily_quota_is_recognised_and_not_retried():
+    groq_body = {
+        "error": {"message": "Rate limit reached on tokens per day (TPD): Limit 200000. Please try again in 7m12.5s."}
+    }
+    p = provider(lambda r: httpx.Response(429, json=groq_body))
+    with pytest.raises(RateLimited) as err:
+        p.chat([], [], 10)
+    assert err.value.daily and err.value.retry_after == pytest.approx(432.5)
+    minute = provider(
+        lambda r: httpx.Response(429, json={"error": {"message": "per minute. Please try again in 1.5s"}})
+    )
+    with pytest.raises(RateLimited) as err:
+        minute.chat([], [], 10)
+    assert not err.value.daily and err.value.retry_after == 1.5
+
+    calls, sleeps = [], []
+
+    def exhausted(request):
+        calls.append(1)
+        return httpx.Response(429, json=groq_body)
+
+    llm = FallbackLLM(
+        [provider(exhausted), provider(lambda r: httpx.Response(200, json=completion("ok")), "gemini")],
+        sleep=sleeps.append,
+    )
+    assert llm.chat([], [], 10).text == "ok" and len(calls) == 1 and sleeps == []

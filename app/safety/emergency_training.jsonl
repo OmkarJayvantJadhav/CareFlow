@@ -1,0 +1,600 @@
+{"text": "my husband is clutching his chest, says it feels like an elephant sitting on it, he's grey and sweaty", "label": 1, "language": "en", "category": "cardiac"}
+{"text": "sudden pressure in my chest spreading to my jaw and left shoulder, started 10 min ago", "label": 1, "language": "en", "category": "cardiac"}
+{"text": "dad says theres a heavy weight on his chest and he's throwing up and drenched in cold sweat", "label": 1, "language": "en", "category": "cardiac"}
+{"text": "i feel like someone is squeezing my heart and my arm has gone tingly, im alone at home", "label": 1, "language": "en", "category": "cardiac"}
+{"text": "can you move my dental cleaning to next month? also my mom has had tight chest pain going into her back for half an hour and she looks really pale", "label": 1, "language": "en", "category": "cardiac"}
+{"text": "need to reschedule the physio session for my uncle, right now hes having bad chest pain and cant stand up properly, what do we do", "label": 1, "language": "en", "category": "cardiac"}
+{"text": "my son is choking on a coin, he can't cough or make any sound", "label": 1, "language": "en", "category": "breathing"}
+{"text": "grandma is gasping and her lips have gone purple", "label": 1, "language": "en", "category": "breathing"}
+{"text": "she's making a whistling noise, can't speak more than one word and is clawing at her throat", "label": 1, "language": "en", "category": "breathing"}
+{"text": "my asthma inhaler isnt working at all, cant breathe, chest so tight i can barely type", "label": 1, "language": "en", "category": "breathing"}
+{"text": "booking for ENT on monday pls... actually my daughter just swallowed a grape whole and she's not breathing, help", "label": 1, "language": "en", "category": "breathing"}
+{"text": "hi i wanted to check lab timings but my father suddenly cant get air in, his fingernails are turning blue", "label": 1, "language": "en", "category": "breathing"}
+{"text": "my roommate is on the floor and wont wake up no matter how much i shake him", "label": 1, "language": "en", "category": "unresponsive"}
+{"text": "found my grandfather lying in the kitchen, eyes open but he isn't responding to anything", "label": 1, "language": "en", "category": "unresponsive"}
+{"text": "she just dropped in the middle of the market and isn't moving, her breathing sounds weird", "label": 1, "language": "en", "category": "unresponsive"}
+{"text": "pls cancel tomorrows dermatology slot, my brother just passed out at the dinner table and is still not coming round", "label": 1, "language": "en", "category": "unresponsive"}
+{"text": "can i get the report of my blood test? also my aunt fell down in the puja room and isnt responding when we call her name", "label": 1, "language": "en", "category": "unresponsive"}
+{"text": "my mother's face suddenly looks lopsided and her words are coming out jumbled", "label": 1, "language": "en", "category": "stroke"}
+{"text": "dad cant lift his right arm since 20 minutes and his speech is slurred", "label": 1, "language": "en", "category": "stroke"}
+{"text": "grandpa suddenly went blind in one eye and his left side feels heavy", "label": 1, "language": "en", "category": "stroke"}
+{"text": "my husbands smile is crooked and his tea keeps dribbling from one side of his mouth, started just now", "label": 1, "language": "en", "category": "stroke"}
+{"text": "want to book eye checkup for next week. also my nani suddenly can't see anything from her right eye and is confused, started an hour ago", "label": 1, "language": "en", "category": "stroke"}
+{"text": "rebook my diabetic review pls. my father's leg and arm on one side went weak all of a sudden and hes mumbling", "label": 1, "language": "en", "category": "stroke"}
+{"text": "blood is spurting out of my dad's arm after the glass broke, its soaking through the towel", "label": 1, "language": "en", "category": "bleeding"}
+{"text": "my son cut his leg on a sheet of metal and blood is pumping out, it wont stop even after pressing", "label": 1, "language": "en", "category": "bleeding"}
+{"text": "there's a deep gash on his head and blood keeps pouring down his face", "label": 1, "language": "en", "category": "bleeding"}
+{"text": "nosebleed for 45 min nonstop and now hes dizzy and pale, blood running down his throat", "label": 1, "language": "en", "category": "bleeding"}
+{"text": "can i change my gynaec appointment to evening? my nephew fell off his bike and his head is bleeding a lot", "label": 1, "language": "en", "category": "bleeding"}
+{"text": "what are the fees for orthopaedic? also my neighbour's hand got caught in the flour mill just now, theres blood everywhere", "label": 1, "language": "en", "category": "bleeding"}
+{"text": "my brother is shaking all over on the floor right now and foam is coming from his mouth", "label": 1, "language": "en", "category": "seizure"}
+{"text": "baby's eyes rolled back and her arms and legs are jerking, its been 4 minutes", "label": 1, "language": "en", "category": "seizure"}
+{"text": "my wife is having a fit and it isn't stopping, it's been going on for more than five minutes", "label": 1, "language": "en", "category": "seizure"}
+{"text": "he's gone stiff and jerking, teeth clenched, and he's turning bluish", "label": 1, "language": "en", "category": "seizure"}
+{"text": "is dr kulkarni available thursday? my son is having convulsions as i type this", "label": 1, "language": "en", "category": "seizure"}
+{"text": "i was going to book a neuro follow up but my mom just started twitching and isnt responding, its happening now", "label": 1, "language": "en", "category": "seizure"}
+{"text": "i have the pills lined up and tonight i'm going to take all of them", "label": 1, "language": "en", "category": "suicide"}
+{"text": "this is my last message, tell my family i'm sorry", "label": 1, "language": "en", "category": "suicide"}
+{"text": "i cut myself deep and i dont really want to stop it this time", "label": 1, "language": "en", "category": "suicide"}
+{"text": "nobody will miss me, i'm standing on the terrace and i'm going to jump", "label": 1, "language": "en", "category": "suicide"}
+{"text": "please cancel all my appointments, i won't need them anymore, i've decided to end my life tonight", "label": 1, "language": "en", "category": "suicide"}
+{"text": "can you book psychiatry? actually never mind, the rope is already tied to the fan, goodbye", "label": 1, "language": "en", "category": "suicide"}
+{"text": "my 3 year old ate some of grandpa's BP tablets, maybe 6 or 7 of them", "label": 1, "language": "en", "category": "poisoning"}
+{"text": "my uncle drank pesticide in the field, he's vomiting and frothing", "label": 1, "language": "en", "category": "poisoning"}
+{"text": "kid drank toilet cleaner from the bottle, crying and says his mouth is burning", "label": 1, "language": "en", "category": "poisoning"}
+{"text": "my friend drank way too much, she's throwing up while passed out and her skin is cold and bluish", "label": 1, "language": "en", "category": "poisoning"}
+{"text": "my husband ate rat poison by mistake, it was mixed in the flour, now his gums are bleeding", "label": 1, "language": "en", "category": "poisoning"}
+{"text": "need to reschedule my sister's dentist visit. also my toddler found the kerosene bottle and drank some, now coughing a lot", "label": 1, "language": "en", "category": "poisoning"}
+{"text": "my granny took her sugar pills twice and maybe a whole strip of sleeping pills by mistake, she's very drowsy", "label": 1, "language": "en", "category": "poisoning"}
+{"text": "after the bee sting his whole face puffed up and he's wheezing", "label": 1, "language": "en", "category": "allergy"}
+{"text": "ate prawns at a wedding, now my lips are huge, hives everywhere and my throat feels tight", "label": 1, "language": "en", "category": "allergy"}
+{"text": "my daughter got an injection at a clinic and now she is covered in red welts and can barely breathe", "label": 1, "language": "en", "category": "allergy"}
+{"text": "booking for a skin doctor for my eczema, but right now my son ate a cashew and his throat is closing, what do i do", "label": 1, "language": "en", "category": "allergy"}
+{"text": "his eyes are swollen shut, voice gone hoarse and he's struggling for air after eating the peanut chutney", "label": 1, "language": "en", "category": "allergy"}
+{"text": "pressure cooker burst and boiling dal went all over my mother's chest and arms, skin peeling", "label": 1, "language": "en", "category": "burn"}
+{"text": "my kid pulled the kettle down, hot water on his whole tummy, skin is blistering badly", "label": 1, "language": "en", "category": "burn"}
+{"text": "gas cylinder caught fire, my brother's face and hands are badly burnt", "label": 1, "language": "en", "category": "burn"}
+{"text": "she spilled acid cleaner on her legs, skin is turning white and she's screaming", "label": 1, "language": "en", "category": "burn"}
+{"text": "need appointment for my mom's thyroid. also my dad got burnt by firecrackers just now, the skin on his hand is black", "label": 1, "language": "en", "category": "burn"}
+{"text": "grandma fell down the stairs, hit her head and now she's vomiting and sleepy", "label": 1, "language": "en", "category": "head_injury"}
+{"text": "my son fell from the jungle gym onto his head, he's confused and keeps asking the same question", "label": 1, "language": "en", "category": "head_injury"}
+{"text": "dad slipped in the bathroom, there's a lump on his head and clear fluid coming from his ear", "label": 1, "language": "en", "category": "head_injury"}
+{"text": "pls book follow up for my knee. my father in law just fell from the terrace on his head and isnt making sense", "label": 1, "language": "en", "category": "head_injury"}
+{"text": "a truck hit our bike on the highway near katraj, my friend is lying on the road bleeding", "label": 1, "language": "en", "category": "road_accident"}
+{"text": "car crash outside wakad, driver is trapped and not moving", "label": 1, "language": "en", "category": "road_accident"}
+{"text": "my cousin got thrown off his scooter, his leg is bent the wrong way and he can't feel his feet", "label": 1, "language": "en", "category": "road_accident"}
+{"text": "need the hospital address, my husband just had an accident near hinjewadi and his chest is crushed, he can hardly breathe", "label": 1, "language": "en", "category": "road_accident"}
+{"text": "my uncle touched the live wire while fixing the fan and is now lying still, barely breathing", "label": 1, "language": "en", "category": "electrocution"}
+{"text": "the kid touched the iron box wire and got thrown back, his hand is burnt and he's not talking", "label": 1, "language": "en", "category": "electrocution"}
+{"text": "can i book a skin consult? my brother got a shock from the water pump just now and his heart is beating weirdly and hes faint", "label": 1, "language": "en", "category": "electrocution"}
+{"text": "pulled my nephew out of the swimming pool, he's not breathing", "label": 1, "language": "en", "category": "drowning"}
+{"text": "boy fell in the well, we got him out but he's coughing water and very drowsy", "label": 1, "language": "en", "category": "drowning"}
+{"text": "my daughter was under water in the bathtub for a minute, now she's limp and pale", "label": 1, "language": "en", "category": "drowning"}
+{"text": "a cobra bit my father in the sugarcane field, his eyelids are drooping and he's struggling to breathe", "label": 1, "language": "en", "category": "bite"}
+{"text": "scorpion sting on my son's foot, he's sweating a lot, vomiting and his heart is racing", "label": 1, "language": "en", "category": "bite"}
+{"text": "a pack of stray dogs mauled my daughter, deep bites on her face and neck, a lot of blood", "label": 1, "language": "en", "category": "bite"}
+{"text": "something bit my mother near the bushes, two puncture marks, her leg is swelling up fast and turning black", "label": 1, "language": "en", "category": "bite"}
+{"text": "want to book a general physician for next week, but just now a snake bit my aunt on her hand and she's going drowsy", "label": 1, "language": "en", "category": "bite"}
+{"text": "my husband got stung by a scorpion while lifting the firewood, now he's short of breath and his face is numb", "label": 1, "language": "en", "category": "bite"}
+{"text": "I'm 32 weeks pregnant and there's a lot of bright red blood, soaking pads", "label": 1, "language": "en", "category": "pregnancy"}
+{"text": "my wife is 8 months along and suddenly has a terrible headache, blurry vision and a swollen face", "label": 1, "language": "en", "category": "pregnancy"}
+{"text": "7 months pregnant, baby hasn't moved since morning and I have severe pain", "label": 1, "language": "en", "category": "pregnancy"}
+{"text": "she's pregnant and fainted, sharp pain on one side of her belly", "label": 1, "language": "en", "category": "pregnancy"}
+{"text": "cancel my antenatal scan slot, my sister in law's waters broke and the baby's cord is coming out", "label": 1, "language": "en", "category": "pregnancy"}
+{"text": "she just gave birth at home and the bleeding wont stop, she's going pale", "label": 1, "language": "en", "category": "pregnancy"}
+{"text": "my newborn is very floppy and isn't feeding, her skin feels cold", "label": 1, "language": "en", "category": "child"}
+{"text": "2 month old baby is grunting with every breath and her ribs are sucking in", "label": 1, "language": "en", "category": "child"}
+{"text": "my baby has a high fever and a purple rash that doesn't fade when I press a glass on it", "label": 1, "language": "en", "category": "child"}
+{"text": "toddler fell off the first floor balcony, he stopped crying and now just wants to sleep", "label": 1, "language": "en", "category": "child"}
+{"text": "need to book vaccination for next week, but my 6 month old has been vomiting non stop and now isn't waking up properly", "label": 1, "language": "en", "category": "child"}
+{"text": "my child has had diarrhoea all day, no pee for 12 hours, eyes sunken and very sleepy", "label": 1, "language": "en", "category": "child"}
+{"text": "i suddenly got the worst headache of my entire life, like a thunderclap, and now my neck is stiff", "label": 1, "language": "en", "category": "headache"}
+{"text": "my mom screamed holding her head saying it exploded, now she's vomiting", "label": 1, "language": "en", "category": "headache"}
+{"text": "out of nowhere a splitting pain at the back of my head, never felt anything like it, light hurts my eyes", "label": 1, "language": "en", "category": "headache"}
+{"text": "want to see neurologist for my migraines next month. but right now my brother has a sudden terrible headache, worst ever, and he collapsed", "label": 1, "language": "en", "category": "headache"}
+{"text": "my grandfather was working in the sun and now he's burning hot, not sweating and talking nonsense", "label": 1, "language": "en", "category": "heat_stroke"}
+{"text": "labourer at our site collapsed in the heat, skin is hot and dry and he's not responding properly", "label": 1, "language": "en", "category": "heat_stroke"}
+{"text": "after the marathon my friend is confused, very hot to touch and stumbling around", "label": 1, "language": "en", "category": "heat_stroke"}
+{"text": "my son played cricket all afternoon in the sun, now he fainted and is having a fit", "label": 1, "language": "en", "category": "heat_stroke"}
+{"text": "book a skin consult for my tan... also my mom has been in the hot kitchen without a fan, she's suddenly very hot, dizzy, vomiting and not making sense", "label": 1, "language": "en", "category": "heat_stroke"}
+{"text": "my diabetic father is sweating, shaking and not making sense, his sugar is 40", "label": 1, "language": "en", "category": "hypoglycemia"}
+{"text": "mom took her insulin and skipped dinner, now she's very confused and we can't wake her properly", "label": 1, "language": "en", "category": "hypoglycemia"}
+{"text": "he's diabetic and suddenly acting drunk, slurring and sweating buckets, he hasn't eaten", "label": 1, "language": "en", "category": "hypoglycemia"}
+{"text": "can i reschedule my HbA1c test? also my husband (type 1) is shaking, cold sweat and can't answer me properly", "label": 1, "language": "en", "category": "hypoglycemia"}
+{"text": "my sugar dropped really low, hands trembling, vision going dark and i'm alone", "label": 1, "language": "en", "category": "hypoglycemia"}
+{"text": "my father vomited a lot of dark blood, like coffee grounds, and now he's dizzy", "label": 1, "language": "en", "category": "abdominal"}
+{"text": "unbearable pain in my belly, it's rock hard and i can't stand straight", "label": 1, "language": "en", "category": "abdominal"}
+{"text": "she's throwing up blood clots and her stool is black", "label": 1, "language": "en", "category": "abdominal"}
+{"text": "my brother is rolling on the floor with stomach pain, vomited green stuff and now there is blood in it", "label": 1, "language": "en", "category": "abdominal"}
+{"text": "need to book gastro for my acidity next week. but right now my mom is vomiting fresh blood and very weak", "label": 1, "language": "en", "category": "abdominal"}
+{"text": "severe pain in the right lower belly since night, fever and now i fainted once", "label": 1, "language": "en", "category": "abdominal"}
+{"text": "पति को सीने में ऐसा दबाव है जैसे किसी ने पत्थर रख दिया हो, पसीने से भीग गए हैं", "label": 1, "language": "hi", "category": "cardiac"}
+{"text": "पापा का बायां हाथ और जबड़ा दर्द कर रहा है, छाती जकड़ी हुई है, चेहरा पीला पड़ गया", "label": 1, "language": "hi", "category": "cardiac"}
+{"text": "अगले हफ़्ते का दांत वाला अपॉइंटमेंट बदल दो, और हां अभी मम्मी को छाती में बहुत तेज़ दर्द उठा है, वो लेट नहीं पा रहीं", "label": 1, "language": "hi", "category": "cardiac"}
+{"text": "मुझे लग रहा है दिल बैठ रहा है, छाती में चुभन और उल्टी जैसा लग रहा है", "label": 1, "language": "hi", "category": "cardiac"}
+{"text": "bhaiya ke seene me bhaaripan hai aur left haath sunn ho gaya, pasina pasina ho rahe", "label": 1, "language": "hi", "category": "cardiac"}
+{"text": "appointment kal ka rakh do... waise abhi papa ko seene me jalan wala dard hai jo jabde tak ja raha, pasina aa raha", "label": 1, "language": "hi", "category": "cardiac"}
+{"text": "बच्चे के गले में सिक्का फंस गया है, आवाज़ भी नहीं निकल रही", "label": 1, "language": "hi", "category": "breathing"}
+{"text": "दादी हांफ रही हैं और होंठ नीले पड़ रहे हैं", "label": 1, "language": "hi", "category": "breathing"}
+{"text": "पंप लेने के बाद भी दम घुट रहा है, एक शब्द भी बोल नहीं पा रहा", "label": 1, "language": "hi", "category": "breathing"}
+{"text": "कल की जांच का टाइम बताओ... अरे रुको, पापा के गले में खाना अटक गया है, सांस नहीं ले पा रहे", "label": 1, "language": "hi", "category": "breathing"}
+{"text": "beti ke gale me toffee atak gayi hai, saans nahi le pa rahi", "label": 1, "language": "hi", "category": "breathing"}
+{"text": "भैया कमरे में फर्श पर पड़े हैं, हिलाने पर भी नहीं उठ रहे", "label": 1, "language": "hi", "category": "unresponsive"}
+{"text": "नानी कुर्सी पर बैठे बैठे लुढ़क गईं, आंखें खुली हैं पर कुछ जवाब नहीं दे रहीं", "label": 1, "language": "hi", "category": "unresponsive"}
+{"text": "मेरी रिपोर्ट भेज दो प्लीज़, और अभी मेरे ससुर जी बाथरूम में गिर पड़े और कोई जवाब नहीं दे रहे", "label": 1, "language": "hi", "category": "unresponsive"}
+{"text": "बेटी पढ़ते पढ़ते गिर गई, सांस बहुत धीमी है और आंखें नहीं खोल रही", "label": 1, "language": "hi", "category": "unresponsive"}
+{"text": "mummy achanak gir gayi aur uth hi nahi rahi, aawaz dene par bhi kuch nahi bol rahi", "label": 1, "language": "hi", "category": "unresponsive"}
+{"text": "पापा की ज़बान लड़खड़ा रही है और दायां हाथ उठ ही नहीं रहा, आधे घंटे से", "label": 1, "language": "hi", "category": "stroke"}
+{"text": "मां का चेहरा एक तरफ़ लटक गया है, उनकी बात समझ नहीं आ रही", "label": 1, "language": "hi", "category": "stroke"}
+{"text": "दादाजी को अचानक एक आंख से दिखना बंद हो गया और वो उलटी सीधी बातें कर रहे हैं", "label": 1, "language": "hi", "category": "stroke"}
+{"text": "आंखों के डॉक्टर का अपॉइंटमेंट चाहिए था, पर अभी चाचा जी का एक तरफ़ का शरीर सुन्न पड़ गया है और ठीक से बोल नहीं पा रहे", "label": 1, "language": "hi", "category": "stroke"}
+{"text": "dadi ka munh achanak ek taraf jhuk gaya aur bolne me atak rahi hai", "label": 1, "language": "hi", "category": "stroke"}
+{"text": "कांच से पापा की कलाई कट गई, खून फव्वारे की तरह निकल रहा है", "label": 1, "language": "hi", "category": "bleeding"}
+{"text": "भाई सीढ़ी से गिर गया, सिर से बहुत खून बह रहा है", "label": 1, "language": "hi", "category": "bleeding"}
+{"text": "दबाने पर भी खून बंद नहीं हो रहा, पूरा तौलिया लाल हो गया", "label": 1, "language": "hi", "category": "bleeding"}
+{"text": "आर्थो की फ़ीस कितनी है? और अभी पड़ोसी का हाथ चक्की में आ गया, खून ही खून है", "label": 1, "language": "hi", "category": "bleeding"}
+{"text": "naak se aadhe ghante se khoon beh raha hai rukta hi nahi, chakkar aa rahe", "label": 1, "language": "hi", "category": "bleeding"}
+{"text": "भाई ज़मीन पर पड़ा कांप रहा है और मुंह से झाग निकल रहा है", "label": 1, "language": "hi", "category": "seizure"}
+{"text": "बच्ची की आंखें ऊपर चढ़ गईं और हाथ पैर अकड़ कर झटके मार रहे हैं, पांच मिनट हो गए", "label": 1, "language": "hi", "category": "seizure"}
+{"text": "न्यूरो वाले डॉक्टर कब बैठते हैं? बेटे को अभी दौरा पड़ रहा है रुक नहीं रहा", "label": 1, "language": "hi", "category": "seizure"}
+{"text": "दादाजी के पूरे शरीर में झटके, होंठ नीले, अभी भी चल रहा है", "label": 1, "language": "hi", "category": "seizure"}
+{"text": "biwi ko mirgi ka daura pad raha hai abhi, 6 minute se ruk hi nahi raha", "label": 1, "language": "hi", "category": "seizure"}
+{"text": "अब और नहीं सह सकता, आज रात सारी नींद की गोलियां खा लूंगा", "label": 1, "language": "hi", "category": "suicide"}
+{"text": "ये मेरा आख़िरी मैसेज है, सबको बोल देना मुझे माफ़ कर दें", "label": 1, "language": "hi", "category": "suicide"}
+{"text": "मेरे सारे अपॉइंटमेंट कैंसिल कर दो, अब उनकी ज़रूरत नहीं पड़ेगी, मैं खुद को ख़त्म करने जा रही हूं", "label": 1, "language": "hi", "category": "suicide"}
+{"text": "छत पर खड़ा हूं, नीचे कूदने वाला हूं, किसी को फ़र्क नहीं पड़ेगा", "label": 1, "language": "hi", "category": "suicide"}
+{"text": "चाकू से खुद को काट लिया है, अब रुकना नहीं चाहती", "label": 1, "language": "hi", "category": "suicide"}
+{"text": "maine haath ki nas kaat li hai, ab jeena nahi chahta", "label": 1, "language": "hi", "category": "suicide"}
+{"text": "दो साल के बेटे ने दादी की बीपी वाली गोलियां खा लीं, पता नहीं कितनी", "label": 1, "language": "hi", "category": "poisoning"}
+{"text": "चाचा ने खेत में कीटनाशक पी लिया, उल्टी कर रहे हैं और मुंह से झाग", "label": 1, "language": "hi", "category": "poisoning"}
+{"text": "बच्चे ने टॉयलेट साफ़ करने वाला तेज़ाब पी लिया, मुंह जल रहा है", "label": 1, "language": "hi", "category": "poisoning"}
+{"text": "दोस्त ने बहुत ज़्यादा दारू पी ली, बेहोशी में उल्टी कर रहा है और शरीर ठंडा पड़ गया", "label": 1, "language": "hi", "category": "poisoning"}
+{"text": "beti ne galti se choohe maarne wali dawai kha li, ab ulti kar rahi", "label": 1, "language": "hi", "category": "poisoning"}
+{"text": "kal ka slot cancel karo, chotu ne abhi mitti ka tel pee liya aur bahut khaans raha", "label": 1, "language": "hi", "category": "poisoning"}
+{"text": "मधुमक्खी के डंक के बाद पूरा चेहरा सूज गया है और सांस में सीटी बज रही है", "label": 1, "language": "hi", "category": "allergy"}
+{"text": "झींगा खाने के बाद होंठ फूल गए, पूरे बदन पर चकत्ते और गला बंद हो रहा है", "label": 1, "language": "hi", "category": "allergy"}
+{"text": "चमड़ी के डॉक्टर का टाइम चाहिए था, पर अभी इंजेक्शन लगने के बाद मां की सांस रुक रही है और चेहरा सूज गया", "label": 1, "language": "hi", "category": "allergy"}
+{"text": "moongfali khane ke baad bachche ki jeebh sooj gayi aur saans phool rahi", "label": 1, "language": "hi", "category": "allergy"}
+{"text": "dawai lene ke baad poore sharir pe lal chakte aur gala band ho raha hai", "label": 1, "language": "hi", "category": "allergy"}
+{"text": "कुकर फट गया, गरम दाल मम्मी के सीने और हाथों पर गिरी, चमड़ी उतर रही है", "label": 1, "language": "hi", "category": "burn"}
+{"text": "बच्चे ने गरम पानी का भगोना गिरा लिया, पूरे पेट पर छाले", "label": 1, "language": "hi", "category": "burn"}
+{"text": "सिलेंडर में आग लग गई, भाई का मुंह और हाथ बुरी तरह जल गए", "label": 1, "language": "hi", "category": "burn"}
+{"text": "patakhe se papa ka haath bura jal gaya, chamdi kaali pad gayi", "label": 1, "language": "hi", "category": "burn"}
+{"text": "दादी सीढ़ियों से गिर गईं, सिर पर चोट लगी और अब बार बार उल्टी और नींद आ रही है", "label": 1, "language": "hi", "category": "head_injury"}
+{"text": "बेटा झूले से सिर के बल गिरा, अब एक ही सवाल बार बार पूछ रहा है", "label": 1, "language": "hi", "category": "head_injury"}
+{"text": "घुटने का फॉलोअप बुक करो, और अभी पापा छत से सिर के बल गिर गए, उन्हें कुछ समझ नहीं आ रहा", "label": 1, "language": "hi", "category": "head_injury"}
+{"text": "ऑटो से गिरकर चाची के सिर में चोट, कान से पानी जैसा कुछ निकल रहा है और बेहोश सी हैं", "label": 1, "language": "hi", "category": "head_injury"}
+{"text": "हाईवे पर ट्रक ने हमारी बाइक को टक्कर मार दी, दोस्त सड़क पर पड़ा है खून बह रहा", "label": 1, "language": "hi", "category": "road_accident"}
+{"text": "कार पलट गई चाकण के पास, ड्राइवर अंदर फंसा है और हिल नहीं रहा", "label": 1, "language": "hi", "category": "road_accident"}
+{"text": "डॉक्टर की फ़ीस बाद में बताना, अभी पति का हिंजवडी के पास एक्सीडेंट हुआ, छाती दबी है सांस नहीं ले पा रहे", "label": 1, "language": "hi", "category": "road_accident"}
+{"text": "bhai ka scooter slip ho gaya, pair ulta mud gaya hai aur khoon bahut beh raha", "label": 1, "language": "hi", "category": "road_accident"}
+{"text": "पंखा ठीक करते हुए चाचा को करंट लग गया, अब ज़मीन पर पड़े हैं सांस ठीक से नहीं ले रहे", "label": 1, "language": "hi", "category": "electrocution"}
+{"text": "बच्चे ने प्रेस की तार छू ली, झटका लगकर गिरा, हाथ जला है और बोल नहीं रहा", "label": 1, "language": "hi", "category": "electrocution"}
+{"text": "motor chalu karte waqt bhaiya ko current laga, behosh pade hai", "label": 1, "language": "hi", "category": "electrocution"}
+{"text": "भतीजा तालाब में डूब गया था, निकाल लिया पर सांस नहीं ले रहा", "label": 1, "language": "hi", "category": "drowning"}
+{"text": "बच्ची बाल्टी में उल्टी गिर गई थी, अब ढीली पड़ी है और रंग नीला", "label": 1, "language": "hi", "category": "drowning"}
+{"text": "swimming pool se bacche ko nikala, saans nahi le raha", "label": 1, "language": "hi", "category": "drowning"}
+{"text": "खेत में नाग ने पापा को डस लिया, पलकें गिर रही हैं और सांस लेने में तकलीफ़", "label": 1, "language": "hi", "category": "bite"}
+{"text": "बेटे को बिच्छू ने डंक मारा, पसीना छूट रहा है, उल्टी और दिल धक धक कर रहा है", "label": 1, "language": "hi", "category": "bite"}
+{"text": "आवारा कुत्तों ने बच्ची को नोच डाला, चेहरे और गर्दन पर गहरे घाव, बहुत खून", "label": 1, "language": "hi", "category": "bite"}
+{"text": "kisi keede ne maa ke pair me kaata, do daant ke nishaan hai, pair tezi se sooj raha aur kaala pad raha", "label": 1, "language": "hi", "category": "bite"}
+{"text": "आठवां महीना है और अचानक बहुत खून आ रहा है, पैड भीग गए", "label": 1, "language": "hi", "category": "pregnancy"}
+{"text": "पत्नी को नौवां महीना है, तेज़ सिरदर्द, धुंधला दिख रहा है और चेहरा सूज गया", "label": 1, "language": "hi", "category": "pregnancy"}
+{"text": "सोनोग्राफी का स्लॉट कैंसिल करो, भाभी की पानी की थैली फट गई और बच्चे की नाल बाहर आ गई", "label": 1, "language": "hi", "category": "pregnancy"}
+{"text": "डिलीवरी घर पर हो गई पर खून रुक नहीं रहा, बहू का रंग सफ़ेद पड़ रहा है", "label": 1, "language": "hi", "category": "pregnancy"}
+{"text": "saat mahine ki pregnant hu, subah se bachcha hila nahi aur pet me bahut dard ho raha", "label": 1, "language": "hi", "category": "pregnancy"}
+{"text": "नवजात बच्ची बिलकुल ढीली पड़ गई है, दूध नहीं पी रही, शरीर ठंडा है", "label": 1, "language": "hi", "category": "child"}
+{"text": "दो महीने का बच्चा हर सांस में कराह रहा है और पसलियां अंदर धंस रही हैं", "label": 1, "language": "hi", "category": "child"}
+{"text": "टीके का अपॉइंटमेंट चाहिए अगले हफ़्ते, पर अभी छह महीने का बेटा लगातार उल्टी कर रहा है और ठीक से जग नहीं रहा", "label": 1, "language": "hi", "category": "child"}
+{"text": "bachche ko tez bukhar hai aur jamuni dhabbe aa gaye hai, dabane par bhi nahi jaate", "label": 1, "language": "hi", "category": "child"}
+{"text": "अचानक ज़िंदगी का सबसे भयानक सिरदर्द उठा, जैसे सिर में बम फटा हो, गर्दन अकड़ गई", "label": 1, "language": "hi", "category": "headache"}
+{"text": "मम्मी सिर पकड़ के चीखीं, अब उल्टी कर रही हैं और होश कम है", "label": 1, "language": "hi", "category": "headache"}
+{"text": "achanak sir ke peeche itna tez dard utha jaisa kabhi nahi hua, roshni chubh rahi hai", "label": 1, "language": "hi", "category": "headache"}
+{"text": "kal ka dentist wala slot shift kar do, aur abhi mausi ko achanak itna bhayankar sir dard hua ki wo behosh ho gayi", "label": 1, "language": "hi", "category": "headache"}
+{"text": "दादाजी धूप में काम कर रहे थे, अब बदन तप रहा है, पसीना बिलकुल नहीं, बहकी बातें कर रहे हैं", "label": 1, "language": "hi", "category": "heat_stroke"}
+{"text": "साइट पर मज़दूर गर्मी में गिर पड़ा, शरीर गरम और सूखा, ठीक से जवाब नहीं दे रहा", "label": 1, "language": "hi", "category": "heat_stroke"}
+{"text": "बेटा दोपहर भर धूप में क्रिकेट खेला, अब बेहोश होकर झटके आ रहे", "label": 1, "language": "hi", "category": "heat_stroke"}
+{"text": "dhoop me rally ke baad chacha ko 106 bukhar, pasina nahi aur baar baar gir rahe", "label": 1, "language": "hi", "category": "heat_stroke"}
+{"text": "पापा शुगर के मरीज़ हैं, पसीने से तर, कांप रहे हैं और ऊटपटांग बोल रहे हैं, शुगर 38 आई", "label": 1, "language": "hi", "category": "hypoglycemia"}
+{"text": "मम्मी ने इंसुलिन लिया और खाना नहीं खाया, अब ठीक से उठ नहीं रहीं", "label": 1, "language": "hi", "category": "hypoglycemia"}
+{"text": "HbA1c का टेस्ट आगे कर दो, और अभी पति शुगर कम होने से कांप रहे हैं, कुछ जवाब नहीं दे रहे", "label": 1, "language": "hi", "category": "hypoglycemia"}
+{"text": "nani ki sugar machine LO dikha rahi hai aur wo hosh me nahi aa rahi", "label": 1, "language": "hi", "category": "hypoglycemia"}
+{"text": "पापा ने कॉफ़ी जैसी काली खून की उल्टी की, अब चक्कर खाकर बैठ गए", "label": 1, "language": "hi", "category": "abdominal"}
+{"text": "भाई पेट पकड़ कर ज़मीन पर लोट रहा है, पेट पत्थर जैसा सख़्त है", "label": 1, "language": "hi", "category": "abdominal"}
+{"text": "गैस्ट्रो वाले डॉक्टर का टाइम चाहिए, वैसे अभी मम्मी को ताज़ा खून की उल्टी हो रही है और बहुत कमज़ोरी है", "label": 1, "language": "hi", "category": "abdominal"}
+{"text": "pet me itna dard hai ki khada nahi ho pa raha, aur ulti me khoon aa raha", "label": 1, "language": "hi", "category": "abdominal"}
+{"text": "नवऱ्याच्या छातीवर कोणीतरी दगड ठेवल्यासारखं वाटतंय, घामाने ओलेचिंब झालेत", "label": 1, "language": "mr", "category": "cardiac"}
+{"text": "मामांचा डावा हात आणि जबडा दुखतोय, छाती आवळल्यासारखी, चेहरा पांढरा पडलाय", "label": 1, "language": "mr", "category": "cardiac"}
+{"text": "पुढच्या आठवड्याची डोळ्यांची अपॉइंटमेंट बदला, आणि हो आत्ता आईच्या छातीत जोरात कळ आलीय, ती झोपू पण शकत नाहीये", "label": 1, "language": "mr", "category": "cardiac"}
+{"text": "छातीत जड जड वाटतंय, उलटी येतेय आणि डोळ्यासमोर अंधारी येतेय", "label": 1, "language": "mr", "category": "cardiac"}
+{"text": "dadanchya chhatit dabav aahe ani dava haat badhir zala, khup ghaam yetoy", "label": 1, "language": "mr", "category": "cardiac"}
+{"text": "udyachi appointment theva, pan aatta aajobanna chhatit jalan hotey ani te ghamagham zalet", "label": 1, "language": "mr", "category": "cardiac"}
+{"text": "बाळाच्या घशात शेंगदाणा अडकलाय, आवाजही येत नाहीये", "label": 1, "language": "mr", "category": "breathing"}
+{"text": "आजी धापा टाकतेय आणि ओठ निळे पडतायत", "label": 1, "language": "mr", "category": "breathing"}
+{"text": "पंप घेऊनही श्वास कोंडतोय, एक वाक्यही पूर्ण बोलता येत नाही", "label": 1, "language": "mr", "category": "breathing"}
+{"text": "उद्याच्या तपासणीची वेळ सांगा... थांबा, बाबांच्या घशात घास अडकलाय, श्वास घेता येत नाहीये", "label": 1, "language": "mr", "category": "breathing"}
+{"text": "mulichya ghashat chocolate adaklay, shwas gheta yet nahi", "label": 1, "language": "mr", "category": "breathing"}
+{"text": "दादा खोलीत जमिनीवर पडलाय, हलवलं तरी उठत नाहीये", "label": 1, "language": "mr", "category": "unresponsive"}
+{"text": "आजी देवघरात बसल्या बसल्या कलंडली, डोळे उघडे आहेत पण काहीच प्रतिसाद नाही", "label": 1, "language": "mr", "category": "unresponsive"}
+{"text": "माझा रिपोर्ट पाठवा प्लीज, आणि आत्ताच सासरे बाथरूममध्ये पडले, हाक मारली तरी उत्तर देत नाहीत", "label": 1, "language": "mr", "category": "unresponsive"}
+{"text": "बहीण स्वयंपाक करता करता खाली पडली, श्वास खूप हळू आहे आणि डोळे उघडत नाही", "label": 1, "language": "mr", "category": "unresponsive"}
+{"text": "aai achanak khali padli ani uthatach nahiye, haak marli tari kahi bolat nahi", "label": 1, "language": "mr", "category": "unresponsive"}
+{"text": "बाबांची जीभ अडखळतेय आणि उजवा हात उचलताच येत नाहीये, अर्ध्या तासापासून", "label": 1, "language": "mr", "category": "stroke"}
+{"text": "आईचा चेहरा एका बाजूला लोंबतोय, ती काय बोलतेय ते कळतच नाही", "label": 1, "language": "mr", "category": "stroke"}
+{"text": "आजोबांना अचानक एका डोळ्याने दिसायचं बंद झालं आणि ते असंबद्ध बोलतायत", "label": 1, "language": "mr", "category": "stroke"}
+{"text": "दातांच्या डॉक्टरांची वेळ हवी होती, पण आत्ता काकांची एक बाजू बधिर झालीय आणि नीट बोलता येत नाहीये", "label": 1, "language": "mr", "category": "stroke"}
+{"text": "aajicha tond achanak vakda zala ani nit bolta yet nahiye", "label": 1, "language": "mr", "category": "stroke"}
+{"text": "काचेने बाबांचं मनगट कापलं, रक्ताची चिळकांडी उडतेय", "label": 1, "language": "mr", "category": "bleeding"}
+{"text": "भाऊ जिन्यावरून पडला, डोक्यातून खूप रक्त वाहतंय", "label": 1, "language": "mr", "category": "bleeding"}
+{"text": "दाबून धरलं तरी रक्त थांबत नाहीये, दोन टॉवेल लाल झाले", "label": 1, "language": "mr", "category": "bleeding"}
+{"text": "ऑर्थोची फी किती? आणि आत्ता शेजाऱ्यांचा हात कटर मशीनमध्ये गेला, सगळीकडे रक्तच रक्त", "label": 1, "language": "mr", "category": "bleeding"}
+{"text": "naktun ardha taas rakta yetay thambatach nahi, chakkar yetey", "label": 1, "language": "mr", "category": "bleeding"}
+{"text": "भाऊ जमिनीवर पडून थरथरतोय आणि तोंडातून फेस येतोय", "label": 1, "language": "mr", "category": "seizure"}
+{"text": "बाळाचे डोळे वर गेलेत आणि हातपाय ताठ होऊन झटके देतायत, पाच मिनिटं झाली", "label": 1, "language": "mr", "category": "seizure"}
+{"text": "न्यूरोचे डॉक्टर कधी असतात? मुलाला आत्ता झटके येतायत, थांबतच नाहीत", "label": 1, "language": "mr", "category": "seizure"}
+{"text": "आजोबांच्या संपूर्ण अंगाला झटके येतायत, ओठ निळे, अजूनही चालूच आहे", "label": 1, "language": "mr", "category": "seizure"}
+{"text": "bayko la aatta fit yetey, saha minit zale thambat nahiye", "label": 1, "language": "mr", "category": "seizure"}
+{"text": "आता सहन होत नाही, आज रात्री सगळ्या झोपेच्या गोळ्या घेणार आहे", "label": 1, "language": "mr", "category": "suicide"}
+{"text": "हा माझा शेवटचा मेसेज आहे, सगळ्यांना सांगा मला माफ करा", "label": 1, "language": "mr", "category": "suicide"}
+{"text": "माझ्या सगळ्या अपॉइंटमेंट रद्द करा, आता त्यांची गरज नाही, मी स्वतःला संपवणार आहे", "label": 1, "language": "mr", "category": "suicide"}
+{"text": "गच्चीच्या कठड्यावर उभा आहे, उडी मारणार आहे, कोणाला काही फरक पडत नाही", "label": 1, "language": "mr", "category": "suicide"}
+{"text": "mi haatachi nas kaapli aahe, ata jagaychi ichha nahi", "label": 1, "language": "mr", "category": "suicide"}
+{"text": "दोन वर्षांच्या मुलाने आजीच्या बीपीच्या गोळ्या खाल्ल्या, किती ते माहीत नाही", "label": 1, "language": "mr", "category": "poisoning"}
+{"text": "काकांनी शेतात कीटकनाशक प्यायलं, उलट्या करतायत आणि तोंडाला फेस", "label": 1, "language": "mr", "category": "poisoning"}
+{"text": "मुलाने टॉयलेट क्लीनर प्यायलं, तोंड भाजतंय म्हणतोय", "label": 1, "language": "mr", "category": "poisoning"}
+{"text": "मित्राने खूप दारू प्यायली, बेशुद्धीत उलट्या करतोय आणि अंग थंड पडलंय", "label": 1, "language": "mr", "category": "poisoning"}
+{"text": "mulgine chukun undir marnyache aushadh khalla, ata ulti kartey", "label": 1, "language": "mr", "category": "poisoning"}
+{"text": "udyacha slot cancel kara, chhotya ne aatta raukel pyayla ani khup khokla yetoy", "label": 1, "language": "mr", "category": "poisoning"}
+{"text": "Monday chi skin appointment cancel kara, ani aatta mazya bhavane khup zopechya golya ghetlya ahet, uthat nahiye", "label": 1, "language": "mr", "category": "poisoning"}
+{"text": "मधमाशी चावल्यावर पूर्ण चेहरा सुजलाय आणि श्वास घेताना शिटी वाजतेय", "label": 1, "language": "mr", "category": "allergy"}
+{"text": "कोळंबी खाल्ल्यावर ओठ फुगले, अंगभर पुरळ आणि घसा बंद होतोय", "label": 1, "language": "mr", "category": "allergy"}
+{"text": "त्वचेच्या डॉक्टरांची वेळ हवी होती, पण आत्ता इंजेक्शन घेतल्यावर आईचा श्वास अडकतोय आणि चेहरा सुजलाय", "label": 1, "language": "mr", "category": "allergy"}
+{"text": "kaju khallyavar balachi jeebh suzli ani dham lagtey", "label": 1, "language": "mr", "category": "allergy"}
+{"text": "कुकर फुटला, गरम वरण आईच्या छातीवर आणि हातांवर सांडलं, कातडी निघतेय", "label": 1, "language": "mr", "category": "burn"}
+{"text": "बाळाने गरम चहाचं पातेलं ओढलं, पोटभर फोड आलेत", "label": 1, "language": "mr", "category": "burn"}
+{"text": "सिलेंडरला आग लागली, भावाचा चेहरा आणि हात खूप भाजले", "label": 1, "language": "mr", "category": "burn"}
+{"text": "fatakyane babancha haat khup bhajla, kaatdi kaali padli", "label": 1, "language": "mr", "category": "burn"}
+{"text": "आजी जिन्यावरून पडली, डोक्याला मार लागला आणि आता सारखी उलटी आणि झोप येतेय", "label": 1, "language": "mr", "category": "head_injury"}
+{"text": "मुलगा झोपाळ्यावरून डोक्यावर पडला, आता तोच प्रश्न परत परत विचारतोय", "label": 1, "language": "mr", "category": "head_injury"}
+{"text": "गुडघ्याचा फॉलोअप बुक करा, आणि आत्ताच बाबा गच्चीवरून डोक्यावर पडले, त्यांना काहीच समजत नाहीये", "label": 1, "language": "mr", "category": "head_injury"}
+{"text": "रिक्षातून पडून काकूंच्या डोक्याला मार, कानातून पाण्यासारखं काहीतरी येतंय आणि त्या गुंगीत आहेत", "label": 1, "language": "mr", "category": "head_injury"}
+{"text": "हायवेवर ट्रकने आमच्या बाईकला उडवलं, मित्र रस्त्यावर पडलाय, रक्त वाहतंय", "label": 1, "language": "mr", "category": "road_accident"}
+{"text": "चाकणजवळ गाडी उलटली, ड्रायव्हर आत अडकलाय आणि हालचाल करत नाही", "label": 1, "language": "mr", "category": "road_accident"}
+{"text": "डॉक्टरांची फी नंतर सांगा, आत्ता नवऱ्याचा हिंजवडीजवळ अपघात झाला, छाती दबली आहे, श्वास घेता येत नाही", "label": 1, "language": "mr", "category": "road_accident"}
+{"text": "bhavachi gaadi slip zali, paay ulta valla aahe ani khup rakta jatay", "label": 1, "language": "mr", "category": "road_accident"}
+{"text": "पंखा दुरुस्त करताना काकांना शॉक लागला, आता जमिनीवर पडलेत, श्वास नीट घेत नाहीत", "label": 1, "language": "mr", "category": "electrocution"}
+{"text": "मुलाने इस्त्रीची वायर पकडली, झटका बसून पडला, हात भाजलाय आणि बोलत नाहीये", "label": 1, "language": "mr", "category": "electrocution"}
+{"text": "motor chalu kartana dadala current basla, beshuddh padlay", "label": 1, "language": "mr", "category": "electrocution"}
+{"text": "pudhcha follow up nantar bagha, aatta mama electric khamba la chiktun padle, shwas khup mand aahe", "label": 1, "language": "mr", "category": "electrocution"}
+{"text": "पुतण्या तलावात बुडाला होता, बाहेर काढलं पण श्वास घेत नाहीये", "label": 1, "language": "mr", "category": "drowning"}
+{"text": "विहिरीत पडलेल्या मुलाला बाहेर काढलं, पाणी खोकतोय आणि खूप गुंगीत आहे", "label": 1, "language": "mr", "category": "drowning"}
+{"text": "nadit pohayla gelela mulga budala, baher kadhla pan shwas ghet nahiye", "label": 1, "language": "mr", "category": "drowning"}
+{"text": "शेतात नागाने बाबांना डसलं, पापण्या जड झाल्यात आणि श्वासाला त्रास होतोय", "label": 1, "language": "mr", "category": "bite"}
+{"text": "मुलाला विंचू चावला, खूप घाम, उलट्या आणि छाती धडधडतेय", "label": 1, "language": "mr", "category": "bite"}
+{"text": "भटक्या कुत्र्यांनी मुलीला फाडलं, चेहऱ्यावर आणि मानेवर खोल जखमा, खूप रक्त", "label": 1, "language": "mr", "category": "bite"}
+{"text": "kahitari aaichya payala chavla, don datanche vran aahet, paay zapatyane suztoy ani kala padtoy", "label": 1, "language": "mr", "category": "bite"}
+{"text": "आठवा महिना आहे आणि अचानक खूप रक्त जातंय, पॅड भिजलेत", "label": 1, "language": "mr", "category": "pregnancy"}
+{"text": "बायकोला नववा महिना, खूप डोकं दुखतंय, धूसर दिसतंय आणि चेहरा सुजलाय", "label": 1, "language": "mr", "category": "pregnancy"}
+{"text": "सोनोग्राफीचा स्लॉट रद्द करा, वहिनींची पिशवी फुटली आणि बाळाची नाळ बाहेर आलीय", "label": 1, "language": "mr", "category": "pregnancy"}
+{"text": "बाळंतपण घरीच झालं पण रक्तस्राव थांबत नाहीये, सुनेचा रंग पांढरा पडतोय", "label": 1, "language": "mr", "category": "pregnancy"}
+{"text": "saat mahinyachi garodar aahe, sakalpasun bal halla nahi ani potat khup dukhtay", "label": 1, "language": "mr", "category": "pregnancy"}
+{"text": "नवजात बाळ एकदम लुळं पडलंय, दूध पीत नाही, अंग थंड आहे", "label": 1, "language": "mr", "category": "child"}
+{"text": "दोन महिन्यांचं बाळ प्रत्येक श्वासाला कण्हतंय आणि बरगड्या आत ओढल्या जातायत", "label": 1, "language": "mr", "category": "child"}
+{"text": "लसीकरणाची अपॉइंटमेंट हवी पुढच्या आठवड्यात, पण आत्ता सहा महिन्यांचा मुलगा सतत उलट्या करतोय आणि नीट जागा होत नाहीये", "label": 1, "language": "mr", "category": "child"}
+{"text": "balala khup taap aahe ani jambhle dag aale, dablyavar pan jaat nahit", "label": 1, "language": "mr", "category": "child"}
+{"text": "अचानक आयुष्यातली सगळ्यात भयंकर डोकेदुखी सुरू झाली, डोक्यात स्फोट झाल्यासारखं, मान ताठ झालीय", "label": 1, "language": "mr", "category": "headache"}
+{"text": "आई डोकं धरून किंचाळली, आता उलट्या करतेय आणि शुद्ध कमी आहे", "label": 1, "language": "mr", "category": "headache"}
+{"text": "डोक्यात अचानक वीज कडाडल्यासारखी कळ आली, नवरा आता गोंधळलेला आणि झोपाळलेला आहे", "label": 1, "language": "mr", "category": "headache"}
+{"text": "achanak doktyachya maagun asa bhayankar dukhayla laagla ki kadhich nahi zala, prakash sahan hot nahi", "label": 1, "language": "mr", "category": "headache"}
+{"text": "आजोबा उन्हात काम करत होते, आता अंग तापलंय, घाम अजिबात नाही, बरळतायत", "label": 1, "language": "mr", "category": "heat_stroke"}
+{"text": "साइटवर मजूर उन्हात कोसळला, अंग गरम आणि कोरडं, नीट उत्तर देत नाही", "label": 1, "language": "mr", "category": "heat_stroke"}
+{"text": "मुलगा दुपारभर उन्हात क्रिकेट खेळला, आता बेशुद्ध होऊन झटके येतायत", "label": 1, "language": "mr", "category": "heat_stroke"}
+{"text": "unhat morcha nantar kakanna khup taap, ghaam nahi ani parat parat padtayt", "label": 1, "language": "mr", "category": "heat_stroke"}
+{"text": "बाबा शुगरचे पेशंट आहेत, घामाने भिजलेत, थरथरतायत आणि काहीही बोलतायत, शुगर ३६ आली", "label": 1, "language": "mr", "category": "hypoglycemia"}
+{"text": "आईने इन्सुलिन घेतलं आणि जेवली नाही, आता नीट उठत नाहीये", "label": 1, "language": "mr", "category": "hypoglycemia"}
+{"text": "HbA1c ची टेस्ट पुढे ढकला, आणि आत्ता नवरा शुगर कमी झाल्याने थरथरतोय, काही उत्तरच देत नाही", "label": 1, "language": "mr", "category": "hypoglycemia"}
+{"text": "aajichi sugar machine LO dakhavtey ani ti shuddhit yet nahiye", "label": 1, "language": "mr", "category": "hypoglycemia"}
+{"text": "बाबांनी काळ्या कॉफीसारखी रक्ताची उलटी केली, आता चक्कर येऊन बसलेत", "label": 1, "language": "mr", "category": "abdominal"}
+{"text": "भाऊ पोट धरून जमिनीवर लोळतोय, पोट दगडासारखं कडक झालंय", "label": 1, "language": "mr", "category": "abdominal"}
+{"text": "गॅस्ट्रोच्या डॉक्टरांची वेळ हवी, बाकी आत्ता आईला ताज्या रक्ताची उलटी होतेय आणि खूप अशक्तपणा आहे", "label": 1, "language": "mr", "category": "abdominal"}
+{"text": "potat itka dukhtay ki ubha rahta yet nahi, ani ultit rakta yetay", "label": 1, "language": "mr", "category": "abdominal"}
+{"text": "need a GP slot this week, been sneezing nonstop since the weather changed", "label": 0, "language": "en", "category": "routine_mild"}
+{"text": "can I book a dermatologist for some acne on my back", "label": 0, "language": "en", "category": "routine_mild"}
+{"text": "my son has mild ear ache since this morning, can we see a paediatrician tomorrow", "label": 0, "language": "en", "category": "routine_mild"}
+{"text": "slight fever 99.5 and body ache, any doctor free in the evening?", "label": 0, "language": "en", "category": "routine_mild"}
+{"text": "pls book dentist, one tooth is sensitive to cold water", "label": 0, "language": "en", "category": "routine_mild"}
+{"text": "want to see ENT for a blocked nose that keeps coming back", "label": 0, "language": "en", "category": "routine_mild"}
+{"text": "mild loose motions since yesterday, can i see someone saturday morning", "label": 0, "language": "en", "category": "routine_mild"}
+{"text": "book a physio for my stiff neck from sitting at the laptop too long", "label": 0, "language": "en", "category": "routine_mild"}
+{"text": "need to book a general check up for my dad, he says he's feeling a bit tired lately", "label": 0, "language": "en", "category": "routine_mild"}
+{"text": "my mom had a stroke in 2023, she's fully recovered, need her yearly neuro review", "label": 0, "language": "en", "category": "resolved_history"}
+{"text": "I had a seizure as a child, never since then, does the neurologist need old reports?", "label": 0, "language": "en", "category": "resolved_history"}
+{"text": "three months ago I was admitted for a snake bite, want to book the follow up they asked for", "label": 0, "language": "en", "category": "resolved_history"}
+{"text": "dad had bypass surgery last year, booking his routine cardiology check", "label": 0, "language": "en", "category": "resolved_history"}
+{"text": "I was treated for dengue in august, doc wanted a platelet recheck", "label": 0, "language": "en", "category": "resolved_history"}
+{"text": "my daughter had a severe peanut allergy reaction when she was 4, we want allergy testing now that she's 10", "label": 0, "language": "en", "category": "resolved_history"}
+{"text": "had a road accident in 2022, the plate in my leg needs a review x-ray", "label": 0, "language": "en", "category": "resolved_history"}
+{"text": "my brother overdosed two years back and is doing well now, he'd like to continue counselling sessions", "label": 0, "language": "en", "category": "resolved_history"}
+{"text": "burn scars from a kitchen accident years ago, want to consult a plastic surgeon", "label": 0, "language": "en", "category": "resolved_history"}
+{"text": "after my c-section last month the stitches have healed, need the postnatal visit", "label": 0, "language": "en", "category": "resolved_history"}
+{"text": "is your emergency department open 24 hours on diwali too?", "label": 0, "language": "en", "category": "ed_info"}
+{"text": "which gate is the casualty entrance, asking so I know in advance", "label": 0, "language": "en", "category": "ed_info"}
+{"text": "does the ER have a paediatric section?", "label": 0, "language": "en", "category": "ed_info"}
+{"text": "how many beds do you have in the emergency ward", "label": 0, "language": "en", "category": "ed_info"}
+{"text": "do I need to pay a deposit before getting treated in casualty", "label": 0, "language": "en", "category": "ed_info"}
+{"text": "is there a separate trauma centre or is it same as emergency?", "label": 0, "language": "en", "category": "ed_info"}
+{"text": "what are the ICU visiting hours, my uncle is admitted there since monday", "label": 0, "language": "en", "category": "icu_visiting"}
+{"text": "can two people visit the NICU together?", "label": 0, "language": "en", "category": "icu_visiting"}
+{"text": "is there a waiting area for families outside the ICU", "label": 0, "language": "en", "category": "icu_visiting"}
+{"text": "can kids come into the ICU to see their grandfather", "label": 0, "language": "en", "category": "icu_visiting"}
+{"text": "what time does the ICU doctor give updates to relatives", "label": 0, "language": "en", "category": "icu_visiting"}
+{"text": "what's the ambulance number for your hospital, want to save it on my parents phone", "label": 0, "language": "en", "category": "ambulance_info"}
+{"text": "do you provide an ambulance for a planned transfer from another hospital next week", "label": 0, "language": "en", "category": "ambulance_info"}
+{"text": "how much does the ambulance charge for pickup from baner", "label": 0, "language": "en", "category": "ambulance_info"}
+{"text": "is your ambulance equipped with oxygen and a cardiac monitor", "label": 0, "language": "en", "category": "ambulance_info"}
+{"text": "can i book an ambulance to bring my bedridden grandmother for her dialysis on thursday", "label": 0, "language": "en", "category": "ambulance_info"}
+{"text": "is the ambulance service available in hadapsar area", "label": 0, "language": "en", "category": "ambulance_info"}
+{"text": "does star health cover emergency admissions at your hospital", "label": 0, "language": "en", "category": "insurance"}
+{"text": "is cashless available for emergency cases or only planned surgery", "label": 0, "language": "en", "category": "insurance"}
+{"text": "what documents do I need to claim insurance for an ER visit", "label": 0, "language": "en", "category": "insurance"}
+{"text": "will my company mediclaim cover ambulance charges", "label": 0, "language": "en", "category": "insurance"}
+{"text": "is CGHS accepted for emergency treatment", "label": 0, "language": "en", "category": "insurance"}
+{"text": "how long does insurance pre-authorisation take for emergency admissions", "label": 0, "language": "en", "category": "insurance"}
+{"text": "what's the poison control helpline number in india, making a list for home", "label": 0, "language": "en", "category": "poison_info"}
+{"text": "how should i store pesticides so my kids can't reach them, any guidance", "label": 0, "language": "en", "category": "poison_info"}
+{"text": "does the hospital keep antivenom stock? we live near fields and want to know", "label": 0, "language": "en", "category": "poison_info"}
+{"text": "which household cleaners are most dangerous for toddlers? childproofing the house", "label": 0, "language": "en", "category": "poison_info"}
+{"text": "is there a poison information centre in pune I can call for advice", "label": 0, "language": "en", "category": "poison_info"}
+{"text": "my grandmother keeps her tablets in a drawer, how can we make it child safe", "label": 0, "language": "en", "category": "poison_info"}
+{"text": "do you run first aid or CPR classes for the public", "label": 0, "language": "en", "category": "first_aid_class"}
+{"text": "I want to enrol my school staff in basic life support training", "label": 0, "language": "en", "category": "first_aid_class"}
+{"text": "is there a weekend workshop on choking first aid for new parents", "label": 0, "language": "en", "category": "first_aid_class"}
+{"text": "how much does the BLS certification course cost", "label": 0, "language": "en", "category": "first_aid_class"}
+{"text": "can our housing society book a first aid demo session", "label": 0, "language": "en", "category": "first_aid_class"}
+{"text": "next CPR class date pls", "label": 0, "language": "en", "category": "first_aid_class"}
+{"text": "can i donate blood if i got a tattoo 4 months ago", "label": 0, "language": "en", "category": "blood_donation"}
+{"text": "what are the blood bank timings on sunday", "label": 0, "language": "en", "category": "blood_donation"}
+{"text": "our college wants to organise a blood donation camp with you", "label": 0, "language": "en", "category": "blood_donation"}
+{"text": "is there a need for O negative donors right now, I'd like to donate", "label": 0, "language": "en", "category": "blood_donation"}
+{"text": "how long after donating platelets can i donate again", "label": 0, "language": "en", "category": "blood_donation"}
+{"text": "do i need to eat before donating blood", "label": 0, "language": "en", "category": "blood_donation"}
+{"text": "this queue is killing me, how much longer for dr shah", "label": 0, "language": "en", "category": "idiom"}
+{"text": "dying to know if my report is ready", "label": 0, "language": "en", "category": "idiom"}
+{"text": "my phone died so i missed your call, can you resend the slot", "label": 0, "language": "en", "category": "idiom"}
+{"text": "the waiting room AC is freezing me to death lol, anyway when is my turn", "label": 0, "language": "en", "category": "idiom"}
+{"text": "my head is exploding with all these forms, which one do i fill for registration", "label": 0, "language": "en", "category": "idiom"}
+{"text": "i'm dead tired after night shift, can i get an afternoon slot instead", "label": 0, "language": "en", "category": "idiom"}
+{"text": "the parking situation gives me a heart attack every time haha, is there valet", "label": 0, "language": "en", "category": "idiom"}
+{"text": "this website is so slow I'm about to lose my mind, just want to book a blood test", "label": 0, "language": "en", "category": "idiom"}
+{"text": "my laptop crashed and I lost the appointment email", "label": 0, "language": "en", "category": "idiom"}
+{"text": "I've been sitting here so long I'm turning into a skeleton, any idea when token 42 is called", "label": 0, "language": "en", "category": "idiom"}
+{"text": "no chest pain or anything, just want a routine ECG for my job", "label": 0, "language": "en", "category": "negated"}
+{"text": "not bleeding anymore, the small cut on my thumb closed, do i still need a tetanus shot", "label": 0, "language": "en", "category": "negated"}
+{"text": "no fever no breathlessness, just need a fitness certificate for the gym", "label": 0, "language": "en", "category": "negated"}
+{"text": "i'm not suicidal or anything, but i've been feeling low and want to see a counsellor", "label": 0, "language": "en", "category": "negated"}
+{"text": "he didn't hit his head, just scraped his knee at school, want a quick check", "label": 0, "language": "en", "category": "negated"}
+{"text": "no fits since 5 years, can the neurologist reduce my medicine dose", "label": 0, "language": "en", "category": "negated"}
+{"text": "the baby is feeding well and active, just due for her 6 week checkup", "label": 0, "language": "en", "category": "negated"}
+{"text": "i get a bit breathless climbing 3 floors, want to get my lungs checked", "label": 0, "language": "en", "category": "mild_chronic"}
+{"text": "old knee pain acts up in winter, need ortho appointment", "label": 0, "language": "en", "category": "mild_chronic"}
+{"text": "mild acidity after spicy food for months now", "label": 0, "language": "en", "category": "mild_chronic"}
+{"text": "the scratch on my arm from the cat is healing fine but slightly itchy", "label": 0, "language": "en", "category": "mild_chronic"}
+{"text": "occasional headaches after long screen time, want an eye test", "label": 0, "language": "en", "category": "mild_chronic"}
+{"text": "slight swelling in ankles by evening, fine in the morning, want to check", "label": 0, "language": "en", "category": "mild_chronic"}
+{"text": "my sugar's been a bit high on fasting, 115 or so, should i see an endocrinologist", "label": 0, "language": "en", "category": "mild_chronic"}
+{"text": "lower back stiffness for years, worse in mornings", "label": 0, "language": "en", "category": "mild_chronic"}
+{"text": "which cardiologist is available on saturdays", "label": 0, "language": "en", "category": "doctor_info"}
+{"text": "does dr deshpande speak marathi", "label": 0, "language": "en", "category": "doctor_info"}
+{"text": "is there a female gynaecologist available in evenings", "label": 0, "language": "en", "category": "doctor_info"}
+{"text": "how experienced is the orthopaedic surgeon for knee replacement", "label": 0, "language": "en", "category": "doctor_info"}
+{"text": "who is the best paediatrician for newborns at your hospital", "label": 0, "language": "en", "category": "doctor_info"}
+{"text": "can i choose the same doctor I saw last time for my follow up", "label": 0, "language": "en", "category": "doctor_info"}
+{"text": "consultation fee for a neurologist?", "label": 0, "language": "en", "category": "fees"}
+{"text": "how much for a full body checkup package", "label": 0, "language": "en", "category": "fees"}
+{"text": "is there a discount for senior citizens on OPD fees", "label": 0, "language": "en", "category": "fees"}
+{"text": "price of an MRI brain", "label": 0, "language": "en", "category": "fees"}
+{"text": "do you accept UPI for payment at the reception", "label": 0, "language": "en", "category": "fees"}
+{"text": "follow up within a week is free or charged again?", "label": 0, "language": "en", "category": "fees"}
+{"text": "what time does OPD open on saturday", "label": 0, "language": "en", "category": "timings"}
+{"text": "is the lab open on sunday morning for sample collection", "label": 0, "language": "en", "category": "timings"}
+{"text": "pharmacy timings at night?", "label": 0, "language": "en", "category": "timings"}
+{"text": "until what time can I come for the x-ray today", "label": 0, "language": "en", "category": "timings"}
+{"text": "are you open on ganesh chaturthi", "label": 0, "language": "en", "category": "timings"}
+{"text": "what are the dental department timings", "label": 0, "language": "en", "category": "timings"}
+{"text": "how many hours fasting before a lipid profile", "label": 0, "language": "en", "category": "test_prep"}
+{"text": "can i drink water before my ultrasound abdomen", "label": 0, "language": "en", "category": "test_prep"}
+{"text": "do i stop my bp tablets before the stress test", "label": 0, "language": "en", "category": "test_prep"}
+{"text": "what to wear for a mammogram", "label": 0, "language": "en", "category": "test_prep"}
+{"text": "should i bring my old x-rays for the ortho consult", "label": 0, "language": "en", "category": "test_prep"}
+{"text": "how long does the HbA1c report take", "label": 0, "language": "en", "category": "test_prep"}
+{"text": "do i need a full bladder for the pelvic scan", "label": 0, "language": "en", "category": "test_prep"}
+{"text": "इस हफ़्ते जनरल डॉक्टर का टाइम चाहिए, मौसम बदलने से छींकें आ रही हैं", "label": 0, "language": "hi", "category": "routine_mild"}
+{"text": "बेटे के कान में सुबह से हल्का दर्द है, कल बच्चों के डॉक्टर को दिखा सकते हैं?", "label": 0, "language": "hi", "category": "routine_mild"}
+{"text": "हल्का बुखार और बदन दर्द है, शाम को कोई डॉक्टर खाली है क्या", "label": 0, "language": "hi", "category": "routine_mild"}
+{"text": "एक दांत में ठंडा पानी लगता है, डेंटिस्ट का अपॉइंटमेंट बुक करो", "label": 0, "language": "hi", "category": "routine_mild"}
+{"text": "बच्चे को हल्की खांसी और नाक बह रही है, कल सुबह का टाइम मिलेगा?", "label": 0, "language": "hi", "category": "routine_mild"}
+{"text": "kal se halke dast lag rahe, shanivaar subah kisi ko dikha sakte hai kya", "label": 0, "language": "hi", "category": "routine_mild"}
+{"text": "peeth pe thode daane hai, skin doctor ka time milega?", "label": 0, "language": "hi", "category": "routine_mild"}
+{"text": "मां को 2023 में लकवा हुआ था, अब ठीक हैं, सालाना न्यूरो चेकअप करवाना है", "label": 0, "language": "hi", "category": "resolved_history"}
+{"text": "बचपन में मुझे दौरे पड़ते थे, अब सालों से नहीं, क्या पुरानी रिपोर्ट लानी होंगी", "label": 0, "language": "hi", "category": "resolved_history"}
+{"text": "तीन महीने पहले सांप काटने पर भर्ती हुआ था, डॉक्टर ने फॉलोअप बोला था", "label": 0, "language": "hi", "category": "resolved_history"}
+{"text": "पिछले साल पापा की बाईपास सर्जरी हुई थी, रूटीन जांच बुक करनी है", "label": 0, "language": "hi", "category": "resolved_history"}
+{"text": "दो साल पहले एक्सीडेंट में पैर में प्लेट डली थी, एक्स-रे से रिव्यू कराना है", "label": 0, "language": "hi", "category": "resolved_history"}
+{"text": "बेटी को चार साल की उम्र में मूंगफली से गंभीर एलर्जी हुई थी, अब दस की है, एलर्जी टेस्ट करवाना है", "label": 0, "language": "hi", "category": "resolved_history"}
+{"text": "पिछले महीने सिज़ेरियन हुआ था, टांके भर गए, डिलीवरी के बाद वाली जांच बुक करनी है", "label": 0, "language": "hi", "category": "resolved_history"}
+{"text": "भाई ने दो साल पहले ज़्यादा गोलियां खा ली थीं, अब ठीक है, काउंसलिंग जारी रखना चाहता है", "label": 0, "language": "hi", "category": "resolved_history"}
+{"text": "pichhle mahine dengue hua tha, platelet dobara check karwane ko bola tha", "label": 0, "language": "hi", "category": "resolved_history"}
+{"text": "क्या आपका इमरजेंसी विभाग दिवाली पर भी चौबीस घंटे खुला रहता है", "label": 0, "language": "hi", "category": "ed_info"}
+{"text": "कैजुअल्टी का गेट कौन सा है, पहले से जानना है", "label": 0, "language": "hi", "category": "ed_info"}
+{"text": "इमरजेंसी में इलाज से पहले पैसा जमा करना पड़ता है क्या", "label": 0, "language": "hi", "category": "ed_info"}
+{"text": "ट्रॉमा सेंटर अलग है या इमरजेंसी में ही है", "label": 0, "language": "hi", "category": "ed_info"}
+{"text": "emergency ward me bachchon ke liye alag section hai kya", "label": 0, "language": "hi", "category": "ed_info"}
+{"text": "आईसीयू में मिलने का समय क्या है, चाचा सोमवार से भर्ती हैं", "label": 0, "language": "hi", "category": "icu_visiting"}
+{"text": "क्या बच्चे दादाजी से मिलने आईसीयू में जा सकते हैं", "label": 0, "language": "hi", "category": "icu_visiting"}
+{"text": "आईसीयू के डॉक्टर रिश्तेदारों को अपडेट कितने बजे देते हैं", "label": 0, "language": "hi", "category": "icu_visiting"}
+{"text": "एनआईसीयू में दोनों माता पिता एक साथ जा सकते हैं क्या", "label": 0, "language": "hi", "category": "icu_visiting"}
+{"text": "ICU ke bahar family ke baithne ki jagah hai kya", "label": 0, "language": "hi", "category": "icu_visiting"}
+{"text": "आपके अस्पताल की एम्बुलेंस का नंबर क्या है, मम्मी पापा के फ़ोन में सेव करना है", "label": 0, "language": "hi", "category": "ambulance_info"}
+{"text": "बानेर से एम्बुलेंस का कितना चार्ज लगता है", "label": 0, "language": "hi", "category": "ambulance_info"}
+{"text": "क्या एम्बुलेंस में ऑक्सीजन और मॉनिटर होता है", "label": 0, "language": "hi", "category": "ambulance_info"}
+{"text": "क्या दूसरे अस्पताल से अगले हफ़्ते मरीज़ को लाने के लिए एम्बुलेंस मिलेगी", "label": 0, "language": "hi", "category": "ambulance_info"}
+{"text": "guruvaar ko dadi ko dialysis ke liye laane ke liye ambulance book ho sakti hai kya", "label": 0, "language": "hi", "category": "ambulance_info"}
+{"text": "kya aapki ambulance PCMC area me bhi aati hai", "label": 0, "language": "hi", "category": "ambulance_info"}
+{"text": "क्या स्टार हेल्थ आपके यहां इमरजेंसी भर्ती कवर करता है", "label": 0, "language": "hi", "category": "insurance"}
+{"text": "इमरजेंसी केस में कैशलेस मिलता है या सिर्फ़ प्लान्ड सर्जरी में", "label": 0, "language": "hi", "category": "insurance"}
+{"text": "एम्बुलेंस का ख़र्च कंपनी की मेडिक्लेम में आएगा क्या", "label": 0, "language": "hi", "category": "insurance"}
+{"text": "इमरजेंसी विज़िट का क्लेम करने के लिए कौन से कागज़ चाहिए", "label": 0, "language": "hi", "category": "insurance"}
+{"text": "emergency admission ke liye insurance approval me kitna time lagta hai", "label": 0, "language": "hi", "category": "insurance"}
+{"text": "भारत में ज़हर नियंत्रण हेल्पलाइन का नंबर क्या है, घर के लिए लिस्ट बना रहा हूं", "label": 0, "language": "hi", "category": "poison_info"}
+{"text": "कीटनाशक कैसे रखें कि बच्चों के हाथ न लगे, कोई सलाह", "label": 0, "language": "hi", "category": "poison_info"}
+{"text": "क्या अस्पताल में सांप के ज़हर की दवा का स्टॉक रहता है? हम खेतों के पास रहते हैं", "label": 0, "language": "hi", "category": "poison_info"}
+{"text": "पुणे में कोई ज़हर सूचना केंद्र है जहां सलाह के लिए फ़ोन कर सकें", "label": 0, "language": "hi", "category": "poison_info"}
+{"text": "dadi ki goliyan drawer me rehti hai, bachchon se safe kaise rakhe", "label": 0, "language": "hi", "category": "poison_info"}
+{"text": "क्या आप आम लोगों के लिए फर्स्ट एड या सीपीआर क्लास चलाते हैं", "label": 0, "language": "hi", "category": "first_aid_class"}
+{"text": "नए माता पिता के लिए गले में कुछ अटकने पर क्या करें, इसकी कोई वर्कशॉप है?", "label": 0, "language": "hi", "category": "first_aid_class"}
+{"text": "हमारी सोसाइटी के लिए फर्स्ट एड डेमो बुक हो सकता है क्या", "label": 0, "language": "hi", "category": "first_aid_class"}
+{"text": "बीएलएस सर्टिफिकेट कोर्स की फ़ीस कितनी है", "label": 0, "language": "hi", "category": "first_aid_class"}
+{"text": "agli CPR class kab hai", "label": 0, "language": "hi", "category": "first_aid_class"}
+{"text": "चार महीने पहले टैटू बनवाया था, क्या मैं रक्तदान कर सकता हूं", "label": 0, "language": "hi", "category": "blood_donation"}
+{"text": "रविवार को ब्लड बैंक कितने बजे तक खुला है", "label": 0, "language": "hi", "category": "blood_donation"}
+{"text": "हमारा कॉलेज आपके साथ रक्तदान शिविर लगाना चाहता है", "label": 0, "language": "hi", "category": "blood_donation"}
+{"text": "प्लेटलेट्स दान करने के बाद दोबारा कितने दिन में दे सकते हैं", "label": 0, "language": "hi", "category": "blood_donation"}
+{"text": "blood donate karne se pehle khana kha ke aana hai kya", "label": 0, "language": "hi", "category": "blood_donation"}
+{"text": "ये लाइन तो जान ले लेगी, डॉक्टर शाह कितनी देर में आएंगे", "label": 0, "language": "hi", "category": "idiom"}
+{"text": "रिपोर्ट आई या नहीं, जानने के लिए मरा जा रहा हूं", "label": 0, "language": "hi", "category": "idiom"}
+{"text": "फ़ोन की बैटरी मर गई थी इसलिए कॉल मिस हुई, स्लॉट दोबारा भेज दो", "label": 0, "language": "hi", "category": "idiom"}
+{"text": "इतने फॉर्म देख के सिर फट रहा है, रजिस्ट्रेशन के लिए कौन सा भरूं", "label": 0, "language": "hi", "category": "idiom"}
+{"text": "वेटिंग रूम का एसी इतना ठंडा है कि जम गए, मेरा नंबर कब आएगा", "label": 0, "language": "hi", "category": "idiom"}
+{"text": "parking dhoondhte dhoondhte jaan nikal gayi, valet hai kya", "label": 0, "language": "hi", "category": "idiom"}
+{"text": "night shift ke baad thak ke chur hu, dopahar ka slot mil sakta hai?", "label": 0, "language": "hi", "category": "idiom"}
+{"text": "ye website itni slow hai ki pagal ho jaunga, bas blood test book karna hai", "label": 0, "language": "hi", "category": "idiom"}
+{"text": "सीने में कोई दर्द नहीं है, बस नौकरी के लिए ईसीजी चाहिए", "label": 0, "language": "hi", "category": "negated"}
+{"text": "अंगूठे का छोटा कट भर गया, खून नहीं आ रहा, फिर भी टिटनेस लगवाना है क्या", "label": 0, "language": "hi", "category": "negated"}
+{"text": "कोई बुखार या सांस की तकलीफ़ नहीं, बस जिम के लिए फिटनेस सर्टिफिकेट चाहिए", "label": 0, "language": "hi", "category": "negated"}
+{"text": "पांच साल से कोई दौरा नहीं आया, क्या न्यूरो डॉक्टर दवा कम कर सकते हैं", "label": 0, "language": "hi", "category": "negated"}
+{"text": "बच्चा ठीक से दूध पी रहा है और खेल रहा है, बस छह हफ़्ते वाला चेकअप है", "label": 0, "language": "hi", "category": "negated"}
+{"text": "aatmahatya jaisa kuch nahi soch raha, bas thoda udaas rehta hu, counsellor se baat karni hai", "label": 0, "language": "hi", "category": "negated"}
+{"text": "seene me koi dard nahi, bas BP check karwana hai routine", "label": 0, "language": "hi", "category": "negated"}
+{"text": "तीन मंज़िल चढ़ने पर थोड़ी सांस फूलती है, फेफड़ों की जांच करवानी है", "label": 0, "language": "hi", "category": "mild_chronic"}
+{"text": "पुराना घुटने का दर्द सर्दी में बढ़ जाता है, हड्डी के डॉक्टर का टाइम दो", "label": 0, "language": "hi", "category": "mild_chronic"}
+{"text": "शाम तक टखनों में हल्की सूजन आती है, सुबह ठीक रहता है", "label": 0, "language": "hi", "category": "mild_chronic"}
+{"text": "बिल्ली के खरोंच का निशान भर रहा है, बस थोड़ी खुजली है", "label": 0, "language": "hi", "category": "mild_chronic"}
+{"text": "महीनों से तीखा खाने के बाद हल्की एसिडिटी होती है", "label": 0, "language": "hi", "category": "mild_chronic"}
+{"text": "fasting sugar 112 ke aas paas aa rahi, endocrinologist ko dikhana chahiye kya", "label": 0, "language": "hi", "category": "mild_chronic"}
+{"text": "purana kamar dard hai saalon se, subah zyada akadta hai, ortho ko dikhana hai", "label": 0, "language": "hi", "category": "mild_chronic"}
+{"text": "शनिवार को कौन से हृदय रोग विशेषज्ञ बैठते हैं", "label": 0, "language": "hi", "category": "doctor_info"}
+{"text": "शाम को कोई महिला स्त्री रोग विशेषज्ञ मिलेंगी क्या", "label": 0, "language": "hi", "category": "doctor_info"}
+{"text": "पिछली बार वाले डॉक्टर से ही फॉलोअप करवा सकते हैं क्या", "label": 0, "language": "hi", "category": "doctor_info"}
+{"text": "घुटना बदलवाने के लिए हड्डी के सर्जन कितने अनुभवी हैं", "label": 0, "language": "hi", "category": "doctor_info"}
+{"text": "dr deshpande hindi bolte hai kya", "label": 0, "language": "hi", "category": "doctor_info"}
+{"text": "न्यूरोलॉजिस्ट की फ़ीस कितनी है", "label": 0, "language": "hi", "category": "fees"}
+{"text": "फुल बॉडी चेकअप पैकेज कितने का है", "label": 0, "language": "hi", "category": "fees"}
+{"text": "सीनियर सिटिज़न को ओपीडी फ़ीस में छूट है क्या", "label": 0, "language": "hi", "category": "fees"}
+{"text": "MRI brain ka kitna kharcha aayega", "label": 0, "language": "hi", "category": "fees"}
+{"text": "UPI se payment le lete ho reception pe?", "label": 0, "language": "hi", "category": "fees"}
+{"text": "शनिवार को ओपीडी कितने बजे खुलती है", "label": 0, "language": "hi", "category": "timings"}
+{"text": "रात में फार्मेसी कब तक खुली रहती है", "label": 0, "language": "hi", "category": "timings"}
+{"text": "गणेश चतुर्थी पर अस्पताल खुला है क्या", "label": 0, "language": "hi", "category": "timings"}
+{"text": "aaj x-ray ke liye kitne baje tak aa sakte hai", "label": 0, "language": "hi", "category": "timings"}
+{"text": "लिपिड प्रोफाइल से पहले कितने घंटे भूखा रहना है", "label": 0, "language": "hi", "category": "test_prep"}
+{"text": "पेट की सोनोग्राफी से पहले पानी पी सकते हैं क्या", "label": 0, "language": "hi", "category": "test_prep"}
+{"text": "स्ट्रेस टेस्ट से पहले बीपी की गोली बंद करनी है क्या", "label": 0, "language": "hi", "category": "test_prep"}
+{"text": "हड्डी के डॉक्टर के पास पुराने एक्स-रे लाने हैं क्या", "label": 0, "language": "hi", "category": "test_prep"}
+{"text": "HbA1c ki report kitne din me milegi", "label": 0, "language": "hi", "category": "test_prep"}
+{"text": "थायरॉइड टेस्ट सुबह की दवा लेने से पहले करवाना है या बाद में", "label": 0, "language": "hi", "category": "test_prep"}
+{"text": "mammogram ke din kya pehen ke aana hai", "label": 0, "language": "hi", "category": "test_prep"}
+{"text": "या आठवड्यात जनरल फिजिशियनची वेळ हवी, दोन दिवस घसा खवखवतोय", "label": 0, "language": "mr", "category": "routine_mild"}
+{"text": "मुलाला थोडा खोकला आणि सर्दी आहे, उद्या संध्याकाळी बालरोगतज्ज्ञ मिळतील का", "label": 0, "language": "mr", "category": "routine_mild"}
+{"text": "हलका ताप आणि अंगदुखी आहे, आज कोणी डॉक्टर मोकळे आहेत का", "label": 0, "language": "mr", "category": "routine_mild"}
+{"text": "एक दाढ थंड पाणी प्यायल्यावर ठणकते, दंतवैद्याची वेळ बुक करा", "label": 0, "language": "mr", "category": "routine_mild"}
+{"text": "संगणकावर काम करून डोळ्यांची थोडी जळजळ होते, नेत्ररोग तज्ज्ञ हवे", "label": 0, "language": "mr", "category": "routine_mild"}
+{"text": "kaalpasun thode julab hotayt, shanivari sakali konala dakhavta yeil ka", "label": 0, "language": "mr", "category": "routine_mild"}
+{"text": "pathivar puttkulya aalyat, skin doctor chi vel milel ka", "label": 0, "language": "mr", "category": "routine_mild"}
+{"text": "आईला २०२३ मध्ये पक्षाघात झाला होता, आता बरी आहे, वार्षिक न्यूरो तपासणी करायची आहे", "label": 0, "language": "mr", "category": "resolved_history"}
+{"text": "लहानपणी मला फिट यायची, आता कित्येक वर्षं नाही, जुने रिपोर्ट आणावे लागतील का", "label": 0, "language": "mr", "category": "resolved_history"}
+{"text": "तीन महिन्यांपूर्वी साप चावल्यामुळे दाखल होतो, डॉक्टरांनी फॉलोअपला बोलावलं होतं", "label": 0, "language": "mr", "category": "resolved_history"}
+{"text": "मागच्या वर्षी बाबांची बायपास झाली, नेहमीची तपासणी बुक करायची आहे", "label": 0, "language": "mr", "category": "resolved_history"}
+{"text": "दोन वर्षांपूर्वी अपघातात पायात प्लेट बसवली होती, एक्स-रे घेऊन दाखवायचं आहे", "label": 0, "language": "mr", "category": "resolved_history"}
+{"text": "मुलीला चार वर्षांची असताना शेंगदाण्याची तीव्र अॅलर्जी झाली होती, आता ती दहा वर्षांची आहे, टेस्ट करायची आहे", "label": 0, "language": "mr", "category": "resolved_history"}
+{"text": "मागच्या महिन्यात सिझेरियन झालं, टाके भरलेत, बाळंतपणानंतरची तपासणी हवी", "label": 0, "language": "mr", "category": "resolved_history"}
+{"text": "aajobanna 2021 madhe heart attack aala hota, ata changle aahet, routine ECG karaycha aahe", "label": 0, "language": "mr", "category": "resolved_history"}
+{"text": "मागच्या वर्षी डेंग्यू झाला होता, आता पूर्ण बरा आहे, फक्त सामान्य तपासणी हवी", "label": 0, "language": "mr", "category": "resolved_history"}
+{"text": "तुमचा आपत्कालीन विभाग दिवाळीतही चोवीस तास सुरू असतो का", "label": 0, "language": "mr", "category": "ed_info"}
+{"text": "कॅज्युअल्टीचं प्रवेशद्वार कोणतं, आधीच माहीत असावं म्हणून विचारतोय", "label": 0, "language": "mr", "category": "ed_info"}
+{"text": "आपत्कालीन उपचारापूर्वी पैसे भरावे लागतात का", "label": 0, "language": "mr", "category": "ed_info"}
+{"text": "ट्रॉमा सेंटर वेगळं आहे की इमर्जन्सीमध्येच", "label": 0, "language": "mr", "category": "ed_info"}
+{"text": "emergency madhe lahan mulansathi vegla vibhag aahe ka", "label": 0, "language": "mr", "category": "ed_info"}
+{"text": "आयसीयूमध्ये भेटण्याची वेळ काय आहे, मामा सोमवारपासून दाखल आहेत", "label": 0, "language": "mr", "category": "icu_visiting"}
+{"text": "लहान मुलं आजोबांना भेटायला आयसीयूमध्ये जाऊ शकतात का", "label": 0, "language": "mr", "category": "icu_visiting"}
+{"text": "आयसीयूचे डॉक्टर नातेवाईकांना किती वाजता माहिती देतात", "label": 0, "language": "mr", "category": "icu_visiting"}
+{"text": "एनआयसीयूमध्ये आई आणि बाबा दोघे एकत्र जाऊ शकतात का", "label": 0, "language": "mr", "category": "icu_visiting"}
+{"text": "ICU baher natevaikansathi basaychi soy aahe ka", "label": 0, "language": "mr", "category": "icu_visiting"}
+{"text": "तुमच्या हॉस्पिटलच्या अॅम्ब्युलन्सचा नंबर काय, आई बाबांच्या फोनमध्ये सेव्ह करायचा आहे", "label": 0, "language": "mr", "category": "ambulance_info"}
+{"text": "कोथरूडहून अॅम्ब्युलन्सचे किती पैसे लागतात", "label": 0, "language": "mr", "category": "ambulance_info"}
+{"text": "अॅम्ब्युलन्समध्ये ऑक्सिजन आणि मॉनिटर असतो का", "label": 0, "language": "mr", "category": "ambulance_info"}
+{"text": "दुसऱ्या हॉस्पिटलमधून पुढच्या आठवड्यात पेशंट आणायला अॅम्ब्युलन्स मिळेल का", "label": 0, "language": "mr", "category": "ambulance_info"}
+{"text": "guruvari aajila dialysis sathi aananyasathi ambulance book karta yeil ka", "label": 0, "language": "mr", "category": "ambulance_info"}
+{"text": "स्टार हेल्थ तुमच्याकडे आपत्कालीन दाखल होणं कव्हर करतं का", "label": 0, "language": "mr", "category": "insurance"}
+{"text": "इमर्जन्सी केसमध्ये कॅशलेस मिळतं की फक्त ठरवलेल्या शस्त्रक्रियेला", "label": 0, "language": "mr", "category": "insurance"}
+{"text": "अॅम्ब्युलन्सचा खर्च कंपनीच्या मेडिक्लेममध्ये येईल का", "label": 0, "language": "mr", "category": "insurance"}
+{"text": "इमर्जन्सी भेटीचा क्लेम करायला कोणती कागदपत्रं लागतात", "label": 0, "language": "mr", "category": "insurance"}
+{"text": "emergency admission sathi insurance approval la kiti vel lagto", "label": 0, "language": "mr", "category": "insurance"}
+{"text": "भारतातील विषबाधा नियंत्रण हेल्पलाइनचा नंबर काय, घरासाठी यादी करतोय", "label": 0, "language": "mr", "category": "poison_info"}
+{"text": "कीटकनाशकं कशी ठेवावी म्हणजे मुलांच्या हाताला लागणार नाहीत", "label": 0, "language": "mr", "category": "poison_info"}
+{"text": "हॉस्पिटलमध्ये सर्पदंशावरच्या औषधाचा साठा असतो का? आम्ही शेताजवळ राहतो", "label": 0, "language": "mr", "category": "poison_info"}
+{"text": "पुण्यात विषबाधा माहिती केंद्र आहे का जिथे सल्ल्यासाठी फोन करता येईल", "label": 0, "language": "mr", "category": "poison_info"}
+{"text": "aajichya golya drawer madhe astat, mulanpasun surakshit kashya thevaychya", "label": 0, "language": "mr", "category": "poison_info"}
+{"text": "तुम्ही सामान्य लोकांसाठी प्रथमोपचार किंवा सीपीआरचे वर्ग घेता का", "label": 0, "language": "mr", "category": "first_aid_class"}
+{"text": "नवीन आईवडिलांसाठी घशात काही अडकल्यास काय करायचं याची कार्यशाळा आहे का", "label": 0, "language": "mr", "category": "first_aid_class"}
+{"text": "आमच्या सोसायटीसाठी प्रथमोपचार प्रात्यक्षिक बुक करता येईल का", "label": 0, "language": "mr", "category": "first_aid_class"}
+{"text": "बीएलएस प्रमाणपत्र कोर्सची फी किती आहे", "label": 0, "language": "mr", "category": "first_aid_class"}
+{"text": "pudhcha CPR class kadhi aahe", "label": 0, "language": "mr", "category": "first_aid_class"}
+{"text": "चार महिन्यांपूर्वी टॅटू काढला, मी रक्तदान करू शकतो का", "label": 0, "language": "mr", "category": "blood_donation"}
+{"text": "रविवारी रक्तपेढी किती वाजेपर्यंत सुरू असते", "label": 0, "language": "mr", "category": "blood_donation"}
+{"text": "आमच्या कॉलेजला तुमच्यासोबत रक्तदान शिबिर घ्यायचं आहे", "label": 0, "language": "mr", "category": "blood_donation"}
+{"text": "प्लेटलेट्स दान केल्यावर परत किती दिवसांनी देता येतं", "label": 0, "language": "mr", "category": "blood_donation"}
+{"text": "raktadan karaychya aadhi jevun yaycha ka", "label": 0, "language": "mr", "category": "blood_donation"}
+{"text": "ही रांग तर जीव घेणार आहे, डॉक्टर शाह किती वेळात येतील", "label": 0, "language": "mr", "category": "idiom"}
+{"text": "रिपोर्ट आला की नाही हे जाणून घ्यायला जीव तुटतोय", "label": 0, "language": "mr", "category": "idiom"}
+{"text": "फोनची बॅटरी संपली म्हणून कॉल चुकला, स्लॉट परत पाठवा", "label": 0, "language": "mr", "category": "idiom"}
+{"text": "इतके फॉर्म बघून डोकं फिरलंय, नोंदणीसाठी कोणता भरू", "label": 0, "language": "mr", "category": "idiom"}
+{"text": "वेटिंग रूमचा एसी इतका थंड आहे की गारठून मेलो, माझा नंबर कधी", "label": 0, "language": "mr", "category": "idiom"}
+{"text": "parking shodhun shodhun jeev gela, valet aahe ka", "label": 0, "language": "mr", "category": "idiom"}
+{"text": "night shift nantar thakun gelo aahe, dupaarcha slot milel ka", "label": 0, "language": "mr", "category": "idiom"}
+{"text": "छातीत काहीच दुखत नाही, फक्त नोकरीसाठी ईसीजी हवा आहे", "label": 0, "language": "mr", "category": "negated"}
+{"text": "अंगठ्याचा छोटा कट भरून आला, रक्त येत नाही, तरी धनुर्वाताचं इंजेक्शन घ्यावं का", "label": 0, "language": "mr", "category": "negated"}
+{"text": "ताप नाही, दम लागत नाही, फक्त जिमसाठी फिटनेस प्रमाणपत्र हवं", "label": 0, "language": "mr", "category": "negated"}
+{"text": "पाच वर्षांत एकदाही फिट आली नाही, न्यूरो डॉक्टर गोळ्या कमी करू शकतील का", "label": 0, "language": "mr", "category": "negated"}
+{"text": "बाळ नीट दूध पितंय आणि खेळतंय, फक्त सहा आठवड्यांची तपासणी आहे", "label": 0, "language": "mr", "category": "negated"}
+{"text": "jeev dyaycha vichar vagaire kahi nahi, fakt thoda udas vatta, counsellor shi bolaycha aahe", "label": 0, "language": "mr", "category": "negated"}
+{"text": "chhatit kahi dukhat nahi, fakt BP routine check karaycha aahe", "label": 0, "language": "mr", "category": "negated"}
+{"text": "तीन मजले चढल्यावर थोडा दम लागतो, फुफ्फुसांची तपासणी करायची आहे", "label": 0, "language": "mr", "category": "mild_chronic"}
+{"text": "जुनी गुडघेदुखी थंडीत वाढते, अस्थिरोग तज्ज्ञांची वेळ द्या", "label": 0, "language": "mr", "category": "mild_chronic"}
+{"text": "संध्याकाळपर्यंत घोट्यांना थोडी सूज येते, सकाळी ठीक असतं", "label": 0, "language": "mr", "category": "mild_chronic"}
+{"text": "महिन्यांपासून तिखट खाल्ल्यावर थोडी अॅसिडिटी होते", "label": 0, "language": "mr", "category": "mild_chronic"}
+{"text": "मांजरीच्या ओरखड्याची जखम भरतेय, फक्त थोडी खाज येते", "label": 0, "language": "mr", "category": "mild_chronic"}
+{"text": "fasting sugar 110 chya aaspas yete, endocrinologist la dakhvava ka", "label": 0, "language": "mr", "category": "mild_chronic"}
+{"text": "junya fracture chya jagi thandit thoda dukhta, ghai nahi", "label": 0, "language": "mr", "category": "mild_chronic"}
+{"text": "शनिवारी कोणते हृदयरोग तज्ज्ञ असतात", "label": 0, "language": "mr", "category": "doctor_info"}
+{"text": "संध्याकाळी महिला स्त्रीरोग तज्ज्ञ उपलब्ध असतात का", "label": 0, "language": "mr", "category": "doctor_info"}
+{"text": "मागच्या वेळच्या डॉक्टरांकडेच फॉलोअप करता येईल का", "label": 0, "language": "mr", "category": "doctor_info"}
+{"text": "गुडघा बदलण्यासाठी अस्थिशल्यचिकित्सक किती अनुभवी आहेत", "label": 0, "language": "mr", "category": "doctor_info"}
+{"text": "dr joshi marathi boltat ka", "label": 0, "language": "mr", "category": "doctor_info"}
+{"text": "मधुमेह तज्ज्ञ बुधवारी संध्याकाळी असतात का", "label": 0, "language": "mr", "category": "doctor_info"}
+{"text": "न्यूरोलॉजिस्टची फी किती आहे", "label": 0, "language": "mr", "category": "fees"}
+{"text": "पूर्ण शरीर तपासणी पॅकेज किती रुपयांचं आहे", "label": 0, "language": "mr", "category": "fees"}
+{"text": "ज्येष्ठ नागरिकांना ओपीडी फीमध्ये सवलत आहे का", "label": 0, "language": "mr", "category": "fees"}
+{"text": "MRI brain cha kiti kharcha yeil", "label": 0, "language": "mr", "category": "fees"}
+{"text": "reception var UPI ne paise bharta yetat ka", "label": 0, "language": "mr", "category": "fees"}
+{"text": "शनिवारी ओपीडी किती वाजता सुरू होते", "label": 0, "language": "mr", "category": "timings"}
+{"text": "रात्री फार्मसी किती वाजेपर्यंत उघडी असते", "label": 0, "language": "mr", "category": "timings"}
+{"text": "गणेश चतुर्थीला हॉस्पिटल सुरू आहे का", "label": 0, "language": "mr", "category": "timings"}
+{"text": "दंत विभागाची वेळ काय आहे", "label": 0, "language": "mr", "category": "timings"}
+{"text": "aaj x-ray sathi kiti vajeparyant yeta yeil", "label": 0, "language": "mr", "category": "timings"}
+{"text": "aaj OPD madhe kiti gardi aahe, kiti vajta yeu", "label": 0, "language": "mr", "category": "timings"}
+{"text": "लिपिड प्रोफाइलआधी किती तास उपाशी राहायचं", "label": 0, "language": "mr", "category": "test_prep"}
+{"text": "पोटाच्या सोनोग्राफीआधी पाणी पिऊ शकतो का", "label": 0, "language": "mr", "category": "test_prep"}
+{"text": "स्ट्रेस टेस्टआधी बीपीची गोळी बंद करायची का", "label": 0, "language": "mr", "category": "test_prep"}
+{"text": "HbA1c cha report kiti divsat milel", "label": 0, "language": "mr", "category": "test_prep"}
+{"text": "mammogram la kay ghalun yaycha", "label": 0, "language": "mr", "category": "test_prep"}
+{"text": "rakta tapasnicha report online kuthe baghaycha", "label": 0, "language": "mr", "category": "test_prep"}

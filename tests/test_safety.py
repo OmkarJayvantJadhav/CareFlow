@@ -53,6 +53,30 @@ def test_routine_messages_are_not_flagged(message):
 
 
 @pytest.mark.parametrize(
+    "message",
+    ["हो", "हाँ", "हां", "नाही", "नहीं", "ho", "haan", "nahi", "ok", "no", "yes", "theek hai", "बरोबर", "ठीक है",
+     "show my father's appointments and book another", "something confusing", "this queue is killing me"],
+)  # fmt: skip
+def test_confirmations_and_short_replies_are_never_flagged(message):
+    """Regression: the classifier once scored "नहीं" at 0.97 (its characters occur in "सांस नहीं")."""
+    assert not check_emergency(message).is_emergency
+
+
+@pytest.mark.parametrize(
+    "message, expected",
+    [
+        ("my son had a seizure as a toddler but has been fine for six years", False),
+        ("he has been fine for years but right now he is fitting and won't stop", True),
+        ("I fainted once in 2023 because of low sugar", False),
+        ("where is the emergency department?", False),
+        ("this is an emergency, my father is not responding", True),
+    ],
+)
+def test_history_is_judged_per_clause(message, expected):
+    assert check_emergency(message).is_emergency is expected
+
+
+@pytest.mark.parametrize(
     "text, lang",
     [
         ("Book a cardiologist on Saturday", "en"),
