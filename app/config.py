@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     gemini_api_key: str | None = None
     ollama_base_url: str = "http://localhost:11434"
     llm_timeout_seconds: float = 30.0
-    llm_max_output_tokens: int = 512
+    llm_max_output_tokens: int = 1024  # reasoning models spend part of this before answering
 
     max_messages_per_session: int = 20
     max_messages_per_ip_per_hour: int = 60
