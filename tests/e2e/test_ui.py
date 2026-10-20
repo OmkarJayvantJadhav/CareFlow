@@ -7,6 +7,7 @@ The server clock starts at Monday 19 October 2026, 08:00 IST (tests/e2e/server.p
 
 import re
 import time
+import uuid
 from pathlib import Path
 
 import pytest
@@ -44,7 +45,33 @@ def test_booking_goes_through_a_card_and_shows_in_my_appointments(page: Page):
     expect(card).to_have_count(0)
     page.get_by_role("link", name="My appointments").click()
     upcoming = page.locator("article").filter(has_text="Dr. Anand Kulkarni")
-    expect(upcoming.first).to_contain_text("2026-10-24")
+    expect(upcoming.first).to_contain_text("Sat, 24 Oct, 2026")
+
+
+def test_create_an_account_then_log_in_again(page: Page):
+    username = f"kiran-{uuid.uuid4().hex[:6]}"
+    page.goto("/")
+    page.get_by_role("button", name="Create account").click()
+    form = page.get_by_role("form", name="Create account")
+    form.get_by_label("Full name").fill("Kiran Jadhav")
+    form.get_by_label("Username").fill(username)
+    form.get_by_label("Password", exact=True).fill("monsoon-tea-7")
+    form.get_by_label("Birth year").fill("1992")
+    form.get_by_label("Mobile number").fill("9822012345")
+    form.get_by_role("button", name="Create account").click()
+    expect(page.get_by_role("navigation", name="Main")).to_be_visible()
+    expect(page.get_by_text("Hello, Kiran.")).to_be_visible()
+    page.get_by_role("button", name="Sign out (Kiran Jadhav)").click()
+
+    login = page.get_by_role("form", name="Log in")
+    login.get_by_label("Username").fill(username)
+    login.get_by_label("Password", exact=True).fill("wrong-password")
+    login.get_by_role("button", name="Log in").click()
+    expect(login.get_by_role("alert")).to_contain_text("Wrong username or password.")
+    login.get_by_label("Password", exact=True).fill("monsoon-tea-7")
+    login.get_by_role("button", name="Log in").click()
+    page.get_by_role("link", name="My appointments").click()
+    expect(page.get_by_text("No upcoming appointments")).to_be_visible()
 
 
 def test_emergency_takes_over_the_chat(page: Page):

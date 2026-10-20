@@ -154,6 +154,10 @@ class AppUser(Base):
     display_name: Mapped[str] = mapped_column(String(120))
     role: Mapped[str] = mapped_column(String(12))
     patient_id: Mapped[int | None] = mapped_column(ForeignKey("patient.id"))
+    # Accounts people create themselves have a password (scrypt hash); the seeded demo accounts have none.
+    password_hash: Mapped[str | None] = mapped_column(String(200))
+    self_registered: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    created_at: Mapped[datetime] = mapped_column(TZ, server_default=func.now())
 
 
 class CaregiverLink(Base):

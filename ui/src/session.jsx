@@ -46,6 +46,14 @@ export function SessionProvider({ children }) {
     save("careflow.token", null);
   }, []);
 
+  const accept = useCallback((data) => {
+    setToken(data.token);
+    setUser(data.user);
+    save("careflow.token", data.token);
+    save("careflow.user", JSON.stringify(data.user));
+    return data.user;
+  }, []);
+
   useEffect(() => setUnauthorizedHandler(signOut), [signOut]);
   useEffect(() => {
     document.documentElement.lang = lang;
@@ -65,18 +73,14 @@ export function SessionProvider({ children }) {
         setLargeTextState(on);
         save("careflow.large", on ? "1" : "0");
       },
-      signIn: async (role) => {
-        const data = await api("/auth/demo-login", { method: "POST", body: { role } });
-        setToken(data.token);
-        setUser(data.user);
-        save("careflow.token", data.token);
-        save("careflow.user", JSON.stringify(data.user));
-        return data.user;
-      },
+      signIn: async (role) => accept(await api("/auth/demo-login", { method: "POST", body: { role } })),
+      logIn: async (username, password) =>
+        accept(await api("/auth/login", { method: "POST", body: { username, password } })),
+      register: async (details) => accept(await api("/auth/register", { method: "POST", body: details })),
       signOut,
       t: (key, vars) => translate(lang, key, vars),
     }),
-    [user, lang, largeText, signOut],
+    [user, lang, largeText, signOut, accept],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
