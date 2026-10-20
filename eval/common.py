@@ -190,5 +190,9 @@ def run_header(**extra) -> dict:
         "embedding_backend": settings.embedding_backend,
         "reranker_backend": settings.reranker_backend,
         "git_commit": os.popen("git rev-parse --short HEAD 2>/dev/null").read().strip() or None,
+        # Uncommitted changes to code (not to results or run logs) mean the commit above is not the code that ran.
+        "uncommitted_code_changes": bool(
+            os.popen("git status --porcelain -- app eval/*.py simulator 2>/dev/null").read().strip()
+        ),
         **extra,
     }
