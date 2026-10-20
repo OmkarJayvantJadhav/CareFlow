@@ -170,8 +170,10 @@ class OpenAICompatibleProvider:
         api_key: str | None,
         timeout: float = 30.0,
         client: httpx.Client | None = None,
+        extra_body: dict | None = None,
     ):
         self.provider = provider
+        self.extra_body = extra_body or {}
         self.model = model
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
@@ -187,6 +189,7 @@ class OpenAICompatibleProvider:
             "messages": prepare_messages(self.provider, messages),
             "temperature": 0,
             "max_tokens": max_tokens,
+            **self.extra_body,
         }
         if tools:
             body["tools"] = tools

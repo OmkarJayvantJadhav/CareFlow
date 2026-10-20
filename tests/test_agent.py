@@ -506,3 +506,15 @@ def test_s32_displaced_patient_is_offered_rebooking(clinic):
     say(world, world.asha, "hello", llm)
     system = llm.calls[0][0]["content"]
     assert f"appointment {appt['appointment_id']}" in system and "rescheduling is free" in system
+
+
+def test_full_width_citations_count_as_citations(clinic):
+    world, _, _ = clinic
+    llm = ScriptedLLM(
+        [
+            lambda m: {"search_knowledge": {"query": "lipid profile fasting"}},
+            lambda m: "Yes, fast for 10–12 hours before the test【1】.",
+        ]
+    )
+    reply = say(world, world.asha, "Do I need to fast before a lipid profile?", llm)
+    assert reply.reply.endswith("test[1].") and reply.citations and not reply.offer_handoff

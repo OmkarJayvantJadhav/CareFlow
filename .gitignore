@@ -11,3 +11,4 @@ tests/.traces/
 traces/
 eval/.cache/
 eval/.traces/
+eval/results/*_smoke.json

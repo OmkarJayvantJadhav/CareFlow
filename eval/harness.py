@@ -34,6 +34,7 @@ class Turn:
     citations: list[dict]
     latency_ms: float
     error: str | None = None
+    conversation_id: str | None = None
 
 
 @dataclass
@@ -76,7 +77,10 @@ def recording(conv: Conversation):
     def run_tool(ctx, name, arguments, parse_error):
         result, ok = original_run_tool(ctx, name, arguments, parse_error)
         error = None if ok else (result.get("error") or {}).get("code")
-        conv.tool_calls.append({"name": name, "arguments": arguments, "ok": ok, "error": error})
+        call = {"name": name, "arguments": arguments, "ok": ok, "error": error}
+        if name == "search_knowledge" and ok:
+            call["sources"] = result.get("sources", [])  # what the model saw, for faithfulness grading
+        conv.tool_calls.append(call)
         return result, ok
 
     def write_trace(record):

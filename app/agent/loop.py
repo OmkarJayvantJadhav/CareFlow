@@ -23,7 +23,8 @@ log = logging.getLogger(__name__)
 
 MAX_CALLS_PER_STEP = 4
 MAX_INVALID_CALLS = 3
-_CITATION = re.compile(r"\[(\d{1,2})\]")
+# [1], and the full-width 【1】 some models write; both are shown as [1].
+_CITATION = re.compile(r"[\[【]\s*(\d{1,2})\s*[\]】]")
 CONFIRM_KEYS = {
     "book_appointment": "confirm_book",
     "reschedule_appointment": "confirm_reschedule",
@@ -129,6 +130,7 @@ class Agent:
         return TurnResult(reply, turn + [{"role": "assistant", "content": reply}], actions=actions, failed=True)
 
     def _final(self, ctx: ToolContext, text: str, turn: list[dict], actions: list[dict]) -> TurnResult:
+        text = _CITATION.sub(lambda m: f"[{m.group(1)}]", text)
         if not text:
             reply = message("agent_failed", ctx.language)
             return TurnResult(reply, turn + [{"role": "assistant", "content": reply}], actions=actions, failed=True)
