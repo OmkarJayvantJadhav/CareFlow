@@ -7,6 +7,7 @@ from sqlalchemy import select
 
 from app.db.models import Appointment, Notification, QueueEntry, QueueEvent, QueueSession, Slot
 from app.queue import engine
+from app.timeutil import to_ist
 from app.tools.booking import book_appointment, reschedule_appointment
 from app.tools.errors import ToolError
 from tests.conftest import NOW, TODAY
@@ -76,10 +77,27 @@ def test_check_in_rules(world, clinic):
 def test_patient_can_check_in_self_but_not_others(world, clinic):
     doctor, slots, _, appts = clinic
     mine = book_appointment(world.db, world.asha, world.asha.patient_id, slots[9].id, confirmed=True, now=NOW)
-    engine.check_in(world.db, world.asha, mine["appointment_id"], now=at_clock(9, 20))
+    start = to_ist(slots[9].start_at)
+    # Online check-in opens an hour before the slot and closes 15 minutes after it starts.
+    with pytest.raises(ToolError) as early:
+        engine.check_in(world.db, world.asha, mine["appointment_id"], now=start - timedelta(minutes=61))
+    assert early.value.code == "POLICY_WINDOW" and "opens at" in early.value.message
+    with pytest.raises(ToolError) as late:
+        engine.check_in(world.db, world.asha, mine["appointment_id"], now=start + timedelta(minutes=16))
+    assert late.value.code == "POLICY_WINDOW" and "reception desk" in late.value.message
+    entry = engine.check_in(world.db, world.asha, mine["appointment_id"], now=start + timedelta(minutes=5))
+    assert entry["late_minutes"] == 5
     with pytest.raises(ToolError) as err:
-        engine.check_in(world.db, world.asha, appts[0]["appointment_id"], now=at_clock(9, 20))
+        engine.check_in(world.db, world.asha, appts[0]["appointment_id"], now=start)
     assert err.value.code == "FORBIDDEN"
+
+
+def test_staff_check_in_records_late_arrivals_but_has_no_window(world, clinic):
+    _, _, _, appts = clinic
+    first = engine.check_in(world.db, world.staff, appts[0]["appointment_id"], now=at_clock(8, 0))
+    assert first["late_minutes"] is None  # early
+    later = engine.check_in(world.db, world.staff, appts[1]["appointment_id"], now=at_clock(11, 0))
+    assert later["late_minutes"] > 15
 
 
 def test_full_consultation_flow_and_session_close(world, clinic):

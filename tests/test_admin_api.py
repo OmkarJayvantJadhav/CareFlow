@@ -33,8 +33,9 @@ def test_front_desk_lists_todays_doctors_and_bookings(api, world, frozen_clock):
     assert {"Dr. Suresh Pawar", "Dr. Kavita Joshi"} <= set(names) and "Dr. Imran Shaikh" not in names
     pawar_row = next(d for d in body["doctors"] if d["doctor_name"] == "Dr. Suresh Pawar")
     assert pawar_row["bookings"] == [
-        {"appointment_id": pawar_row["bookings"][0]["appointment_id"], "time": "13:50", "patient_name": "Asha Patil",
-         "status": "booked", "entry_id": None, "token": None, "entry_status": None}
+        {"appointment_id": pawar_row["bookings"][0]["appointment_id"], "time": "13:50", "patient_id": 1,
+         "patient_name": "Asha Patil", "categories": [], "status": "booked", "entry_id": None, "token": None,
+         "entry_status": None, "checked_in_at": None, "late_minutes": None, "checked_out_at": None}
     ]  # fmt: skip
     assert pawar_row["session_id"] is None and pawar_row["doctor_status"] == "available"
     opened = api.post(f"/api/v1/staff/doctors/{pawar.id}/session", headers=auth(api, "staff")).json()

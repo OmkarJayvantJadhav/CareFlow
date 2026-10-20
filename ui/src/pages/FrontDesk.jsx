@@ -1,6 +1,7 @@
 import {
   CalendarClock,
   Check,
+  Clock,
   CircleCheck,
   ListOrdered,
   Megaphone,
@@ -8,12 +9,17 @@ import {
   Star,
   Undo2,
   UserPlus,
+  UserRoundCheck,
   UserX,
+  Users,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
+import CodeCheckIn from "../components/CodeCheckIn";
+import ConfirmDialog from "../components/ConfirmDialog";
 import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
+import { CategoryBadges, CustomFields, useRegistrationFields } from "../components/Registration";
 import { LANGS } from "../i18n";
 import { useSession } from "../session";
 import { followSession } from "../staff";
@@ -31,6 +37,10 @@ export default function FrontDesk() {
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [walkIn, setWalkIn] = useState({ name: "", birth_year: "", phone: "", language: "en" });
+  const [answers, setAnswers] = useState({});
+  const [matches, setMatches] = useState(null);
+  const [editing, setEditing] = useState(null);
+  const fields = useRegistrationFields();
 
   const doctor = doctors?.find((d) => d.doctor_id === selected) ?? null;
 
@@ -85,17 +95,50 @@ export default function FrontDesk() {
     }
   }
 
+  // Duplicate check first (feature 48): staff see likely matches before a new record is created.
   async function registerWalkIn(e) {
     e.preventDefault();
     if (!doctor || !walkIn.name.trim()) return;
+    setError(null);
+    try {
+      const found = await api("/staff/patients/match", {
+        method: "POST",
+        body: { name: walkIn.name.trim(), birth_year: Number(walkIn.birth_year), phone: walkIn.phone || null },
+      });
+      if (found.matches.length > 0) setMatches(found.matches);
+      else await registerNew();
+    } catch (err) {
+      setError(err);
+    }
+  }
+
+  async function registerNew() {
     await act("/queue/walk-ins", "POST", {
       doctor_id: doctor.doctor_id,
       name: walkIn.name.trim(),
-      birth_year: walkIn.birth_year ? Number(walkIn.birth_year) : null,
-      phone: walkIn.phone || null,
+      birth_year: Number(walkIn.birth_year),
+      phone: walkIn.phone,
       language: walkIn.language,
+      answers,
     });
+    setMatches(null);
     setWalkIn({ name: "", birth_year: "", phone: "", language: walkIn.language });
+    setAnswers({});
+  }
+
+  async function reuseRecord(patientId) {
+    await act("/queue/walk-ins", "POST", { doctor_id: doctor.doctor_id, patient_id: patientId });
+    setMatches(null);
+    setWalkIn({ name: "", birth_year: "", phone: "", language: walkIn.language });
+    setAnswers({});
+  }
+
+  async function saveCategories() {
+    await act(`/staff/patients/${editing.patient_id}/categories`, "PATCH", {
+      pregnant: editing.pregnant,
+      disability: editing.disability,
+    });
+    setEditing(null);
   }
 
   const visible = entries.filter((e) => ["waiting", "called", "in_consultation", "missed"].includes(e.status));
@@ -146,6 +189,7 @@ export default function FrontDesk() {
           )}
         </div>
       )}
+      <CodeCheckIn onDone={() => void load()} />
       {doctor && (
         <div className="desk-grid">
           <section className="card" aria-labelledby="queue-h">
@@ -195,7 +239,13 @@ export default function FrontDesk() {
                         </td>
                         <td>
                           <div>{e.patient_name}</div>
-                          <span className={`badge ${ENTRY_TONE[e.status] ?? ""}`}>{t(`entry_${e.status}`)}</span>
+                          <div className="row" style={{ gap: "0.25rem" }}>
+                            <span className={`badge ${ENTRY_TONE[e.status] ?? ""}`}>{t(`entry_${e.status}`)}</span>
+                            <CategoryBadges categories={e.categories} />
+                            {e.late_minutes ? (
+                              <span className="badge warn">{t("lateBy", { minutes: e.late_minutes })}</span>
+                            ) : null}
+                          </div>
                         </td>
                         <td>{e.estimate?.display ?? "—"}</td>
                         <td>
@@ -277,26 +327,58 @@ export default function FrontDesk() {
               <ul className="booking-list">
                 {doctor.bookings.map((b) => (
                   <li key={b.appointment_id}>
-                    <span>
-                      <span className="time">{b.time}</span>
-                      {b.patient_name}
-                      {b.status !== "booked" && <span className="muted"> · {t(`status_${b.status}`)}</span>}
-                    </span>
-                    {b.entry_id ? (
-                      <span className="badge ok">
-                        <Check size={13} aria-hidden="true" />
-                        {t("checkedIn")} {b.token}
+                    <span className="booking-who">
+                      <span>
+                        <span className="time">{b.time}</span>
+                        {b.patient_name}
+                        {b.status !== "booked" && <span className="muted"> · {t(`status_${b.status}`)}</span>}
                       </span>
-                    ) : b.status === "booked" ? (
+                      <span className="row" style={{ gap: "0.25rem" }}>
+                        <CategoryBadges categories={b.categories} />
+                        {b.late_minutes ? (
+                          <span className="badge warn">{t("lateBy", { minutes: b.late_minutes })}</span>
+                        ) : null}
+                        {b.checked_in_at && (
+                          <span className="muted small">
+                            <Clock size={12} aria-hidden="true" /> {t("inAt", { time: b.checked_in_at })}
+                            {b.checked_out_at ? ` · ${t("outAt", { time: b.checked_out_at })}` : ""}
+                          </span>
+                        )}
+                      </span>
+                    </span>
+                    <span className="row" style={{ gap: "0.25rem" }}>
                       <button
                         type="button"
-                        className="secondary"
-                        disabled={busy}
-                        onClick={() => act(`/queue/entries/${b.appointment_id}/check-in`)}
+                        className="ghost"
+                        aria-label={`${t("categoriesFor")} ${b.patient_name}`}
+                        title={t("categoriesFor")}
+                        onClick={() =>
+                          setEditing({
+                            patient_id: b.patient_id,
+                            name: b.patient_name,
+                            pregnant: b.categories.includes("pregnant"),
+                            disability: b.categories.includes("disability"),
+                          })
+                        }
                       >
-                        {t("checkIn")}
+                        <Users size={16} aria-hidden="true" />
                       </button>
-                    ) : null}
+                      {b.entry_id ? (
+                        <span className="badge ok">
+                          <Check size={13} aria-hidden="true" />
+                          {t("checkedIn")} {b.token}
+                        </span>
+                      ) : b.status === "booked" ? (
+                        <button
+                          type="button"
+                          className="secondary"
+                          disabled={busy}
+                          onClick={() => act(`/queue/entries/${b.appointment_id}/check-in`)}
+                        >
+                          {t("checkIn")}
+                        </button>
+                      ) : null}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -343,6 +425,7 @@ export default function FrontDesk() {
                     />
                   </div>
                 </div>
+                <CustomFields fields={fields} answers={answers} onChange={setAnswers} idPrefix="wi" />
                 <div className="field">
                   <label htmlFor="wi-lang">{t("walkInLanguage")}</label>
                   <select
@@ -362,10 +445,85 @@ export default function FrontDesk() {
                   {t("register")}
                 </button>
               </form>
+              {matches && (
+                <section className="matches" aria-labelledby="matches-h" aria-live="polite">
+                  <h3 id="matches-h">{t("possibleMatches")}</h3>
+                  <p className="muted small">{t("possibleMatchesHint")}</p>
+                  <ul className="booking-list">
+                    {matches.map((m) => (
+                      <li key={m.patient_id}>
+                        <span className="booking-who">
+                          <strong>{m.name}</strong>
+                          <span className="muted small">
+                            {m.birth_year} · {m.phone_masked}
+                            {m.last_visit ? ` · ${t("lastVisit", { date: m.last_visit })}` : ""}
+                          </span>
+                          <span className="row" style={{ gap: "0.25rem" }}>
+                            {m.reasons.map((r) => (
+                              <span key={r} className="badge">
+                                {t(`match_${r}`)}
+                              </span>
+                            ))}
+                            {!m.reuse_allowed && <span className="badge danger">{t("reuseWithdrawn")}</span>}
+                          </span>
+                        </span>
+                        <button
+                          type="button"
+                          className="secondary"
+                          disabled={busy || !m.reuse_allowed}
+                          onClick={() => void reuseRecord(m.patient_id)}
+                        >
+                          <UserRoundCheck size={16} aria-hidden="true" />
+                          {t("useThisRecord")}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="row" style={{ marginTop: "0.5rem" }}>
+                    <button type="button" disabled={busy} onClick={() => void registerNew()}>
+                      {t("registerAsNew")}
+                    </button>
+                    <button type="button" className="quiet" onClick={() => setMatches(null)}>
+                      {t("back")}
+                    </button>
+                  </div>
+                </section>
+              )}
             </section>
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={editing !== null}
+        title={editing ? `${t("categoriesFor")} ${editing.name}` : ""}
+        confirmLabel={t("save")}
+        cancelLabel={t("back")}
+        busy={busy}
+        onConfirm={() => void saveCategories()}
+        onClose={() => setEditing(null)}
+      >
+        {editing && (
+          <>
+            <p className="muted small">{t("categoriesHint")}</p>
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={editing.pregnant}
+                onChange={(e) => setEditing({ ...editing, pregnant: e.target.checked })}
+              />
+              {t("category_pregnant")}
+            </label>
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={editing.disability}
+                onChange={(e) => setEditing({ ...editing, disability: e.target.checked })}
+              />
+              {t("category_disability")}
+            </label>
+          </>
+        )}
+      </ConfirmDialog>
     </main>
   );
 }

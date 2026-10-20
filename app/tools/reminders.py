@@ -53,8 +53,12 @@ def send_due_reminders(db: Session, now: datetime | None = None) -> int:
             )
         ).all()
     )
+    from app.tools.registration import consent_state
+
     sent = 0
     for appt in upcoming:
+        if not consent_state(db, appt.patient_id)["reminders"]:
+            continue  # the patient asked for no reminders (feature 35)
         start = to_ist(appt.slot.start_at)
         kind = "reminder_soon" if start - now <= SOON else "reminder_day"
         # Booked less than a day ahead: the day-before reminder is skipped, not sent late.

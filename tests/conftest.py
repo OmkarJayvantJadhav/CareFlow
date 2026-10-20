@@ -131,11 +131,12 @@ def frozen_clock(monkeypatch):
     import app.api.auth
     import app.api.care_routes
     import app.api.queue_routes
+    import app.api.registration_routes
     import app.api.routes
     import app.timeutil
 
     modules = (app.timeutil, app.api.auth, app.api.queue_routes, app.api.routes, app.api.admin_routes,
-               app.api.care_routes)  # fmt: skip
+               app.api.care_routes, app.api.registration_routes)  # fmt: skip
     for module in modules:
         monkeypatch.setattr(module, "now_ist", lambda: NOW)
     return NOW

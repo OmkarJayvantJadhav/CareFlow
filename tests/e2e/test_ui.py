@@ -177,6 +177,46 @@ def test_tc20_queue_page_updates_within_two_seconds(page: Page, base_url: str, s
     assert elapsed < 2.0, f"queue page updated after {elapsed:.2f} s"
 
 
+def _book_asha_today(base_url: str, staff_api: Api, doctor_name: str, first: bool = True) -> dict:
+    """Book Asha today with a doctor no other test uses; returns the appointment with its receipt code."""
+    patient = Api(base_url, "patient")
+    asha = patient.get("/me")["patient_id"]
+    doctor = next(d for d in staff_api.get("/staff/today")["doctors"] if d["doctor_name"] == doctor_name)
+    slots = staff_api.get(f"/doctors/{doctor['doctor_id']}/slots", date=TODAY, patient_id=asha)["slots"]
+    slot = slots[0] if first else slots[-1]
+    appt = staff_api.post("/appointments", {"patient_id": asha, "slot_id": slot["slot_id"], "confirmed": True})
+    return {**appt, "reference": patient.get(f"/appointments/{appt['appointment_id']}/receipt")["reference"]}
+
+
+def test_patient_checks_in_online_inside_the_window(page: Page, base_url: str, staff_api: Api):
+    _book_asha_today(base_url, staff_api, "Dr. Nitin Chavan")  # 09:00; the clock is just after 08:00
+    sign_in(page, "Patient")
+    page.get_by_role("navigation", name="Main").get_by_role("link", name="My appointments").click()
+    card = page.locator("article").filter(has_text="Dr. Nitin Chavan")
+    card.get_by_role("button", name="Check in now").click()
+    page.get_by_role("dialog", name="Check in now").get_by_role("button", name="Check in").click()
+    expect(page.get_by_role("status").filter(has_text=re.compile(r"Checked in · token B\d\d"))).to_be_visible()
+    expect(card.get_by_role("link", name=re.compile(r"^Checked in · token B\d\d"))).to_be_visible()
+
+
+def test_consent_and_caregiver_approval(page: Page, base_url: str):
+    rajan = Api(base_url, "caregiver")
+    rajan.post("/caregiver/requests", {"patient_username": "asha"})
+    sign_in(page, "Patient")
+    page.get_by_role("link", name="Profile").click()
+    reminders = page.get_by_label("Appointment reminders")
+    reminders.uncheck()
+    expect(page.locator(".consent-row").filter(has_text="Appointment reminders")).to_contain_text("Not allowed")
+    reminders.check()
+    requests = page.get_by_role("list", name="Requests waiting for your answer")
+    expect(requests).to_contain_text("Rajan Deshmukh")
+    requests.get_by_role("button", name="Approve").click()
+    people = page.get_by_role("list", name="People who can manage your appointments")
+    expect(people).to_contain_text("Rajan Deshmukh")
+    people.get_by_role("button", name="Remove access").click()
+    expect(page.get_by_text("Nobody else can manage your appointments.")).to_be_visible()
+
+
 # --------------------------------------------------------------------------- staff (S6, S7)
 
 
@@ -216,6 +256,65 @@ def test_staff_record_and_remove_leave_in_the_calendar(page: Page):
     expect(page.get_by_text("On leave · Conference")).to_be_visible()
     leave.get_by_role("button", name="Remove leave").click()
     expect(page.get_by_role("status").filter(has_text="Leave removed")).to_be_visible()
+
+
+def test_desk_checks_in_by_receipt_code_and_the_kiosk_too(page: Page, base_url: str, staff_api: Api):
+    at_desk = _book_asha_today(base_url, staff_api, "Dr. Snehal Gokhale", first=False)
+    at_kiosk = _book_asha_today(base_url, staff_api, "Dr. Sunita Patwardhan", first=False)
+    sign_in(page, "Front desk")
+    card = page.get_by_role("region", name="Check in by receipt code")
+    card.get_by_label("Receipt code").fill(at_desk["reference"].lower())
+    card.get_by_role("button", name="Look up").click()
+    expect(card).to_contain_text("Asha Patil")
+    card.get_by_role("button", name="Check in").click()
+    page.get_by_role("dialog", name="Check in").get_by_role("button", name="Check in").click()
+    expect(card.get_by_role("status")).to_contain_text(re.compile(r"Checked in · token B\d\d"))
+
+    card.get_by_role("link", name="Open kiosk").click()
+    expect(page.get_by_role("heading", name="Self check-in")).to_be_visible()
+    page.get_by_label("Type the code from your appointment receipt").fill(at_kiosk["reference"])
+    page.get_by_role("button", name="Continue").click()
+    expect(page.get_by_text("Welcome, Asha")).to_be_visible()
+    expect(page.get_by_text("Patil")).to_have_count(0)  # only the first name is shown at the kiosk
+    page.get_by_role("button", name="Check in").click()
+    expect(page.get_by_role("status")).to_contain_text("You are checked in")
+    page.get_by_role("button", name="Next patient").click()
+    page.get_by_label("Type the code from your appointment receipt").fill("CF-000001-ZZZZZZ")
+    page.get_by_role("button", name="Continue").click()
+    expect(page.get_by_role("alert")).to_contain_text("This code is not valid")
+
+
+def test_walk_in_finds_the_existing_record(page: Page):
+    sign_in(page, "Front desk")
+    page.get_by_label("Doctor").select_option(label="Dr. Vikram Bhosale — Orthopaedics")
+    walk_in = page.get_by_role("region", name="Register walk-in")
+    walk_in.get_by_label("Patient name").fill("asha  patil")
+    walk_in.get_by_label("Birth year").fill("1992")
+    walk_in.get_by_label("Phone (stored masked)").fill("9000000000")
+    walk_in.get_by_role("button", name="Register").click()
+    matches = page.get_by_role("region", name="This patient may already be registered")
+    expect(matches).to_contain_text("Asha Patil")
+    expect(matches).to_contain_text("Same name")
+    matches.get_by_role("button", name="Use this record").first.click()
+    expect(page.get_by_role("region", name="Queue").get_by_text("Asha Patil")).to_be_visible()
+
+
+def test_admin_adds_a_registration_question_asked_at_sign_up(page: Page):
+    question = f"Blood group {uuid.uuid4().hex[:4]}"  # the form keeps its questions between runs
+    sign_in(page, "OPD admin")
+    page.get_by_role("link", name="Registration form").click()
+    page.get_by_label("Question in English").fill(question)
+    page.get_by_label("Question in Hindi").fill("रक्त समूह")
+    page.get_by_label("Question in Marathi").fill("रक्तगट")
+    page.get_by_label("Answer type").select_option("choice")
+    page.get_by_label("Options").fill("A+, B+, O+, AB+")
+    page.get_by_role("button", name="Add question").click()
+    expect(page.get_by_role("status").filter(has_text="Question added.")).to_be_visible()
+    expect(page.get_by_role("region", name="Current questions")).to_contain_text(question)
+    page.get_by_role("button", name=re.compile("^Sign out")).first.click()
+    page.get_by_role("button", name="Create account").click()
+    form = page.get_by_role("form", name="Create account")
+    expect(form.get_by_label(re.compile(f"^{question}"))).to_be_visible()
 
 
 def test_doctor_marked_unavailable_informs_patients(page: Page):
@@ -274,7 +373,7 @@ def _axe_violations(page: Page) -> list[dict]:
         (None, []),
         ("Patient", ["Assistant", "Book", "My appointments", "Queue status", "Notifications", "Profile"]),
         ("Front desk", ["Front desk", "Calendar", "Doctor status"]),
-        ("OPD admin", ["Dashboard", "Analytics"]),
+        ("OPD admin", ["Dashboard", "Analytics", "Registration form"]),
     ],
 )
 def test_no_serious_accessibility_violations(page: Page, role, links):
@@ -291,6 +390,13 @@ def test_no_serious_accessibility_violations(page: Page, role, links):
         expect(page.get_by_role("heading", level=1)).to_be_visible()
         page.wait_for_load_state("networkidle")
         assert _axe_violations(page) == [], link
+
+
+def test_kiosk_has_no_serious_accessibility_violations(page: Page):
+    sign_in(page, "Front desk")
+    page.goto("/kiosk")
+    expect(page.get_by_role("heading", name="Self check-in")).to_be_visible()
+    assert _axe_violations(page) == []
 
 
 def test_patient_screens_fit_a_360_px_phone_in_large_text(phone: Page):

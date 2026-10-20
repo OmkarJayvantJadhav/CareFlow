@@ -15,9 +15,11 @@ from app.db.models import (
     Appointment,
     AppUser,
     CaregiverLink,
+    Consent,
     Department,
     Doctor,
     Patient,
+    PatientFieldValue,
     Slot,
 )
 from app.safety.privacy import mask_phone_number
@@ -245,7 +247,8 @@ def truncate_operational(db: Session) -> None:
 
 
 def _own_accounts(db: Session) -> list[dict]:
-    """Accounts people created themselves, with their patient records."""
+    """Accounts people created themselves, with their patient records, consent history and answers to
+    the registration questions (a withdrawn consent must survive a demo reset)."""
     rows = db.execute(
         select(AppUser, Patient).join(Patient, Patient.id == AppUser.patient_id).where(AppUser.self_registered)
     ).all()
@@ -259,6 +262,20 @@ def _own_accounts(db: Session) -> list[dict]:
             "birth_year": patient.birth_year,
             "phone_masked": patient.phone_masked,
             "language": patient.preferred_language,
+            "pregnant": patient.pregnant,
+            "disability": patient.disability,
+            "consents": [
+                (c.purpose, c.granted, c.at)
+                for c in db.scalars(
+                    select(Consent)
+                    .where(Consent.patient_id == patient.id, Consent.purpose != "caregiver_access")
+                    .order_by(Consent.at, Consent.id)
+                )
+            ],
+            "answers": [
+                (v.field_id, v.value)
+                for v in db.scalars(select(PatientFieldValue).where(PatientFieldValue.patient_id == patient.id))
+            ],
         }
         for user, patient in rows
     ]
@@ -271,20 +288,26 @@ def _restore_accounts(db: Session, accounts: list[dict]) -> None:
             birth_year=a["birth_year"],
             phone_masked=a["phone_masked"],
             preferred_language=a["language"],
+            pregnant=a["pregnant"],
+            disability=a["disability"],
         )
         db.add(patient)
         db.flush()
-        db.add(
-            AppUser(
-                username=a["username"],
-                display_name=a["display_name"],
-                role="patient",
-                patient_id=patient.id,
-                password_hash=a["password_hash"],
-                self_registered=True,
-                created_at=a["created_at"],
-            )
+        user = AppUser(
+            username=a["username"],
+            display_name=a["display_name"],
+            role="patient",
+            patient_id=patient.id,
+            password_hash=a["password_hash"],
+            self_registered=True,
+            created_at=a["created_at"],
         )
+        db.add(user)
+        db.flush()
+        for purpose, granted, at_time in a["consents"]:
+            db.add(Consent(patient_id=patient.id, purpose=purpose, granted=granted, at=at_time, by_user_id=user.id))
+        for field_id, value in a["answers"]:
+            db.add(PatientFieldValue(patient_id=patient.id, field_id=field_id, value=value))
     db.flush()
 
 

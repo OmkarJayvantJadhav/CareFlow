@@ -16,6 +16,7 @@ from app.api.admin_routes import router as admin_router
 from app.api.care_routes import router as care_router
 from app.api.queue_routes import router as queue_router
 from app.api.queue_routes import ws_router
+from app.api.registration_routes import router as registration_router
 from app.api.routes import router
 from app.config import HOSPITAL_NAME, get_settings
 from app.db.models import KbChunk
@@ -146,6 +147,7 @@ def health() -> JSONResponse:
 app.include_router(router)
 app.include_router(admin_router)
 app.include_router(care_router)
+app.include_router(registration_router)
 app.include_router(queue_router)
 app.include_router(ws_router)
 

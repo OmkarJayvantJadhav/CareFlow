@@ -2,6 +2,7 @@ import { CircleCheck, KeyRound, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
+import { CaregiverAccess, PatientPrivacy } from "../components/Privacy";
 import Loading from "../components/Loading";
 import { initials, longDate } from "../format";
 import { LANGS } from "../i18n";
@@ -9,6 +10,26 @@ import { useSession } from "../session";
 
 /** S12: the patient's own details (feature 29); the phone number is stored masked only. */
 export default function Profile() {
+  const { user } = useSession();
+  return user.role === "caregiver" ? <CaregiverProfile /> : <PatientProfile />;
+}
+
+function CaregiverProfile() {
+  const { t } = useSession();
+  return (
+    <main className="narrow">
+      <div className="page-header">
+        <div>
+          <h1>{t("profileTitle")}</h1>
+          <p className="lead">{t("caregiverProfileIntro")}</p>
+        </div>
+      </div>
+      <CaregiverAccess />
+    </main>
+  );
+}
+
+function PatientProfile() {
   const { t, lang, refreshUser } = useSession();
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState(null);
@@ -205,6 +226,7 @@ export default function Profile() {
               </form>
             )}
           </section>
+          <PatientPrivacy />
         </>
       )}
     </main>

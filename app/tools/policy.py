@@ -12,6 +12,10 @@ WAITLIST_OFFER_HOLD = timedelta(hours=2)
 WAITLIST_MIN_LEAD = timedelta(hours=1)
 # Booked patients arriving later than this after their slot start lose slot order.
 LATE_GRACE = timedelta(minutes=15)
+# Patients may check themselves in from an hour before their slot until the late grace runs out;
+# outside that window the reception desk checks them in.
+SELF_CHECK_IN_OPENS = timedelta(hours=1)
+SELF_CHECK_IN_CLOSES = LATE_GRACE
 
 RESCHEDULE_POLICY = (
     "Appointments can be rescheduled up to 12 hours before the appointment time. "
