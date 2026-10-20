@@ -1,27 +1,27 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
-import { LANGS, type Key, type Lang } from "../i18n";
+import { LANGS } from "../i18n";
 import { useSession } from "../session";
-import { followSession, type DutyDoctor, type Entry } from "../staff";
+import { followSession } from "../staff";
 
 const MAX_PRIORITY = 3;
 
 /** S6: today's doctors, check-in, walk-ins and the live queue (staff). */
 export default function FrontDesk() {
   const { t } = useSession();
-  const [doctors, setDoctors] = useState<DutyDoctor[] | null>(null);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [error, setError] = useState<unknown>(null);
+  const [doctors, setDoctors] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const [entries, setEntries] = useState([]);
+  const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
-  const [walkIn, setWalkIn] = useState({ name: "", birth_year: "", phone: "", language: "en" as Lang });
+  const [walkIn, setWalkIn] = useState({ name: "", birth_year: "", phone: "", language: "en" });
 
   const doctor = doctors?.find((d) => d.doctor_id === selected) ?? null;
 
   const load = useCallback(async () => {
     try {
-      const today = await api<{ doctors: DutyDoctor[] }>("/staff/today");
+      const today = await api("/staff/today");
       setDoctors(today.doctors);
       setSelected((current) => current ?? today.doctors[0]?.doctor_id ?? null);
       setError(null);
@@ -30,13 +30,13 @@ export default function FrontDesk() {
     }
   }, []);
 
-  const loadQueue = useCallback(async (sessionId: number | null) => {
+  const loadQueue = useCallback(async (sessionId) => {
     if (sessionId === null) {
       setEntries([]);
       return;
     }
     try {
-      setEntries((await api<{ entries: Entry[] }>(`/queue/sessions/${sessionId}`)).entries);
+      setEntries((await api(`/queue/sessions/${sessionId}`)).entries);
     } catch (err) {
       setError(err);
     }
@@ -56,7 +56,7 @@ export default function FrontDesk() {
     });
   }, [sessionId, loadQueue, load]);
 
-  async function act(path: string, method = "POST", body?: unknown) {
+  async function act(path, method = "POST", body) {
     setBusy(true);
     setError(null);
     try {
@@ -70,7 +70,7 @@ export default function FrontDesk() {
     }
   }
 
-  async function registerWalkIn(e: FormEvent) {
+  async function registerWalkIn(e) {
     e.preventDefault();
     if (!doctor || !walkIn.name.trim()) return;
     await act("/queue/walk-ins", "POST", {
@@ -134,32 +134,54 @@ export default function FrontDesk() {
                       <tr key={e.entry_id}>
                         <td>
                           <strong>{e.token}</strong>
-                          {e.priority > 0 && <div className="pill warn">★ {t("priority")} {e.priority}</div>}
+                          {e.priority > 0 && (
+                            <div className="pill warn">
+                              ★ {t("priority")} {e.priority}
+                            </div>
+                          )}
                         </td>
                         <td>
                           {e.patient_name}
-                          <div className="muted">{t(`entry_${e.status}` as Key)}</div>
+                          <div className="muted">{t(`entry_${e.status}`)}</div>
                         </td>
                         <td>{e.estimate?.display ?? "—"}</td>
                         <td>
                           <div className="row">
                             {e.status === "called" && (
-                              <button type="button" disabled={busy} onClick={() => act(`/queue/entries/${e.entry_id}/start`)}>
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() => act(`/queue/entries/${e.entry_id}/start`)}
+                              >
                                 {t("start")}
                               </button>
                             )}
                             {e.status === "in_consultation" && (
-                              <button type="button" disabled={busy} onClick={() => act(`/queue/entries/${e.entry_id}/end`)}>
+                              <button
+                                type="button"
+                                disabled={busy}
+                                onClick={() => act(`/queue/entries/${e.entry_id}/end`)}
+                              >
                                 {t("end")}
                               </button>
                             )}
                             {e.status === "called" && (
-                              <button type="button" className="quiet" disabled={busy} onClick={() => act(`/queue/entries/${e.entry_id}/missed`)}>
+                              <button
+                                type="button"
+                                className="quiet"
+                                disabled={busy}
+                                onClick={() => act(`/queue/entries/${e.entry_id}/missed`)}
+                              >
                                 {t("missed")}
                               </button>
                             )}
                             {e.status === "missed" && (
-                              <button type="button" className="secondary" disabled={busy} onClick={() => act(`/queue/entries/${e.entry_id}/return`)}>
+                              <button
+                                type="button"
+                                className="secondary"
+                                disabled={busy}
+                                onClick={() => act(`/queue/entries/${e.entry_id}/return`)}
+                              >
                                 {t("returned")}
                               </button>
                             )}
@@ -169,7 +191,9 @@ export default function FrontDesk() {
                                 className="quiet"
                                 disabled={busy}
                                 aria-label={`${t("priorityUp")}: ${e.token}`}
-                                onClick={() => act(`/queue/entries/${e.entry_id}/priority`, "PATCH", { priority: e.priority + 1 })}
+                                onClick={() =>
+                                  act(`/queue/entries/${e.entry_id}/priority`, "PATCH", { priority: e.priority + 1 })
+                                }
                               >
                                 ★+
                               </button>
@@ -190,17 +214,26 @@ export default function FrontDesk() {
             {doctor.bookings.length === 0 && <p className="muted">{t("none")}</p>}
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
               {doctor.bookings.map((b) => (
-                <li key={b.appointment_id} className="row" style={{ justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid var(--border)" }}>
+                <li
+                  key={b.appointment_id}
+                  className="row"
+                  style={{ justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid var(--border)" }}
+                >
                   <span>
                     <strong>{b.time}</strong> {b.patient_name}
-                    {b.status !== "booked" && <span className="muted"> · {t(`status_${b.status}` as Key)}</span>}
+                    {b.status !== "booked" && <span className="muted"> · {t(`status_${b.status}`)}</span>}
                   </span>
                   {b.entry_id ? (
                     <span className="pill ok">
                       ✓ {t("checkedIn")} {b.token}
                     </span>
                   ) : b.status === "booked" ? (
-                    <button type="button" className="secondary" disabled={busy} onClick={() => act(`/queue/entries/${b.appointment_id}/check-in`)}>
+                    <button
+                      type="button"
+                      className="secondary"
+                      disabled={busy}
+                      onClick={() => act(`/queue/entries/${b.appointment_id}/check-in`)}
+                    >
                       {t("checkIn")}
                     </button>
                   ) : null}
@@ -215,20 +248,44 @@ export default function FrontDesk() {
             <form onSubmit={registerWalkIn}>
               <div className="field">
                 <label htmlFor="wi-name">{t("walkInName")}</label>
-                <input id="wi-name" required maxLength={120} value={walkIn.name} onChange={(e) => setWalkIn({ ...walkIn, name: e.target.value })} />
+                <input
+                  id="wi-name"
+                  required
+                  maxLength={120}
+                  value={walkIn.name}
+                  onChange={(e) => setWalkIn({ ...walkIn, name: e.target.value })}
+                />
               </div>
               <div className="row">
                 <div className="field" style={{ flex: "1 1 120px" }}>
                   <label htmlFor="wi-year">{t("walkInYear")}</label>
-                  <input id="wi-year" required inputMode="numeric" pattern="(19|20)[0-9]{2}" value={walkIn.birth_year} onChange={(e) => setWalkIn({ ...walkIn, birth_year: e.target.value })} />
+                  <input
+                    id="wi-year"
+                    required
+                    inputMode="numeric"
+                    pattern="(19|20)[0-9]{2}"
+                    value={walkIn.birth_year}
+                    onChange={(e) => setWalkIn({ ...walkIn, birth_year: e.target.value })}
+                  />
                 </div>
                 <div className="field" style={{ flex: "1 1 160px" }}>
                   <label htmlFor="wi-phone">{t("walkInPhone")}</label>
-                  <input id="wi-phone" required inputMode="tel" pattern="[6-9][0-9]{9}" value={walkIn.phone} onChange={(e) => setWalkIn({ ...walkIn, phone: e.target.value })} />
+                  <input
+                    id="wi-phone"
+                    required
+                    inputMode="tel"
+                    pattern="[6-9][0-9]{9}"
+                    value={walkIn.phone}
+                    onChange={(e) => setWalkIn({ ...walkIn, phone: e.target.value })}
+                  />
                 </div>
                 <div className="field" style={{ flex: "1 1 120px" }}>
                   <label htmlFor="wi-lang">{t("walkInLanguage")}</label>
-                  <select id="wi-lang" value={walkIn.language} onChange={(e) => setWalkIn({ ...walkIn, language: e.target.value as Lang })}>
+                  <select
+                    id="wi-lang"
+                    value={walkIn.language}
+                    onChange={(e) => setWalkIn({ ...walkIn, language: e.target.value })}
+                  >
                     {LANGS.map((l) => (
                       <option key={l.code} value={l.code}>
                         {l.label}

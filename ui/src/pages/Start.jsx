@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import type { Role } from "../api";
 import { HOME } from "../App";
 import ErrorMessage from "../components/ErrorMessage";
-import { LANGS, type Key } from "../i18n";
+import { LANGS } from "../i18n";
 import { useSession } from "../session";
 
-const ROLES: { role: Role; label: Key; hint: Key }[] = [
+const ROLES = [
   { role: "patient", label: "rolePatient", hint: "rolePatientHint" },
   { role: "caregiver", label: "roleCaregiver", hint: "roleCaregiverHint" },
   { role: "staff", label: "roleStaff", hint: "roleStaffHint" },
@@ -17,11 +16,11 @@ const ROLES: { role: Role; label: Key; hint: Key }[] = [
 export default function Start() {
   const { user, lang, setLang, signIn, t } = useSession();
   const navigate = useNavigate();
-  const [busy, setBusy] = useState<Role | null>(null);
-  const [error, setError] = useState<unknown>(null);
+  const [busy, setBusy] = useState(null);
+  const [error, setError] = useState(null);
   if (user) return <Navigate to={HOME[user.role]} replace />;
 
-  async function choose(role: Role) {
+  async function choose(role) {
     setBusy(role);
     setError(null);
     try {
@@ -41,7 +40,13 @@ export default function Start() {
       <h2>{t("chooseLanguage")}</h2>
       <div className="segmented" role="group" aria-label={t("chooseLanguage")}>
         {LANGS.map((l) => (
-          <button key={l.code} type="button" aria-pressed={lang === l.code} onClick={() => setLang(l.code)} lang={l.code}>
+          <button
+            key={l.code}
+            type="button"
+            aria-pressed={lang === l.code}
+            onClick={() => setLang(l.code)}
+            lang={l.code}
+          >
             {l.label}
           </button>
         ))}

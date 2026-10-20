@@ -1,5 +1,4 @@
 import { ApiError } from "../api";
-import type { Key } from "../i18n";
 import { useSession } from "../session";
 
 const KNOWN = new Set(["RATE_LIMITED", "LLM_UNAVAILABLE", "FORBIDDEN", "UNAUTHORIZED", "UNSAFE_QUERY"]);
@@ -7,10 +6,10 @@ const KNOWN = new Set(["RATE_LIMITED", "LLM_UNAVAILABLE", "FORBIDDEN", "UNAUTHOR
 /** Plain-language error with a next step; never a bare code (docs §8). */
 export function useErrorText() {
   const { t, lang } = useSession();
-  return (error: unknown): string => {
+  return (error) => {
     if (error instanceof ApiError) {
       if (error.code === "NETWORK") return t("error_network");
-      if (KNOWN.has(error.code)) return t(`error_${error.code}` as Key);
+      if (KNOWN.has(error.code)) return t(`error_${error.code}`);
       // Rule messages from the server ("This slot was just taken…") are plain English sentences.
       if (lang === "en" && error.message) return error.message;
       return error.message ? `${t("error_generic")} (${error.message})` : t("error_generic");
@@ -19,7 +18,7 @@ export function useErrorText() {
   };
 }
 
-export default function ErrorMessage({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+export default function ErrorMessage({ error, onRetry }) {
   const { t } = useSession();
   const text = useErrorText()(error);
   return (

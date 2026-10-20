@@ -49,9 +49,9 @@ jobs:
           cache: npm
           cache-dependency-path: ui/package-lock.json
       - run: npm ci --no-audit --no-fund
-      - name: Type check and unit tests
+      - name: Lint and unit tests
         run: |
-          npx tsc --noEmit
+          npm run lint
           npm test
       - run: npm run build
 

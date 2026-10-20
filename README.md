@@ -197,7 +197,7 @@ UI unit tests and browser tests (the browser tests start the app with their own 
 and a stand-in LLM, so they need no API key):
 
 ```bash
-cd ui && npm test && npm run build && cd ..
+cd ui && npm run lint && npm test && npm run build && cd ..
 pytest -m e2e tests/e2e          # 15 tests: all nine screens, live queue under 2 s, accessibility, 360 px
 ```
 
@@ -254,7 +254,7 @@ simulator/    fictional hospital, seed data, day replay, invariant checks
   kb/         the knowledge-base generator (content in three languages)
 knowledge/    generated knowledge base: <language>/<collection>/<document>.md
 eval/         evaluation suites, datasets, run logs and results
-ui/           React app (Vite + TypeScript): src/pages/ holds the nine screens, src/i18n.ts the text
+ui/           React app (Vite + JavaScript): src/pages/ holds the nine screens, src/i18n.js the text
 tests/        pytest suite; tests/e2e/ the browser tests and the demo recorder
 docs/         specification, DECISIONS.md, DEPLOY.md
 ```
@@ -282,11 +282,11 @@ docs/         specification, DECISIONS.md, DEPLOY.md
 | FR-21–23, 27, 28 queue | `app/queue/engine.py`, `app/api/queue_routes.py` | `test_queue.py`, `test_queue_api.py`, TC-09, TC-12, TC-13 |
 | FR-24 estimate with a range | `app/ml/`, `app/queue/predictions.py` | `test_wait_time.py`, s30 |
 | FR-25 recompute after every event | `engine._after_event` | TC-10, TC-11 |
-| FR-26 live push / NFR-02 within 2 s | `app/queue/broadcast.py`, `/ws/queue/{id}`, `ui/src/pages/QueueStatus.tsx` | TC-20 (`test_queue_api.py`, e2e in the browser) |
+| FR-26 live push / NFR-02 within 2 s | `app/queue/broadcast.py`, `/ws/queue/{id}`, `ui/src/pages/QueueStatus.jsx` | TC-20 (`test_queue_api.py`, e2e in the browser) |
 | FR-27 rebooking offered in chat | `app/agent/chat.py::displaced_notes` | s32 |
 | NFR-06 MAE below both baselines | `app/ml/train.py` | `eval/results/ml_wait_time.json` |
 | FR-33 audit log | `app/tools/audit.py` | TC-16 |
-| FR-29 admin dashboard | `app/api/admin_routes.py`, `ui/src/pages/Dashboard.tsx` | `test_admin_api.py`, e2e |
+| FR-29 admin dashboard | `app/api/admin_routes.py`, `ui/src/pages/Dashboard.jsx` | `test_admin_api.py`, e2e |
 | FR-30/31 analytics, read-only SQL | `app/analytics/`, migration 0003 | TC-14, TC-15, `test_analytics.py`, e2e |
 | FR-32 dashboard shows evaluation results | `app/api/admin_routes.py` | `test_admin_api.py`, e2e |
 | FR-34 demo reset | `simulator/seed.py`, `POST /admin/reset` | TC-17 (`test_admin_api.py`, e2e) |

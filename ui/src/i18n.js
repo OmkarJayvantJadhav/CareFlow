@@ -1,8 +1,7 @@
 // Interface text in English, Hindi and Marathi (docs §8: all text in three languages).
 // The assistant's replies come from the server in the user's language; these are the labels around them.
 
-export type Lang = "en" | "hi" | "mr";
-export const LANGS: { code: Lang; label: string }[] = [
+export const LANGS = [
   { code: "en", label: "English" },
   { code: "hi", label: "हिन्दी" },
   { code: "mr", label: "मराठी" },
@@ -57,7 +56,8 @@ const en = {
   showLess: "Show less",
   emergencyTitle: "This may be a medical emergency",
   emergencyCall: "Call 112 or 108 now",
-  emergencyBody: "Go to the nearest emergency department. At Indravani General Hospital it is on the ground floor near the main gate, open 24 hours. Do not wait for an OPD appointment.",
+  emergencyBody:
+    "Go to the nearest emergency department. At Indravani General Hospital it is on the ground floor near the main gate, open 24 hours. Do not wait for an OPD appointment.",
   emergencyBack: "This is not an emergency — back to chat",
   suggestions: "Try:",
   suggestBook: "Book a Marathi-speaking cardiologist on Saturday",
@@ -141,7 +141,8 @@ const en = {
   resetConfirm: "Reset every appointment, queue and conversation to the seed data?",
   resetDone: "Demo data reset.",
   analyticsTitle: "Analytics",
-  analyticsIntro: "Ask about appointments, queues, no-shows or waiting times. Answers come from one read-only SQL query.",
+  analyticsIntro:
+    "Ask about appointments, queues, no-shows or waiting times. Answers come from one read-only SQL query.",
   analyticsPlaceholder: "e.g. Which department had the most no-shows this month?",
   ask: "Ask",
   generatedSql: "Generated SQL",
@@ -159,10 +160,7 @@ const en = {
   retry: "Try again",
 };
 
-export type Key = keyof typeof en;
-type Dict = Record<Key, string>;
-
-const hi: Dict = {
+const hi = {
   appName: "CareFlow",
   banner: "काल्पनिक अस्पताल के साथ डेमो। चिकित्सा उपयोग के लिए नहीं।",
   hospital: "इंद्रावणी जनरल हॉस्पिटल",
@@ -211,7 +209,8 @@ const hi: Dict = {
   showLess: "कम दिखाएँ",
   emergencyTitle: "यह मेडिकल इमरजेंसी हो सकती है",
   emergencyCall: "अभी 112 या 108 पर कॉल करें",
-  emergencyBody: "नज़दीकी आपातकालीन विभाग में जाएँ। इंद्रावणी जनरल हॉस्पिटल में यह मुख्य द्वार के पास भूतल पर है और 24 घंटे खुला रहता है। ओपीडी अपॉइंटमेंट का इंतज़ार न करें।",
+  emergencyBody:
+    "नज़दीकी आपातकालीन विभाग में जाएँ। इंद्रावणी जनरल हॉस्पिटल में यह मुख्य द्वार के पास भूतल पर है और 24 घंटे खुला रहता है। ओपीडी अपॉइंटमेंट का इंतज़ार न करें।",
   emergencyBack: "यह इमरजेंसी नहीं है — चैट पर वापस",
   suggestions: "आज़माएँ:",
   suggestBook: "शनिवार को मराठी बोलने वाले हृदय रोग विशेषज्ञ का अपॉइंटमेंट",
@@ -277,7 +276,8 @@ const hi: Dict = {
   markResume: "फिर शुरू",
   markUnavailable: "आज उपलब्ध नहीं",
   minutes: "मिनट",
-  confirmUnavailable: "{doctor} को आज के लिए उपलब्ध नहीं चिह्नित करें? इंतज़ार कर रहे मरीज़ों को सूचना और नए स्लॉट दिए जाएँगे।",
+  confirmUnavailable:
+    "{doctor} को आज के लिए उपलब्ध नहीं चिह्नित करें? इंतज़ार कर रहे मरीज़ों को सूचना और नए स्लॉट दिए जाएँगे।",
   affected: "सूचित मरीज़: {count}",
   dashboardTitle: "ओपीडी डैशबोर्ड",
   department: "विभाग",
@@ -295,7 +295,8 @@ const hi: Dict = {
   resetConfirm: "हर अपॉइंटमेंट, कतार और बातचीत को शुरुआती डेटा पर रीसेट करें?",
   resetDone: "डेमो डेटा रीसेट हो गया।",
   analyticsTitle: "एनालिटिक्स",
-  analyticsIntro: "अपॉइंटमेंट, कतार, न आने वालों या इंतज़ार के बारे में पूछें। जवाब एक केवल-पढ़ने वाली SQL क्वेरी से आता है।",
+  analyticsIntro:
+    "अपॉइंटमेंट, कतार, न आने वालों या इंतज़ार के बारे में पूछें। जवाब एक केवल-पढ़ने वाली SQL क्वेरी से आता है।",
   analyticsPlaceholder: "जैसे: इस महीने किस विभाग में सबसे ज़्यादा लोग नहीं आए?",
   ask: "पूछें",
   generatedSql: "बनाई गई SQL",
@@ -313,7 +314,7 @@ const hi: Dict = {
   retry: "फिर कोशिश करें",
 };
 
-const mr: Dict = {
+const mr = {
   appName: "CareFlow",
   banner: "काल्पनिक रुग्णालयासह डेमो. वैद्यकीय वापरासाठी नाही.",
   hospital: "इंद्रावणी जनरल हॉस्पिटल",
@@ -362,7 +363,8 @@ const mr: Dict = {
   showLess: "कमी दाखवा",
   emergencyTitle: "ही वैद्यकीय आपत्कालीन स्थिती असू शकते",
   emergencyCall: "आत्ताच 112 किंवा 108 वर कॉल करा",
-  emergencyBody: "जवळच्या आपत्कालीन विभागात जा. इंद्रावणी जनरल हॉस्पिटलमध्ये तो मुख्य प्रवेशद्वाराजवळ तळमजल्यावर आहे आणि 24 तास सुरू असतो. ओपीडी अपॉइंटमेंटची वाट पाहू नका.",
+  emergencyBody:
+    "जवळच्या आपत्कालीन विभागात जा. इंद्रावणी जनरल हॉस्पिटलमध्ये तो मुख्य प्रवेशद्वाराजवळ तळमजल्यावर आहे आणि 24 तास सुरू असतो. ओपीडी अपॉइंटमेंटची वाट पाहू नका.",
   emergencyBack: "ही आपत्कालीन स्थिती नाही — चॅटवर परत",
   suggestions: "हे वापरून पाहा:",
   suggestBook: "शनिवारी मराठी बोलणारे हृदयरोग तज्ज्ञ हवे आहेत",
@@ -428,7 +430,8 @@ const mr: Dict = {
   markResume: "पुन्हा सुरू",
   markUnavailable: "आज उपलब्ध नाहीत",
   minutes: "मिनिटे",
-  confirmUnavailable: "{doctor} यांना आजसाठी उपलब्ध नाहीत असे चिन्हांकित करायचे? प्रतीक्षेतील रुग्णांना कळवले जाईल आणि नवीन वेळा दिल्या जातील.",
+  confirmUnavailable:
+    "{doctor} यांना आजसाठी उपलब्ध नाहीत असे चिन्हांकित करायचे? प्रतीक्षेतील रुग्णांना कळवले जाईल आणि नवीन वेळा दिल्या जातील.",
   affected: "कळवलेले रुग्ण: {count}",
   dashboardTitle: "ओपीडी डॅशबोर्ड",
   department: "विभाग",
@@ -446,7 +449,8 @@ const mr: Dict = {
   resetConfirm: "प्रत्येक अपॉइंटमेंट, रांग आणि संभाषण सुरुवातीच्या डेटावर रीसेट करायचे?",
   resetDone: "डेमो डेटा रीसेट झाला.",
   analyticsTitle: "अ‍ॅनालिटिक्स",
-  analyticsIntro: "अपॉइंटमेंट, रांगा, न आलेले रुग्ण किंवा प्रतीक्षा वेळेबद्दल विचारा. उत्तर एका फक्त-वाचन SQL क्वेरीतून येते.",
+  analyticsIntro:
+    "अपॉइंटमेंट, रांगा, न आलेले रुग्ण किंवा प्रतीक्षा वेळेबद्दल विचारा. उत्तर एका फक्त-वाचन SQL क्वेरीतून येते.",
   analyticsPlaceholder: "उदा. या महिन्यात कोणत्या विभागात सर्वाधिक रुग्ण आले नाहीत?",
   ask: "विचारा",
   generatedSql: "तयार झालेली SQL",
@@ -464,9 +468,9 @@ const mr: Dict = {
   retry: "पुन्हा प्रयत्न करा",
 };
 
-export const STRINGS: Record<Lang, Dict> = { en, hi, mr };
+export const STRINGS = { en, hi, mr };
 
-export function translate(lang: Lang, key: Key, vars: Record<string, string | number> = {}): string {
+export function translate(lang, key, vars = {}) {
   const template = STRINGS[lang][key] ?? STRINGS.en[key];
-  return template.replace(/\{(\w+)\}/g, (_, name: string) => String(vars[name] ?? `{${name}}`));
+  return template.replace(/\{(\w+)\}/g, (_, name) => String(vars[name] ?? `{${name}}`));
 }

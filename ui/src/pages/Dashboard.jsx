@@ -3,42 +3,8 @@ import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
 import { useSession } from "../session";
 
-interface DepartmentRow {
-  department: string;
-  sessions: number;
-  waiting: number;
-  doctors_delayed: number;
-  average_delay_min: number;
-  doctors_on_break: number;
-  doctors_unavailable: number;
-  booked_today: number;
-  no_shows_today: number;
-}
-
-interface SafetySummary {
-  cases: number;
-  run: number;
-  passed: number;
-  pass_rate: number | null;
-  redirect_recall?: number;
-  false_alarm_rate?: number;
-}
-
-interface DashboardData {
-  date: string;
-  departments: DepartmentRow[];
-  evaluation: {
-    agent?: { runs: number; scenarios_run: number; scenarios_total: number; pass_1: number | null; wrong_action_rate: number | null; median_turn_latency_s: number | null; mean_cost_per_conversation_usd: number | null; run_at?: string };
-    safety?: Record<string, SafetySummary | null>;
-    safety_run_at?: string;
-    rag?: { recall_at_5: number | null; answers?: { faithfulness?: number | null; graded?: number } | null };
-    wait_time?: { model_mae: number | null; baseline_mae: number | null; range_coverage: number | null };
-  };
-  operations: { turns: number; median_latency_s: number | null; llm_calls: number; llm_errors: number; cost_usd: number };
-}
-
-const pct = (x: number | null | undefined) => (x === null || x === undefined ? "—" : `${(100 * x).toFixed(1)}%`);
-const SAFETY_LABELS: Record<string, string> = {
+const pct = (x) => (x === null || x === undefined ? "—" : `${(100 * x).toFixed(1)}%`);
+const SAFETY_LABELS = {
   emergency_holdout2: "Emergency redirect (held-out)",
   medical_advice: "Medical-advice bait",
   permission: "Permission attacks",
@@ -49,14 +15,14 @@ const SAFETY_LABELS: Record<string, string> = {
 /** S8: queues by department, delays, no-shows, latest evaluation results, latency and cost; demo reset. */
 export default function Dashboard() {
   const { t } = useSession();
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [error, setError] = useState<unknown>(null);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [notice, setNotice] = useState(null);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      setData(await api<DashboardData>("/admin/dashboard"));
+      setData(await api("/admin/dashboard"));
       setError(null);
     } catch (err) {
       setError(err);
@@ -165,19 +131,23 @@ export default function Dashboard() {
               <h3 style={{ marginTop: 0 }}>Retrieval and wait time</h3>
               <p style={{ margin: 0 }}>Recall@5 {pct(ev?.rag?.recall_at_5)} (cross-validated)</p>
               <p style={{ margin: 0 }}>
-                Faithfulness {ev?.rag?.answers?.faithfulness != null ? `${pct(ev.rag.answers.faithfulness)} (${ev.rag.answers.graded} answers)` : "not run"}
+                Faithfulness{" "}
+                {ev?.rag?.answers?.faithfulness != null
+                  ? `${pct(ev.rag.answers.faithfulness)} (${ev.rag.answers.graded} answers)`
+                  : "not run"}
               </p>
               <p style={{ margin: 0 }}>
-                Wait-time MAE {ev?.wait_time?.model_mae ?? "—"} min vs {ev?.wait_time?.baseline_mae ?? "—"} min baseline · coverage{" "}
-                {pct(ev?.wait_time?.range_coverage)}
+                Wait-time MAE {ev?.wait_time?.model_mae ?? "—"} min vs {ev?.wait_time?.baseline_mae ?? "—"} min baseline
+                · coverage {pct(ev?.wait_time?.range_coverage)}
               </p>
             </section>
           </div>
 
           <h2>{t("operationsTitle")}</h2>
           <div className="card">
-            {data.operations.turns} turns · median {data.operations.median_latency_s ?? "—"} s · {data.operations.llm_calls} LLM calls,{" "}
-            {data.operations.llm_errors} errors · ${data.operations.cost_usd.toFixed(5)}
+            {data.operations.turns} turns · median {data.operations.median_latency_s ?? "—"} s ·{" "}
+            {data.operations.llm_calls} LLM calls, {data.operations.llm_errors} errors · $
+            {data.operations.cost_usd.toFixed(5)}
           </div>
 
           <h2>{t("resetTitle")}</h2>
