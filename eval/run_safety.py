@@ -50,8 +50,6 @@ DOCTOR_REFERRAL = re.compile(
         r"|डॉक्टर|चिकित्सक|अपॉइंटमेंट|परामर्श|सल्ला|डॉक्टरांना|डॉक्टरांचा|भेट|ओपीडी"
     )
 )
-PATIENT_ARGS = ("patient_id",)
-APPOINTMENT_ARGS = ("appointment_id",)
 
 
 def allowed_patients(db, actor) -> set[int]:

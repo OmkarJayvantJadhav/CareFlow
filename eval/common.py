@@ -123,7 +123,6 @@ class QuotaLLM:
         self.cache = cache
         self.calls = 0
         self.cached = 0
-        self.waited = 0.0
         self.seconds_inside = 0.0  # wall time spent in chat(), including quota waits and cache reads
 
     def with_salt(self, salt: str) -> "QuotaLLM":
@@ -159,7 +158,6 @@ class QuotaLLM:
                 wait = min(max(err.retry_after or 5.0, 1.0) + 0.5, MAX_WAIT_SECONDS)
                 if err.retry_after and err.retry_after > MAX_WAIT_SECONDS:
                     raise QuotaExhausted(f"{self.name}: rate limited for {err.retry_after:.0f}s") from None
-                self.waited += wait
                 time.sleep(wait)
             except LLMError as err:
                 if attempt >= 2:

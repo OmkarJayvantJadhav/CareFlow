@@ -14,10 +14,6 @@ export function setToken(value: string | null) {
   token = value;
 }
 
-export function getToken(): string | null {
-  return token;
-}
-
 export function setUnauthorizedHandler(fn: () => void) {
   onUnauthorized = fn;
 }

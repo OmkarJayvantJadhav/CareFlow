@@ -5,7 +5,6 @@ re-ranker  ->  one result per translated section, preferring the user's
 language  ->  relevance threshold  ->  top k.
 """
 
-import hashlib
 import logging
 import math
 import threading
@@ -59,13 +58,6 @@ class RetrievedChunk:
             "source_path": self.source_path,
             "last_verified": self.last_verified.isoformat(),
         }
-
-
-def corpus_fingerprint(rows: list[tuple[str, int, str]]) -> str:
-    digest = hashlib.sha256()
-    for source_path, index, text in rows:
-        digest.update(f"{source_path}\x1f{index}\x1f{text}\x1e".encode())
-    return digest.hexdigest()
 
 
 class KbIndex:

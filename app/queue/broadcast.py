@@ -35,10 +35,6 @@ class Broadcaster:
         with self._lock:
             self._subscribers[session_id] = {s for s in self._subscribers[session_id] if s[1] is not queue}
 
-    def subscriber_count(self, session_id: int) -> int:
-        with self._lock:
-            return len(self._subscribers[session_id])
-
     def publish(self, session_id: int, messages: list[dict]) -> None:
         with self._lock:
             targets = list(self._subscribers[session_id])

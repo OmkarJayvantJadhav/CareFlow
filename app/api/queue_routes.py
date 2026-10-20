@@ -37,13 +37,6 @@ def _write_and_publish(db: Session, fn, session_id_of) -> dict:
     return result
 
 
-def _entry_session(db: Session, entry_id: int) -> int:
-    entry = db.get(QueueEntry, entry_id)
-    if entry is None:
-        raise ToolError("NOT_FOUND", f"Queue entry {entry_id} does not exist.")
-    return entry.session_id
-
-
 # --------------------------------------------------------------------------- reads
 
 

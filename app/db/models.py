@@ -432,7 +432,6 @@ class HandoffTicket(Base):
     created_at: Mapped[datetime] = mapped_column(TZ, server_default=func.now())
 
 
-APPEND_ONLY_TABLES = ("queue_event", "wait_prediction", "audit_log")
 # Everything that demo reset wipes and reloads (FR-34). The knowledge base is
 # reference content, loaded by its own ingestion step, and is left alone.
 OPERATIONAL_TABLES = (
