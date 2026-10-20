@@ -8,10 +8,12 @@ import Chat from "./pages/Chat";
 import Dashboard from "./pages/Dashboard";
 import DoctorStatus from "./pages/DoctorStatus";
 import FrontDesk from "./pages/FrontDesk";
+import Kiosk from "./pages/Kiosk";
 import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import QueueStatus from "./pages/QueueStatus";
 import Receipt from "./pages/Receipt";
+import RegistrationForm from "./pages/RegistrationForm";
 import Start from "./pages/Start";
 import { useSession } from "./session";
 
@@ -33,6 +35,15 @@ export default function App() {
   const patientRoles = ["patient", "caregiver"];
   return (
     <Routes>
+      {/* The kiosk is full screen, without the app's navigation (feature 27). */}
+      <Route
+        path="/kiosk"
+        element={
+          <Guard roles={["staff"]}>
+            <Kiosk />
+          </Guard>
+        }
+      />
       <Route element={<Layout />}>
         <Route path="/" element={<Start />} />
         <Route
@@ -118,7 +129,7 @@ export default function App() {
         <Route
           path="/profile"
           element={
-            <Guard roles={["patient"]}>
+            <Guard roles={patientRoles}>
               <Profile />
             </Guard>
           }
@@ -128,6 +139,14 @@ export default function App() {
           element={
             <Guard roles={["staff"]}>
               <Calendar />
+            </Guard>
+          }
+        />
+        <Route
+          path="/registration-form"
+          element={
+            <Guard roles={["admin"]}>
+              <RegistrationForm />
             </Guard>
           }
         />

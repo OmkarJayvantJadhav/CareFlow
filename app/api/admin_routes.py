@@ -20,6 +20,7 @@ from app.queue import engine
 from app.timeutil import now_ist, to_ist
 from app.tools.errors import ToolError
 from app.tools.permissions import require_role
+from app.tools.registration import categories
 
 router = APIRouter(prefix="/api/v1")
 RESULTS_DIR = Path(__file__).resolve().parents[2] / "eval" / "results"
@@ -58,11 +59,17 @@ def staff_today(auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) -
                 {
                     "appointment_id": a.id,
                     "time": f"{to_ist(a.slot.start_at):%H:%M}",
+                    "patient_id": a.patient_id,
                     "patient_name": a.patient.synthetic_name,
+                    "categories": categories(a.patient, today.year),
                     "status": a.status,
                     "entry_id": entry.id if entry else None,
                     "token": entry.token if entry else None,
                     "entry_status": entry.status if entry else None,
+                    # Check-in, late arrival and check-out (features 32, 33).
+                    "checked_in_at": f"{to_ist(entry.checked_in_at):%H:%M}" if entry else None,
+                    "late_minutes": entry.late_minutes if entry else None,
+                    "checked_out_at": f"{to_ist(entry.consult_end):%H:%M}" if entry and entry.consult_end else None,
                 }
             )
         doctors.append(

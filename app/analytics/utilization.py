@@ -12,7 +12,7 @@ from datetime import datetime, time, timedelta
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.db.models import Appointment, Department, Doctor, Slot
+from app.db.models import Appointment, Department, Doctor, QueueEntry, Slot
 from app.timeutil import at
 from app.tools.calendar import consult_minutes
 
@@ -78,6 +78,16 @@ def utilization(db: Session, now: datetime, days: int = 7) -> dict:
         }
         for name, counts in sorted(by_dept.items())
     ]
+    # Late arrivals (feature 33): booked patients who checked in after their slot had started.
+    arrivals = db.execute(
+        select(func.count(), func.count(QueueEntry.late_minutes))
+        .select_from(QueueEntry)
+        .where(
+            QueueEntry.kind == "booked",
+            QueueEntry.checked_in_at >= at(since, time.min),
+            QueueEntry.checked_in_at < at(today + timedelta(days=1), time.min),
+        )
+    ).one()
     total_booked = sum(r["booked"] for r in rows)
     total_free = sum(r["free"] for r in rows)
     attended = sum(r["attended"] for r in rows)
@@ -89,6 +99,7 @@ def utilization(db: Session, now: datetime, days: int = 7) -> dict:
             "utilization": _rate(total_booked, total_booked + total_free),
             "attendance_rate": _rate(attended, attended + no_shows),
             "no_show_rate": _rate(no_shows, attended + no_shows),
+            "late_arrival_rate": _rate(arrivals[1], arrivals[0]),
         },
         "departments": departments,
         "doctors": rows,

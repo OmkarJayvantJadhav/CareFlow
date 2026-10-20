@@ -4,9 +4,11 @@ import {
   CircleCheck,
   Clock,
   FileText,
+  LogIn,
   RefreshCw,
   RotateCcw,
   Stethoscope,
+  Ticket,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
@@ -35,6 +37,7 @@ export default function Appointments() {
   const [histories, setHistories] = useState(null);
   const [error, setError] = useState(null);
   const [cancelling, setCancelling] = useState(null);
+  const [checkingIn, setCheckingIn] = useState(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState(null);
 
@@ -66,6 +69,35 @@ export default function Appointments() {
       setCancelling(null);
     }
   }
+
+  // Online check-in (features 24, 25): offered by the server inside its window; confirmed here first.
+  async function checkIn() {
+    setBusy(true);
+    setError(null);
+    try {
+      const entry = await api(`/queue/entries/${checkingIn.appointment_id}/check-in`, { method: "POST" });
+      setNotice(t("checkedInToken", { token: entry.token }));
+      await load();
+    } catch (err) {
+      setError(err);
+    } finally {
+      setBusy(false);
+      setCheckingIn(null);
+    }
+  }
+
+  const checkInControl = (a) =>
+    a.token ? (
+      <Link className="button secondary" to="/queue">
+        <Ticket size={16} aria-hidden="true" />
+        {t("checkedInToken", { token: a.token })}
+      </Link>
+    ) : a.can_check_in ? (
+      <button type="button" onClick={() => setCheckingIn(a)}>
+        <LogIn size={16} aria-hidden="true" />
+        {t("checkInNow")}
+      </button>
+    ) : null;
 
   const badge = (a) => <span className={`badge ${STATUS_TONE[a.status] ?? ""}`}>{t(`status_${a.status}`)}</span>;
 
@@ -113,6 +145,7 @@ export default function Appointments() {
                 </div>
               </div>
               <div className="actions">
+                {checkInControl(a)}
                 <Link className="button quiet" to={`/receipt/${a.appointment_id}`}>
                   <FileText size={16} aria-hidden="true" />
                   {t("receipt")}
@@ -161,6 +194,7 @@ export default function Appointments() {
               </div>
             </div>
             {badge(a)}
+            {checkInControl(a)}
             {a.status === "no_show" && (
               <button type="button" className="secondary" onClick={() => navigate("/book", { state: { rebook: a } })}>
                 <RotateCcw size={16} aria-hidden="true" />
@@ -211,6 +245,24 @@ export default function Appointments() {
           {past(h.past)}
         </section>
       ))}
+      <ConfirmDialog
+        open={checkingIn !== null}
+        title={t("checkInNow")}
+        confirmLabel={t("checkIn")}
+        cancelLabel={t("back")}
+        busy={busy}
+        onConfirm={() => void checkIn()}
+        onClose={() => setCheckingIn(null)}
+      >
+        {checkingIn && (
+          <>
+            <p>
+              <strong>{checkingIn.doctor_name}</strong> ({checkingIn.department}) · {checkingIn.time}
+            </p>
+            <p className="muted">{t("checkInNote")}</p>
+          </>
+        )}
+      </ConfirmDialog>
       <ConfirmDialog
         open={cancelling !== null}
         title={t("confirmCancel")}

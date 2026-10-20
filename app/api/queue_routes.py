@@ -20,6 +20,7 @@ from app.queue.predictions import latest_estimate
 from app.timeutil import now_ist
 from app.tools.errors import ToolError
 from app.tools.permissions import can_manage_patient, require_role
+from app.tools.registration import categories
 
 router = APIRouter(prefix="/api/v1/queue", tags=["queue"])
 ws_router = APIRouter()
@@ -75,10 +76,12 @@ def session_detail(session_id: int, auth: Auth = Depends(get_auth), db: Session 
     """Full queue with patient names (staff only)."""
     require_role(auth.actor, "staff")
     snapshot = engine.session_snapshot(db, session_id)
+    now = now_ist()
     for entry in snapshot["entries"]:
         e = db.get(QueueEntry, entry["entry_id"])
         entry["patient_name"] = e.patient.synthetic_name
-        entry["estimate"] = latest_estimate(db, e.id, now_ist()) if e.status == "waiting" else None
+        entry["categories"] = categories(e.patient, now.year)  # feature 30
+        entry["estimate"] = latest_estimate(db, e.id, now) if e.status == "waiting" else None
     return snapshot
 
 
@@ -104,6 +107,7 @@ class WalkInRequest(BaseModel):
     birth_year: int | None = None
     phone: str | None = Field(None, max_length=20)
     language: Literal["en", "hi", "mr"] = "en"
+    answers: dict[str, str] | None = None
 
 
 class EventRequest(BaseModel):
@@ -121,8 +125,16 @@ def walk_in(body: WalkInRequest, auth: Auth = Depends(get_auth), db: Session = D
     return _write_and_publish(
         db,
         lambda: engine.register_walk_in(
-            db, auth.actor, body.doctor_id, body.patient_id, body.name, body.birth_year, body.phone, body.language
-        ),
+            db,
+            auth.actor,
+            body.doctor_id,
+            body.patient_id,
+            body.name,
+            body.birth_year,
+            body.phone,
+            body.language,
+            answers=body.answers,
+        ),  # fmt: skip
         lambda r: r["session_id"],
     )
 

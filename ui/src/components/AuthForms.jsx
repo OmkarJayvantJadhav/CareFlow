@@ -3,6 +3,7 @@ import { useState } from "react";
 import { LANGS } from "../i18n";
 import { useSession } from "../session";
 import ErrorMessage from "./ErrorMessage";
+import { CustomFields, useRegistrationFields } from "./Registration";
 
 function PasswordField({ id, value, onChange, autoComplete, hint }) {
   const { t } = useSession();
@@ -90,6 +91,8 @@ export function LoginForm({ onDone }) {
 export function RegisterForm({ onDone }) {
   const { register, lang, t } = useSession();
   const [form, setForm] = useState({ name: "", username: "", password: "", birth_year: "", phone: "", language: lang });
+  const [answers, setAnswers] = useState({});
+  const fields = useRegistrationFields();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
@@ -105,6 +108,7 @@ export function RegisterForm({ onDone }) {
           name: form.name.trim(),
           username: form.username.trim().toLowerCase(),
           birth_year: Number(form.birth_year),
+          answers,
         }),
       );
     } catch (err) {
@@ -196,6 +200,7 @@ export function RegisterForm({ onDone }) {
           {t("mobileHint")}
         </p>
       </div>
+      <CustomFields fields={fields} answers={answers} onChange={setAnswers} idPrefix="reg" />
       {error !== null && <ErrorMessage error={error} />}
       <button type="submit" className="wide" disabled={busy}>
         <UserPlus size={18} aria-hidden="true" />

@@ -19,6 +19,7 @@ Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECIS
 | 2. Agent + RAG | Knowledge base, hybrid retrieval + re-ranker, agent loop, safety gate, chat API | Done (see "What has and has not been verified") |
 | 3. Queue + ML | Queue events over WebSocket, wait-time model + baselines, queue tools | **Done** — model beats both baselines |
 | 4. Evaluation | 120 agent scenarios, user simulator, RAG/ML/safety sets, results table | **Partly run** — safety sets at 100%, RAG recall@5 86.7%, 25 of 120 agent scenarios run once (25/25 passed); the other 95 scenarios, repeat runs, graded RAG answers and the baseline comparison have **not been run** (stopped to stay within free quotas) |
+| 6B. Registration and check-in | Self and QR check-in, kiosk, categories, late arrivals, duplicates, custom fields, consent | **Done** — see "Registration and check-in" below |
 | 6A. Appointments | Booking without chat, smart slots, calendars and leave, reminders, receipts, profile, utilization | **Done** — see "Appointment management" below |
 | 5. Ship | Patient and staff UI, admin dashboard, analytics agent, deployment | **Built and tested** — all nine screens, patient accounts with password sign-in, 16 browser tests; deployed on Render's free tier with a Neon database ([`docs/DEPLOY.md`](docs/DEPLOY.md)) |
 
@@ -55,6 +56,21 @@ Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECIS
   - *Profile (29):* name, birth year, language and phone (stored masked); password change for own accounts.
   - *Utilization and attendance (15, 16):* booked share of the next 7 days' slots and the last 30 days'
     attendance and no-show rates, per department and doctor, on the admin dashboard.
+- **Registration and check-in (phase 6B)**, numbered as in the request:
+  - *Online check-in (24, 25):* patients check in from My appointments from an hour before their slot until
+    15 minutes after it starts (the window is enforced by the server); the token is shown at once.
+  - *Receipt-code check-in (21) and kiosk (27):* reception types or scans the receipt's signed code; a
+    full-screen kiosk lets patients do the same and shows only their first name, doctor and time.
+  - *Patient categories (30):* senior and child from the birth year, pregnant and disability set by staff;
+    shown as badges at the front desk (6C uses them for priority rules).
+  - *Late arrivals and check-out (32, 33):* minutes late, check-in and check-out times at the front desk;
+    the late-arrival rate on the dashboard.
+  - *Duplicate detection and reuse (48, 34):* registering a walk-in first lists likely matches (same birth
+    year and same name or masked phone); an existing record is reused only while the patient allows it.
+  - *Custom registration forms (26, 28):* admins add questions in three languages (text, number, choice,
+    yes/no, optional or required); they are asked at sign-up and at the desk and checked by the server.
+  - *Consent (35):* patients switch reuse of their details and reminders on or off (with a history), and
+    approve or decline caregivers who ask for access by username; access can be removed at any time.
 - **Chat (`POST /api/v1/chat`)** — a hand-written tool-calling agent (`app/agent/`) with argument
   validation, a step limit, a token budget and a JSON trace of every LLM and tool call.
   - **Confirmation is enforced in code:** the model can only *propose* a booking, change, cancellation or
@@ -227,7 +243,7 @@ and a stand-in LLM, so they need no API key):
 
 ```bash
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e          # 19 tests: every screen, sign-up and log-in, booking to receipt, leave, live queue under 2 s, accessibility, 360 px
+pytest -m e2e tests/e2e          # 25 tests: every screen, sign-up and log-in, booking to receipt, check-in, kiosk, live queue under 2 s, accessibility, 360 px
 ```
 
 GitHub Actions runs lint, the Python tests, the UI tests, the browser tests and a Docker build on every

@@ -107,6 +107,9 @@ def prepare() -> None:
     command.upgrade(cfg, "head")
     with session_scope() as db:
         reset_demo(db, START.date(), 42)
+        # The registration form is configuration that a demo reset keeps; tests start without extra questions.
+        db.execute(text("DELETE FROM patient_field_value"))
+        db.execute(text("DELETE FROM registration_field"))
         ingest(db, if_needed=True)
     with session_scope() as db:
         from app.rag.retriever import get_retriever
@@ -122,11 +125,12 @@ def main(port: int, real_llm: bool = False) -> None:
     import app.api.auth
     import app.api.care_routes
     import app.api.queue_routes
+    import app.api.registration_routes
     import app.api.routes
     import app.timeutil
 
     for module in (app.timeutil, app.agent.tracing, app.api.auth, app.api.queue_routes, app.api.routes,
-                   app.api.admin_routes, app.api.care_routes):  # fmt: skip
+                   app.api.admin_routes, app.api.care_routes, app.api.registration_routes):  # fmt: skip
         module.now_ist = clock
     prepare()
     from app.api.deps import get_llm

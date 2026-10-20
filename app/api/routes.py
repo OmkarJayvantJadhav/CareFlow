@@ -17,10 +17,10 @@ from app.api.auth import issue_token
 from app.api.deps import Auth, SlidingWindowLimiter, client_key, get_auth, get_db, get_llm, run_and_commit
 from app.api.passwords import DUMMY_HASH, hash_password, verify_password
 from app.config import get_settings
-from app.db.models import AppUser, Patient
+from app.db.models import AppUser, Patient, QueueEntry
 from app.safety.privacy import mask_phone_number
 from app.timeutil import iso, now_ist
-from app.tools import booking, policy, waiting_list
+from app.tools import booking, policy, registration, waiting_list
 from app.tools.errors import ToolError
 from app.tools.permissions import Actor
 from app.tools.receipts import reference_code
@@ -79,6 +79,7 @@ class RegisterRequest(BaseModel):
     birth_year: int
     phone: str = Field(max_length=20)
     language: Literal["en", "hi", "mr"] = "en"
+    answers: dict[str, str] | None = None  # the hospital's extra registration questions (feature 28)
 
 
 class PasswordLoginRequest(BaseModel):
@@ -119,6 +120,7 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
     )
     if db.scalars(select(AppUser.id).where(AppUser.username == username)).first() is not None:
         raise ToolError("USERNAME_TAKEN", "That username is taken; please choose another.")
+    answers = registration.clean_answers(db, body.answers)
     patient = Patient(
         synthetic_name=name,
         birth_year=body.birth_year,
@@ -141,6 +143,7 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
     except IntegrityError:  # someone took the same username a moment ago
         db.rollback()
         raise ToolError("USERNAME_TAKEN", "That username is taken; please choose another.") from None
+    registration.save_answers(db, patient.id, answers)
     result = _signed_in(db, user)
     db.commit()
     return result
@@ -287,6 +290,10 @@ def cancel(
 def history(patient_id: int, auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) -> dict:
     now = now_ist()
     result = booking.get_patient_appointments(db, auth.actor, patient_id, now=now)
+    ids = [a["appointment_id"] for a in (*result["upcoming"], *result["past"])]
+    tokens = dict(
+        db.execute(select(QueueEntry.appointment_id, QueueEntry.token).where(QueueEntry.appointment_id.in_(ids))).all()
+    )
     for appt in (*result["upcoming"], *result["past"]):
         appt["reference"] = reference_code(appt["appointment_id"])  # shown on the receipt (feature 20)
         # Whether the policy windows are still open, by the server's clock (the rules stay in the tools).
@@ -295,6 +302,14 @@ def history(patient_id: int, auth: Auth = Depends(get_auth), db: Session = Depen
         active = appt["status"] in ("booked", "rescheduled") or displaced
         appt["can_reschedule"] = active and (displaced or left >= policy.RESCHEDULE_CUTOFF)
         appt["can_cancel"] = active and (displaced or left >= policy.CANCEL_CUTOFF)
+        # Online check-in (features 24, 25), by the same window the engine enforces.
+        token = tokens.get(appt["appointment_id"])
+        appt["token"] = token
+        appt["can_check_in"] = (
+            token is None
+            and appt["status"] in ("booked", "rescheduled")
+            and -policy.SELF_CHECK_IN_CLOSES <= left <= policy.SELF_CHECK_IN_OPENS
+        )
     return result
 
 

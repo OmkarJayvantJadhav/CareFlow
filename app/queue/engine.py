@@ -27,6 +27,7 @@ from app.queue.merge import QueueItem, merge_order
 from app.queue.predictions import latest_estimate, refresh_predictions
 from app.safety.privacy import mask_payload, mask_phone_number
 from app.timeutil import at, resolve_now, to_ist
+from app.tools import policy
 from app.tools.audit import write_tool
 from app.tools.errors import ToolError
 from app.tools.notify import notify
@@ -189,6 +190,20 @@ def check_in(db: Session, actor: Actor, appointment_id: int, now: datetime | Non
         raise ToolError("FORBIDDEN", "You are not allowed to check in this patient.")
     if appt.appt_date != now.date():
         raise ToolError("VALIDATION_ERROR", "Check-in is only possible on the day of the appointment.")
+    if actor.role in ("patient", "caregiver"):
+        # Self check-in (features 24, 25): from an hour before the slot until 15 minutes after it starts.
+        opens, closes = (
+            appt.slot.start_at - policy.SELF_CHECK_IN_OPENS,
+            appt.slot.start_at + policy.SELF_CHECK_IN_CLOSES,
+        )
+        if now < opens:
+            raise ToolError(
+                "POLICY_WINDOW", f"Online check-in opens at {to_ist(opens):%H:%M}, an hour before your appointment."
+            )
+        if now > closes:
+            raise ToolError(
+                "POLICY_WINDOW", "Online check-in has closed for this appointment; please go to the reception desk."
+            )
     # Lock order: session, then appointment (the same order as doctor-unavailable handling).
     session = get_or_create_session(db, appt.doctor_id, appt.appt_date)
     appt = db.scalars(
@@ -214,6 +229,7 @@ def check_in(db: Session, actor: Actor, appointment_id: int, now: datetime | Non
         checked_in_at=now,
         status="waiting",
         priority=0,
+        late_minutes=max(0, int((now - appt.slot.start_at).total_seconds() // 60)) or None,
     )
     db.add(entry)
     db.flush()
@@ -232,14 +248,21 @@ def register_walk_in(
     birth_year: int | None = None,
     phone: str | None = None,
     language: str = "en",
+    answers: dict | None = None,
     now: datetime | None = None,
 ) -> dict:
-    """FR-21: staff register a walk-in (an existing patient or a new record) and issue a token."""
+    """FR-21: staff register a walk-in (an existing patient or a new record) and issue a token.
+
+    An existing record is reused only while the patient allows it (feature 34); a new record gets the
+    answers to the hospital's extra registration questions (feature 28)."""
+    from app.tools import registration
+
     now = resolve_now(now)
     require_role(actor, "staff")
     session = get_or_create_session(db, doctor_id, now.date())
     _require_open(session)
     if patient_id is None:
+        clean = registration.clean_answers(db, answers)
         if not name or not birth_year or not phone:
             raise ToolError("VALIDATION_ERROR", "A new walk-in needs a name, birth year and phone number.")
         try:
@@ -253,10 +276,12 @@ def register_walk_in(
         patient = Patient(synthetic_name=name, birth_year=birth_year, phone_masked=masked, preferred_language=language)
         db.add(patient)
         db.flush()
+        registration.save_answers(db, patient.id, clean)
     else:
         patient = db.get(Patient, patient_id)
         if patient is None:
             raise ToolError("NOT_FOUND", f"Patient {patient_id} does not exist.")
+        registration.require_reuse_consent(db, patient.id)
     if _in_queue(db, session, patient.id):
         raise ToolError("ALREADY_CHECKED_IN", "This patient is already in this doctor's queue.")
     entry = QueueEntry(

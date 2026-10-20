@@ -5,6 +5,7 @@ import {
   CalendarPlus,
   CalendarRange,
   ClipboardList,
+  ClipboardPen,
   HeartPulse,
   Info,
   LayoutDashboard,
@@ -35,6 +36,7 @@ const NAV = {
   admin: [
     { to: "/admin", label: "navDashboard", icon: LayoutDashboard },
     { to: "/analytics", label: "navAnalytics", icon: BarChart3 },
+    { to: "/registration-form", label: "navRegistrationForm", icon: ClipboardPen },
   ],
 };
 NAV.caregiver = NAV.patient;
@@ -104,7 +106,7 @@ function PatientTools() {
           </span>
         )}
       </NavLink>
-      {user.role === "patient" && (
+      {(user.role === "patient" || user.role === "caregiver") && (
         <NavLink to="/profile" className="icon-link" aria-label={t("navProfile")} title={t("navProfile")}>
           <UserRound size={20} aria-hidden="true" />
         </NavLink>

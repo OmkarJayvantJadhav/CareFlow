@@ -142,6 +142,9 @@ class Patient(Base):
     birth_year: Mapped[int] = mapped_column(SmallInteger)
     phone_masked: Mapped[str] = mapped_column(String(20))
     preferred_language: Mapped[str] = mapped_column(String(8), default="en")
+    # Patient categories set by staff (feature 30); senior and child are worked out from the birth year.
+    pregnant: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    disability: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
 
 
 class AppUser(Base):
@@ -290,6 +293,7 @@ class QueueEntry(Base):
     called_at: Mapped[datetime | None] = mapped_column(TZ)
     consult_start: Mapped[datetime | None] = mapped_column(TZ)
     consult_end: Mapped[datetime | None] = mapped_column(TZ)
+    late_minutes: Mapped[int | None] = mapped_column(Integer)  # booked arrivals after their slot (feature 33)
     status: Mapped[str] = mapped_column(String(16), default="waiting")
 
     session: Mapped[QueueSession] = relationship(back_populates="entries")
@@ -401,6 +405,77 @@ class Notification(Base):
     read_at: Mapped[datetime | None] = mapped_column(TZ)
 
 
+CONSENT_PURPOSES = ("reuse_registration", "reminders", "caregiver_access")
+FIELD_KINDS = ("text", "number", "choice", "yes_no")
+
+
+class RegistrationField(Base):
+    """An extra question on the registration forms, configured by an admin (feature 28)."""
+
+    __tablename__ = "registration_field"
+    __table_args__ = (CheckConstraint(_in("kind", FIELD_KINDS), name="ck_registration_field_kind"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    key: Mapped[str] = mapped_column(String(40), unique=True)
+    label_en: Mapped[str] = mapped_column(String(80))
+    label_hi: Mapped[str] = mapped_column(String(80))
+    label_mr: Mapped[str] = mapped_column(String(80))
+    kind: Mapped[str] = mapped_column(String(10))
+    options: Mapped[list] = mapped_column(JSONB, default=list, server_default="[]")
+    required: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("true"))
+    position: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
+    created_at: Mapped[datetime] = mapped_column(TZ, server_default=func.now())
+
+
+class PatientFieldValue(Base):
+    __tablename__ = "patient_field_value"
+
+    patient_id: Mapped[int] = mapped_column(ForeignKey("patient.id"), primary_key=True)
+    field_id: Mapped[int] = mapped_column(ForeignKey("registration_field.id"), primary_key=True)
+    value: Mapped[str] = mapped_column(String(200))
+
+
+class Consent(Base):
+    """Append-only consent history; the latest row per patient and purpose is in force (feature 35)."""
+
+    __tablename__ = "consent"
+    __table_args__ = (
+        CheckConstraint(_in("purpose", CONSENT_PURPOSES), name="ck_consent_purpose"),
+        Index("ix_consent_patient_purpose", "patient_id", "purpose", "at"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    patient_id: Mapped[int] = mapped_column(ForeignKey("patient.id"))
+    purpose: Mapped[str] = mapped_column(String(24))
+    granted: Mapped[bool] = mapped_column(Boolean)
+    at: Mapped[datetime] = mapped_column(TZ)
+    by_user_id: Mapped[int | None] = mapped_column(ForeignKey("app_user.id"))
+
+
+class CaregiverRequest(Base):
+    """A caregiver asks to act for a patient; the patient approves or declines (feature 35)."""
+
+    __tablename__ = "caregiver_request"
+    __table_args__ = (
+        CheckConstraint("status IN ('pending', 'approved', 'declined')", name="ck_caregiver_request_status"),
+        Index(
+            "uq_caregiver_request_pending",
+            "caregiver_user_id",
+            "patient_id",
+            unique=True,
+            postgresql_where=text("status = 'pending'"),
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    caregiver_user_id: Mapped[int] = mapped_column(ForeignKey("app_user.id"))
+    patient_id: Mapped[int] = mapped_column(ForeignKey("patient.id"))
+    status: Mapped[str] = mapped_column(String(10), default="pending", server_default="pending")
+    requested_at: Mapped[datetime] = mapped_column(TZ)
+    decided_at: Mapped[datetime | None] = mapped_column(TZ)
+
+
 class DoctorLeave(Base):
     """Days a doctor is away; their slots are blocked and booked patients asked to rebook."""
 
@@ -471,6 +546,9 @@ class HandoffTicket(Base):
 # Everything that demo reset wipes and reloads (FR-34). The knowledge base is
 # reference content, loaded by its own ingestion step, and is left alone.
 OPERATIONAL_TABLES = (
+    "caregiver_request",
+    "consent",
+    "patient_field_value",
     "doctor_leave",
     "conversation",
     "handoff_ticket",

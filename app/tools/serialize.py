@@ -72,4 +72,5 @@ def entry_dict(e: QueueEntry) -> dict:
         "called_at": iso(e.called_at),
         "consult_start": iso(e.consult_start),
         "consult_end": iso(e.consult_end),
+        "late_minutes": e.late_minutes,
     }
