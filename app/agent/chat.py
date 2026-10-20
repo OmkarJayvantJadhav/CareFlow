@@ -158,12 +158,15 @@ def _record_turn(conv: Conversation, messages: list[dict], now: datetime) -> Non
     conv.updated_at = now
 
 
-def _confirmation_card(pending: dict) -> dict:
+def _confirmation_card(pending: dict, now: datetime) -> dict:
+    expires = datetime.fromisoformat(pending["expires_at"])
     return {
         "action_id": pending["action_id"],
         "tool": pending["tool"],
         "summary": pending["summary"],
         "expires_at": pending["expires_at"],
+        # Relative, so a device whose clock is off still counts down correctly.
+        "expires_in_seconds": max(0, int((expires - now).total_seconds())),
     }
 
 
@@ -337,7 +340,7 @@ def handle_chat(
     if result.pending is not None:
         conv.pending_action = result.pending
         reply.needs_confirmation = True
-        reply.confirmation = _confirmation_card(result.pending)
+        reply.confirmation = _confirmation_card(result.pending, now)
     if result.handoff_ticket_id is not None:
         conv.handoff_ticket_id = result.handoff_ticket_id
         reply.handoff, reply.ticket_id = True, result.handoff_ticket_id

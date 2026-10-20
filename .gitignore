@@ -12,3 +12,4 @@ traces/
 eval/.cache/
 eval/.traces/
 eval/results/*_smoke.json
+tests/e2e/server.log

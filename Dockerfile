@@ -1,3 +1,12 @@
+# Stage 1: build the React UI.
+FROM node:22-slim AS ui
+WORKDIR /ui
+COPY ui/package.json ui/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY ui/ ./
+RUN npm run build
+
+# Stage 2: the API, which also serves the built UI on one port (Hugging Face Spaces: 7860).
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -22,6 +31,9 @@ COPY --chown=careflow:careflow app ./app
 COPY --chown=careflow:careflow simulator ./simulator
 COPY --chown=careflow:careflow knowledge ./knowledge
 COPY --chown=careflow:careflow docker/entrypoint.sh ./entrypoint.sh
+# The dashboard shows the latest evaluation results (FR-32); only the result files are shipped.
+COPY --chown=careflow:careflow eval/results ./eval/results
+COPY --chown=careflow:careflow --from=ui /ui/dist ./ui/dist
 
 USER careflow
 # Bake the multilingual embedding and re-ranking models into the image so cold starts
