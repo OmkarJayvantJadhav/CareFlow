@@ -9,6 +9,7 @@ TEST_DATABASE_URL = os.environ.get(
 # Point the application at the test database before anything reads settings. Tests use
 # the deterministic local retrieval models and never call a real LLM provider.
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+os.environ["EVAL_DATABASE_URL"] = TEST_DATABASE_URL  # importing the eval package must not leave the test database
 os.environ["EMBEDDING_BACKEND"] = "local"
 os.environ["RERANKER_BACKEND"] = "local"
 os.environ["GROQ_API_KEY"] = ""

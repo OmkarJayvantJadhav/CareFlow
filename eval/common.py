@@ -23,12 +23,12 @@ from datetime import date, datetime
 from datetime import time as clock
 from pathlib import Path
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from app.agent.llm import LLMError, LLMResponse, LLMUnavailable, RateLimited, ToolCall, make_provider
 from app.config import get_settings
-from app.db.models import Slot
+from app.db.models import OPERATIONAL_TABLES, Slot
 from app.db.session import session_factory
 from app.rag.ingest import ingest
 from app.timeutil import at
@@ -73,11 +73,29 @@ def prepare_world(force: bool = False) -> None:
         db.commit()
 
 
+def reset_sequences(db: Session) -> None:
+    """Point every id sequence just past the seeded rows. Sequences are not rolled back with a transaction,
+    so without this each run would see different ids in tool results - and miss the response cache."""
+    rows = db.execute(
+        text(
+            "SELECT table_name, pg_get_serial_sequence(table_name, column_name) FROM information_schema.columns "
+            "WHERE table_schema = 'public' AND column_name = 'id' "
+            "AND (column_default LIKE 'nextval%' OR is_identity = 'YES')"
+        )
+    ).all()
+    for table, sequence in rows:
+        if table in OPERATIONAL_TABLES and sequence:
+            db.execute(
+                text(f"SELECT setval(:s, COALESCE((SELECT MAX(id) FROM {table}), 0) + 1, false)"), {"s": sequence}
+            )
+
+
 @contextmanager
 def isolated() -> Iterator[Session]:
-    """A session whose changes are all rolled back at the end."""
+    """A session whose changes are all rolled back at the end; ids start from the same values every time."""
     db = session_factory()()
     try:
+        reset_sequences(db)
         yield db
     finally:
         db.rollback()

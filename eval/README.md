@@ -23,6 +23,8 @@ at 08:00 inside a transaction that is rolled back, so every run starts from the 
 | `python -m eval.run_rag --answers` | answer correctness, faithfulness, refusals (judge model) | yes |
 | `python -m eval.run_agent` | 120 scenarios × 5 runs with a simulated patient: pass^1, pass^5, wrong actions | yes |
 | `python -m app.ml.train --end 2026-10-19` | wait-time model vs both baselines (Phase 3) | no |
+| `python -m eval.run_agent --baseline` | the same scenarios without the code-level safeguards (D-58) | yes |
+| `python -m eval.nightly` | resumes everything unfinished within today's quotas, then rebuilds the report | yes |
 | `python -m eval.report` | rebuilds `eval/results/README.md` | no |
 
 ## How each evaluation decides pass or fail (all in code)
