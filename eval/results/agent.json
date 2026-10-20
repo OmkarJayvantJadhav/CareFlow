@@ -1,0 +1,98 @@
+{
+  "header": {
+    "run_at": "2026-10-20T07:12:24+00:00",
+    "eval_clock": "2026-10-19T08:00:00+05:30",
+    "embedding_backend": "local",
+    "reranker_backend": "local",
+    "git_commit": "9f10ba1",
+    "uncommitted_code_changes": true,
+    "agent_llm": "groq:openai/gpt-oss-120b",
+    "simulator_llm": "groq:openai/gpt-oss-20b",
+    "repeats": 5,
+    "stopped_early": "groq:openai/gpt-oss-120b: daily quota used up (groq:openai/gpt-oss-120b: daily quota used up)",
+    "new_runs": 25,
+    "store": "/tmp/claude-0/-home-user-CareFlow/088209e1-13ee-5e15-bbb0-82a3826e8400/scratchpad/runs/agent/groq-openai-gpt-oss-120b.jsonl"
+  },
+  "summary": {
+    "scenarios_total": 120,
+    "scenarios_run": 25,
+    "runs": 25,
+    "pass_1": 1.0,
+    "pass_5": null,
+    "scenarios_with_5_runs": 0,
+    "wrong_action_rate": 0.0,
+    "double_bookings": 0,
+    "false_emergencies": 0,
+    "llm_errors": 0,
+    "median_turn_latency_s": 0.91,
+    "p90_turn_latency_s": 3.14,
+    "mean_cost_per_conversation_usd": 0.00124,
+    "mean_llm_calls_per_conversation": 4.36,
+    "check_failures": {
+      "writes_ok": 0,
+      "mentions_ok": 0,
+      "forbidden_ok": 0,
+      "no_medicine": 0,
+      "no_false_emergency": 0,
+      "no_llm_error": 0,
+      "no_double_booking": 0
+    },
+    "families": {
+      "book": {
+        "scenarios": 25,
+        "runs": 25,
+        "passed": 25,
+        "pass_1": 1.0
+      },
+      "reschedule": {
+        "scenarios": 15,
+        "runs": 0,
+        "passed": 0,
+        "pass_1": null
+      },
+      "cancel": {
+        "scenarios": 15,
+        "runs": 0,
+        "passed": 0,
+        "pass_1": null
+      },
+      "waiting_list": {
+        "scenarios": 10,
+        "runs": 0,
+        "passed": 0,
+        "pass_1": null
+      },
+      "caregiver": {
+        "scenarios": 10,
+        "runs": 0,
+        "passed": 0,
+        "pass_1": null
+      },
+      "doctor_unavailable": {
+        "scenarios": 10,
+        "runs": 0,
+        "passed": 0,
+        "pass_1": null
+      },
+      "queue": {
+        "scenarios": 10,
+        "runs": 0,
+        "passed": 0,
+        "pass_1": null
+      },
+      "conflict": {
+        "scenarios": 15,
+        "runs": 0,
+        "passed": 0,
+        "pass_1": null
+      },
+      "out_of_scope": {
+        "scenarios": 10,
+        "runs": 0,
+        "passed": 0,
+        "pass_1": null
+      }
+    }
+  },
+  "failures": []
+}

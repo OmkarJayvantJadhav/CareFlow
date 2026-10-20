@@ -352,7 +352,7 @@ def run_scenario(scenario: dict, agent_llm, sim_llm) -> dict:
                 if text is None:
                     end_reason = "patient_done"
                     break
-                t0 = clock.perf_counter()
+                t0, inside0 = clock.perf_counter(), agent_llm.seconds_inside
                 try:
                     reply = handle_chat(
                         db, actor, session_id, text, agent_llm, conversation_id=conversation_id, now=EVAL_NOW
@@ -365,7 +365,12 @@ def run_scenario(scenario: dict, agent_llm, sim_llm) -> dict:
                 except Exception as err:  # noqa: BLE001 - ToolError from the chat layer and the like
                     reply, error = None, f"{getattr(err, 'code', type(err).__name__)}: {getattr(err, 'message', err)}"
                 db.flush()
-                latency = round((clock.perf_counter() - t0) * 1000, 1)
+                # What a user would wait: local work plus each LLM call's original API time - not the time
+                # spent waiting out rate limits, and not the near-zero time of a cached replay.
+                local = (clock.perf_counter() - t0) - (agent_llm.seconds_inside - inside0)
+                api = sum(sp.get("latency_ms", 0) for sp in (transcript.traces[-1:][0]["spans"] if transcript.traces else [])
+                          if sp.get("kind") == "llm")  # fmt: skip
+                latency = round(local * 1000 + api, 1)
                 if reply is None:
                     causes = [sp["error"] for t in transcript.traces[-1:] for sp in t.get("spans", [])
                               if sp.get("kind") == "llm" and sp.get("error")]  # fmt: skip
