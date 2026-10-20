@@ -8,6 +8,7 @@ or overloaded provider (429 / 503) once with backoff and then moves to the next 
 
 import json
 import logging
+import re
 import time
 import uuid
 from collections.abc import Callable, Sequence
@@ -59,11 +60,46 @@ class LLMError(Exception):
 
 
 class RateLimited(LLMError):
-    """429, or 503 "high demand": worth one retry after a short wait."""
+    """429, or 503 "high demand": worth one retry after a short wait - unless the daily quota is used up."""
 
-    def __init__(self, message: str, retry_after: float | None = None):
+    def __init__(self, message: str, retry_after: float | None = None, daily: bool = False):
         super().__init__(message)
         self.retry_after = retry_after
+        self.daily = daily
+
+
+# Groq: "...on tokens per day (TPD)... Please try again in 7m12.5s"; Gemini: "...PerDay...", "retryDelay": "34717s".
+_DAILY_LIMIT = re.compile(r"per day|PerDay|\((TPD|RPD)\)", re.I)
+_TRY_AGAIN = re.compile(r"(?:try again|retry) in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?|\"retryDelay\": \"([\d.]+)s\"")
+
+
+def _error_code(response: httpx.Response) -> str:
+    """The provider's error code only (never the message, which can echo the conversation)."""
+    try:
+        error = response.json().get("error") or {}
+        if isinstance(error, list):
+            error = error[0].get("error", {}) if error else {}
+        code = error.get("code") or error.get("status") or error.get("type")
+    except (ValueError, AttributeError, IndexError):
+        return ""
+    return f" ({code})" if code else ""
+
+
+def _retry_after(response: httpx.Response) -> float | None:
+    header = response.headers.get("retry-after")
+    try:
+        if header:
+            return float(header)
+    except ValueError:
+        pass
+    match = _TRY_AGAIN.search(response.text)
+    if not match:
+        return None
+    hours, minutes, seconds, delay = match.groups()
+    if delay:
+        return float(delay)
+    total = int(hours or 0) * 3600 + int(minutes or 0) * 60 + float(seconds or 0)
+    return total or None
 
 
 class LLMUnavailable(LLMError):
@@ -165,15 +201,13 @@ class OpenAICompatibleProvider:
             raise LLMError(f"{self.name}: {type(err).__name__}") from None
         latency = (time.perf_counter() - started) * 1000
         if response.status_code in (429, 503):
-            retry_after = response.headers.get("retry-after")
-            try:
-                wait = float(retry_after) if retry_after else None
-            except ValueError:
-                wait = None
-            reason = "rate limited" if response.status_code == 429 else "overloaded"
-            raise RateLimited(f"{self.name}: {reason}", wait)
+            daily = response.status_code == 429 and bool(_DAILY_LIMIT.search(response.text))
+            reason = (
+                "daily quota used up" if daily else ("rate limited" if response.status_code == 429 else "overloaded")
+            )
+            raise RateLimited(f"{self.name}: {reason}", _retry_after(response), daily)
         if response.status_code >= 400:
-            raise LLMError(f"{self.name}: HTTP {response.status_code}")
+            raise LLMError(f"{self.name}: HTTP {response.status_code}{_error_code(response)}")
         try:
             data = response.json()
             message = data["choices"][0]["message"]
@@ -236,7 +270,7 @@ class FallbackLLM:
                     return provider.chat(messages, tools, max_tokens)
                 except RateLimited as err:
                     errors.append(str(err))
-                    if attempt == 0:
+                    if attempt == 0 and not err.daily:
                         self._sleep(min(err.retry_after or 1.0, MAX_BACKOFF_SECONDS))
                         continue
                     break

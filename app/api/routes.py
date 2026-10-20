@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.agent.chat import actor_patients, handle_chat, session_message_count
 from app.agent.llm import LLM
+from app.analytics.agent import answer_question
 from app.api.auth import issue_token
 from app.api.deps import Auth, SlidingWindowLimiter, client_key, get_auth, get_db, get_llm, run_and_commit
 from app.config import get_settings
@@ -193,3 +194,25 @@ def join_list(body: WaitingListRequest, auth: Auth = Depends(get_auth), db: Sess
             db, auth.actor, body.patient_id, body.doctor_id, body.dates, confirmed=body.confirmed
         ),
     )
+
+
+# --------------------------------------------------------------------------- admin analytics
+
+
+class AnalyticsRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=1000)
+
+
+@router.post("/admin/analytics", tags=["admin"])
+def analytics(
+    body: AnalyticsRequest,
+    request: Request,
+    auth: Auth = Depends(get_auth),
+    db: Session = Depends(get_db),
+    llm: LLM = Depends(get_llm),
+) -> dict:
+    """Answer an admin's question with one validated, read-only SELECT; 422 UNSAFE_QUERY otherwise."""
+    if auth.actor.role != "admin":
+        raise ToolError("FORBIDDEN", "Analytics questions are available to admins only.")
+    chat_limiter.check(client_key(request), get_settings().max_messages_per_ip_per_hour)
+    return answer_question(db, auth.actor, body.question, llm).to_dict()

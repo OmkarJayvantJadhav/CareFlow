@@ -9,3 +9,5 @@ dist/
 *.egg-info/
 tests/.traces/
 traces/
+eval/.cache/
+eval/.traces/

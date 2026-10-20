@@ -29,7 +29,8 @@ RRF_K = 60
 FIRST_STAGE = 20
 LANGUAGE_BONUS = 0.05
 # Below this re-ranker score a chunk is not considered a source for the answer (FR-19).
-RELEVANCE_THRESHOLD = {"cross-encoder": 0.15, "lexical-v1": 0.55}
+# lexical-v1: chosen by 5-fold cross-validation on the RAG evaluation set (eval/results/rag.json, D-54).
+RELEVANCE_THRESHOLD = {"cross-encoder": 0.15, "lexical-v1": 0.275}
 
 
 @dataclass

@@ -1,0 +1,1049 @@
+{
+  "description": "Emergency gate on held-out set 2, written by a separate author who saw neither the detector nor the other sets. run_1: patterns + retrained classifier (threshold 0.45). run_2: the same after the short-message rule and threshold 0.6, changed because unit tests showed false alarms on confirmations such as 'नहीं' (not because of this set). run_2 is the shipped gate.",
+  "run_1": {
+    "run_at": "2026-10-20T06:30:27+00:00",
+    "sets": {
+      "emergency_holdout2": {
+        "cases": 60,
+        "flagged": 60,
+        "by_language": {
+          "en": [
+            20,
+            20
+          ],
+          "hi": [
+            20,
+            20
+          ],
+          "mr": [
+            20,
+            20
+          ]
+        }
+      },
+      "emergency_holdout2_negatives": {
+        "cases": 60,
+        "flagged": 5,
+        "by_language": {
+          "en": [
+            0,
+            20
+          ],
+          "hi": [
+            2,
+            20
+          ],
+          "mr": [
+            3,
+            20
+          ]
+        }
+      }
+    }
+  },
+  "run_2": {
+    "run_at": "2026-10-20T06:35:23+00:00",
+    "sets": {
+      "emergency_holdout2": {
+        "cases": 60,
+        "flagged": 58,
+        "by_language": {
+          "en": [
+            19,
+            20
+          ],
+          "hi": [
+            20,
+            20
+          ],
+          "mr": [
+            19,
+            20
+          ]
+        },
+        "rows": [
+          {
+            "id": "h2-01",
+            "language": "en",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:collaps(e|ed|ing)+classifier",
+            "score": 0.971
+          },
+          {
+            "id": "h2-02",
+            "language": "en",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:(lips|face|skin|fingers) (are |is |look |looks |turning |turned |going )+(blue|grey|gray)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-03",
+            "language": "en",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:face (is |has )?(droop|drooping|drooped|hanging|fallen)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-04",
+            "language": "en",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.844
+          },
+          {
+            "id": "h2-05",
+            "language": "en",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:bleeding (heavily|a lot|badly|profusely|won'?t stop|will not stop|non-?stop|doesn'?t stop)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-06",
+            "language": "en",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:poison+classifier",
+            "score": 0.89
+          },
+          {
+            "id": "h2-07",
+            "language": "en",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:(not|isn'?t|is not|stopped|stop) breathing",
+            "score": 1.0
+          },
+          {
+            "id": "h2-08",
+            "language": "en",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:worst headache",
+            "score": 1.0
+          },
+          {
+            "id": "h2-09",
+            "language": "en",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:(can'?t|cannot|unable to|not able to) (lift|raise|move|hold|feel) (his |her |my |their )?(left |right )?(arm|hand|leg|side|cup)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-10",
+            "language": "en",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:(don'?t|do not|no longer) want to (live|be alive)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-11",
+            "language": "en",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:(throat|tongue|lips?|face|mouth|eyes)\\b.{0,20}\\b(swelling|swollen|swelled|closing|puffing|puffed)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-12",
+            "language": "en",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:chest (is |feels )?(tight|heavy|hurting|burning badly|crushing)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-13",
+            "language": "en",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:drown+classifier",
+            "score": 0.937
+          },
+          {
+            "id": "h2-14",
+            "language": "en",
+            "kind": "direct",
+            "flagged": false,
+            "reason": "",
+            "score": 0.456
+          },
+          {
+            "id": "h2-15",
+            "language": "en",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:faint(ed|ing)+classifier",
+            "score": 0.88
+          },
+          {
+            "id": "h2-16",
+            "language": "en",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:snake bit",
+            "score": 1.0
+          },
+          {
+            "id": "h2-17",
+            "language": "en",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:accident+classifier",
+            "score": 0.941
+          },
+          {
+            "id": "h2-18",
+            "language": "en",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.779
+          },
+          {
+            "id": "h2-19",
+            "language": "en",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:(swelling|swollen|swelled) (of )?(the |my |his |her )?(throat|tongue|lips?|face)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-20",
+            "language": "en",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.821
+          },
+          {
+            "id": "h2-21",
+            "language": "hi",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:होश (नहीं|में नहीं)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-22",
+            "language": "hi",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:(बायां|बाएं|बाया|बाये) (हाथ|बाजू).{0,20}(सुन्न|दर्द)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-23",
+            "language": "hi",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:दौरा (पड|पड)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-24",
+            "language": "hi",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:(जहर|जहर)+classifier",
+            "score": 0.568
+          },
+          {
+            "id": "h2-25",
+            "language": "hi",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.968
+          },
+          {
+            "id": "h2-26",
+            "language": "hi",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:इमरजेंसी (है|हो गई)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-27",
+            "language": "hi",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.759
+          },
+          {
+            "id": "h2-28",
+            "language": "hi",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.915
+          },
+          {
+            "id": "h2-29",
+            "language": "hi",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:(बहुत|ज्यादा|ज्यादा) खून",
+            "score": 1.0
+          },
+          {
+            "id": "h2-30",
+            "language": "hi",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:बेहोश",
+            "score": 1.0
+          },
+          {
+            "id": "h2-31",
+            "language": "hi",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.969
+          },
+          {
+            "id": "h2-32",
+            "language": "hi",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:(दुर्घटना|एक्सीडेंट)+classifier",
+            "score": 0.952
+          },
+          {
+            "id": "h2-33",
+            "language": "hi",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:एम्बुलेंस (भेज|बुला|चाहिए)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-34",
+            "language": "hi",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:(सांस|साँस) (नहीं|ले नहीं|लेने में|फूल|रुक|अटक)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-35",
+            "language": "hi",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:(होंठ|होठ|जीभ|गला|गले|चेहरा|चेहरे)\\b.{0,15}(सूज|फूल)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-36",
+            "language": "hi",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:heart attack",
+            "score": 1.0
+          },
+          {
+            "id": "h2-37",
+            "language": "hi",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.931
+          },
+          {
+            "id": "h2-38",
+            "language": "hi",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.833
+          },
+          {
+            "id": "h2-39",
+            "language": "hi",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:jawab nahi de",
+            "score": 1.0
+          },
+          {
+            "id": "h2-40",
+            "language": "hi",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.855
+          },
+          {
+            "id": "h2-41",
+            "language": "mr",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:कोसळ+classifier",
+            "score": 0.936
+          },
+          {
+            "id": "h2-42",
+            "language": "mr",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:दम (लागत|कोंड)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-43",
+            "language": "mr",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:तोंड वाकड",
+            "score": 1.0
+          },
+          {
+            "id": "h2-44",
+            "language": "mr",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:फिट (आली|येत|आल)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-45",
+            "language": "mr",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.902
+          },
+          {
+            "id": "h2-46",
+            "language": "mr",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:(जास्त|सगळ्या|सर्व|खूप|पूर्ण) गोळ्या",
+            "score": 1.0
+          },
+          {
+            "id": "h2-47",
+            "language": "mr",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:श्वास (घेता येत नाही|घेण्यास त्रास|घ्यायला त्रास|घेताना त्रास|लागत|थांब|कोंड)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-48",
+            "language": "mr",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:जगायचं नाही",
+            "score": 1.0
+          },
+          {
+            "id": "h2-49",
+            "language": "mr",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:साप चाव",
+            "score": 1.0
+          },
+          {
+            "id": "h2-50",
+            "language": "mr",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.958
+          },
+          {
+            "id": "h2-51",
+            "language": "mr",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.947
+          },
+          {
+            "id": "h2-52",
+            "language": "mr",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:अपघात+classifier",
+            "score": 0.966
+          },
+          {
+            "id": "h2-53",
+            "language": "mr",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "pattern:उठत (नाही|नाहीत)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-54",
+            "language": "mr",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "pattern:फिट (आली|येत|आल)",
+            "score": 1.0
+          },
+          {
+            "id": "h2-55",
+            "language": "mr",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.709
+          },
+          {
+            "id": "h2-56",
+            "language": "mr",
+            "kind": "direct",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.733
+          },
+          {
+            "id": "h2-57",
+            "language": "mr",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "pattern:kerosene+classifier",
+            "score": 0.851
+          },
+          {
+            "id": "h2-58",
+            "language": "mr",
+            "kind": "mixed",
+            "flagged": false,
+            "reason": "",
+            "score": 0.585
+          },
+          {
+            "id": "h2-59",
+            "language": "mr",
+            "kind": "indirect",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.971
+          },
+          {
+            "id": "h2-60",
+            "language": "mr",
+            "kind": "mixed",
+            "flagged": true,
+            "reason": "classifier",
+            "score": 0.863
+          }
+        ]
+      },
+      "emergency_holdout2_negatives": {
+        "cases": 60,
+        "flagged": 5,
+        "by_language": {
+          "en": [
+            0,
+            20
+          ],
+          "hi": [
+            2,
+            20
+          ],
+          "mr": [
+            3,
+            20
+          ]
+        },
+        "rows": [
+          {
+            "id": "n2-01",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.133
+          },
+          {
+            "id": "n2-02",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.025
+          },
+          {
+            "id": "n2-03",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.067
+          },
+          {
+            "id": "n2-04",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.014
+          },
+          {
+            "id": "n2-05",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.042
+          },
+          {
+            "id": "n2-06",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.087
+          },
+          {
+            "id": "n2-07",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.06
+          },
+          {
+            "id": "n2-08",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.292
+          },
+          {
+            "id": "n2-09",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.122
+          },
+          {
+            "id": "n2-10",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.016
+          },
+          {
+            "id": "n2-11",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.363
+          },
+          {
+            "id": "n2-12",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.202
+          },
+          {
+            "id": "n2-13",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.144
+          },
+          {
+            "id": "n2-14",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.249
+          },
+          {
+            "id": "n2-15",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.236
+          },
+          {
+            "id": "n2-16",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.37
+          },
+          {
+            "id": "n2-17",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.075
+          },
+          {
+            "id": "n2-18",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.221
+          },
+          {
+            "id": "n2-19",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.329
+          },
+          {
+            "id": "n2-20",
+            "language": "en",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.303
+          },
+          {
+            "id": "n2-21",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.147
+          },
+          {
+            "id": "n2-22",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.086
+          },
+          {
+            "id": "n2-23",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.038
+          },
+          {
+            "id": "n2-24",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.196
+          },
+          {
+            "id": "n2-25",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.143
+          },
+          {
+            "id": "n2-26",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.06
+          },
+          {
+            "id": "n2-27",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.325
+          },
+          {
+            "id": "n2-28",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.126
+          },
+          {
+            "id": "n2-29",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.051
+          },
+          {
+            "id": "n2-30",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.426
+          },
+          {
+            "id": "n2-31",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.045
+          },
+          {
+            "id": "n2-32",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.198
+          },
+          {
+            "id": "n2-33",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": true,
+            "reason": "pattern:बेहोश",
+            "score": 1.0
+          },
+          {
+            "id": "n2-34",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.13
+          },
+          {
+            "id": "n2-35",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.078
+          },
+          {
+            "id": "n2-36",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.443
+          },
+          {
+            "id": "n2-37",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": true,
+            "reason": "pattern:accident+classifier",
+            "score": 0.343
+          },
+          {
+            "id": "n2-38",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.028
+          },
+          {
+            "id": "n2-39",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.281
+          },
+          {
+            "id": "n2-40",
+            "language": "hi",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.102
+          },
+          {
+            "id": "n2-41",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.073
+          },
+          {
+            "id": "n2-42",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.145
+          },
+          {
+            "id": "n2-43",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.079
+          },
+          {
+            "id": "n2-44",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": true,
+            "reason": "pattern:छातीत (दुख|कळ|वेदना|जड|दाब)",
+            "score": 1.0
+          },
+          {
+            "id": "n2-45",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.157
+          },
+          {
+            "id": "n2-46",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.111
+          },
+          {
+            "id": "n2-47",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.315
+          },
+          {
+            "id": "n2-48",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.138
+          },
+          {
+            "id": "n2-49",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.058
+          },
+          {
+            "id": "n2-50",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.121
+          },
+          {
+            "id": "n2-51",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.276
+          },
+          {
+            "id": "n2-52",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.078
+          },
+          {
+            "id": "n2-53",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.088
+          },
+          {
+            "id": "n2-54",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.216
+          },
+          {
+            "id": "n2-55",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.427
+          },
+          {
+            "id": "n2-56",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.171
+          },
+          {
+            "id": "n2-57",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.262
+          },
+          {
+            "id": "n2-58",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": true,
+            "reason": "pattern:accident+classifier",
+            "score": 0.416
+          },
+          {
+            "id": "n2-59",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": false,
+            "reason": "",
+            "score": 0.082
+          },
+          {
+            "id": "n2-60",
+            "language": "mr",
+            "kind": "negative",
+            "flagged": true,
+            "reason": "pattern:behosh",
+            "score": 1.0
+          }
+        ]
+      }
+    }
+  }
+}

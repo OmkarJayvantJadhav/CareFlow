@@ -45,13 +45,19 @@ class TurnResult:
     offer_handoff: bool = False
 
 
-def _citations(reply: str, ctx: ToolContext) -> list[dict]:
-    """Sources the reply cites with [n]; at least one source whenever knowledge was used (FR-18)."""
+def _cited_refs(reply: str, ctx: ToolContext) -> list[int]:
+    """The retrieved sources the reply actually cites with [n]."""
     refs = []
     for match in _CITATION.finditer(reply):
         n = int(match.group(1))
         if 1 <= n <= len(ctx.sources) and n not in refs:
             refs.append(n)
+    return refs
+
+
+def _citations(reply: str, ctx: ToolContext) -> list[dict]:
+    """Sources the reply cites with [n]; at least one source whenever knowledge was used (FR-18)."""
+    refs = _cited_refs(reply, ctx)
     if not refs and ctx.sources:
         refs = [1]
     return [{"ref": n, **ctx.sources[n - 1].citation()} for n in refs]
@@ -131,8 +137,11 @@ class Agent:
             text = message("no_medicine_advice", ctx.language)
             return TurnResult(text, turn + [{"role": "assistant", "content": text}], actions=actions)
         other_tools = [a for a in actions if a["tool"] != "search_knowledge"]
-        if ctx.knowledge_calls and not ctx.knowledge_hits and not other_tools:
-            # FR-19: nothing relevant was found, so do not let the model answer from memory.
+        if ctx.knowledge_calls and not other_tools and not _cited_refs(text, ctx):
+            # FR-18/FR-19: an answer from the hospital's documents must cite one of the retrieved
+            # sources. Nothing relevant was found, or the reply cites none of it, so the model may
+            # be answering from memory - say so instead.
+            ctx.trace.span("grounding_guard", sources=ctx.knowledge_hits)
             text = message("no_source", ctx.language)
             return TurnResult(
                 text, turn + [{"role": "assistant", "content": text}], actions=actions, offer_handoff=True

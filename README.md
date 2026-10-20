@@ -159,7 +159,7 @@ Environment variables (see `.env.example`); names follow docs §12.
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `DATABASE_URL` | local Postgres | Postgres connection string (Neon's `postgresql://…` form is accepted) |
-| `LLM_PRIMARY`, `LLM_FALLBACK` | `groq:llama-3.3-70b-versatile`, `gemini:gemini-3.5-flash` | `provider:model`; providers `groq`, `gemini`, `ollama` |
+| `LLM_PRIMARY`, `LLM_FALLBACK` | `groq:openai/gpt-oss-120b`, `gemini:gemini-3.5-flash-lite` | `provider:model`; providers `groq`, `gemini`, `ollama` |
 | `GROQ_API_KEY`, `GEMINI_API_KEY`, `OLLAMA_BASE_URL` | — | Provider credentials / local Ollama address |
 | `EMBEDDING_BACKEND`, `RERANKER_BACKEND` | `auto` | `auto`, `local`, or force the neural model (`fastembed` / `cross-encoder`) |
 | `EMBEDDING_MODEL`, `RERANKER_MODEL`, `MODEL_CACHE_DIR` | multilingual MiniLM, bge-reranker-v2-m3 (int8) | Retrieval models and their cache |
