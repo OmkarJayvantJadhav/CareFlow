@@ -72,7 +72,13 @@ def _turn_near(db: Session, entry_id: int, doctor_name: str, now: datetime) -> N
         )
     ).first()
     if sent is None:
-        notify(db, entry.patient_id, f"Your turn is near ({marker}). Please stay close to the consultation room.", now)
+        notify(
+            db,
+            entry.patient_id,
+            f"Your turn is near ({marker}). Please stay close to the consultation room.",
+            now,
+            kind="turn_near",
+        )
 
 
 def _fields(est: Estimate) -> dict:

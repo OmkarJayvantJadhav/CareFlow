@@ -488,6 +488,8 @@ def _handle_unavailable(db: Session, session: QueueSession, now: datetime) -> li
             f"{doctor.name} is unavailable today ({session.date:%d %b}). We are sorry for the inconvenience. "
             "Reply to CareFlow to choose a new slot; your rescheduling is free of charge.",
             now,
+            kind="unavailable",
+            appointment_id=item.get("appointment_id"),
         ).id
     db.flush()
     return list(affected.values())
@@ -508,7 +510,7 @@ def close_session(db: Session, actor: Actor, session_id: int, now: datetime | No
     ).first()
     if active is not None:
         raise ToolError("INVALID_STATE", "Patients are still waiting; the session cannot be closed yet.")
-    no_shows = 0
+    missed: list[Appointment] = []
     for entry in db.scalars(
         select(QueueEntry).where(QueueEntry.session_id == session.id, QueueEntry.status == "missed")
     ):
@@ -516,7 +518,7 @@ def close_session(db: Session, actor: Actor, session_id: int, now: datetime | No
         if entry.appointment is not None:
             entry.appointment.status = "no_show"
             entry.appointment.updated_at = now
-            no_shows += 1
+            missed.append(entry.appointment)
     checked_in = select(QueueEntry.appointment_id).where(QueueEntry.appointment_id.is_not(None))
     for appt in db.scalars(
         select(Appointment).where(
@@ -528,7 +530,19 @@ def close_session(db: Session, actor: Actor, session_id: int, now: datetime | No
     ):
         appt.status = "no_show"
         appt.updated_at = now
-        no_shows += 1
+        missed.append(appt)
+    # Missed-appointment recovery: everyone who missed their visit is offered a new one.
+    for appt in missed:
+        notify(
+            db,
+            appt.patient_id,
+            f"We missed you at your appointment with {session.doctor.name} on {session.date:%d %b}. "
+            "Book a new time in CareFlow: My appointments → Rebook.",
+            now,
+            kind="rebook",
+            appointment_id=appt.id,
+        )
+    no_shows = len(missed)
     session.status = "closed"
     session.closed_at = now
     _event(db, session, "session_closed", now, no_shows=no_shows)

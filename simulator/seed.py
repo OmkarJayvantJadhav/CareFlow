@@ -110,6 +110,9 @@ def ensure_slots(db: Session, start: date, end: date) -> int:
             )
         )
     }
+    from app.tools.calendar import leave_days
+
+    away = leave_days(db, start, end)  # slots created on a leave day start blocked
     created = 0
     for doctor in db.scalars(select(Doctor).order_by(Doctor.id)):
         dept = doctor.department
@@ -120,7 +123,8 @@ def ensure_slots(db: Session, start: date, end: date) -> int:
                 t, close = at(day, dept.opd_start), at(day, dept.opd_end)
                 while t + step <= close:
                     if (doctor.id, t) not in existing:
-                        db.add(Slot(doctor_id=doctor.id, start_at=t, end_at=t + step, status="free"))
+                        status = "blocked" if (doctor.id, day) in away else "free"
+                        db.add(Slot(doctor_id=doctor.id, start_at=t, end_at=t + step, status=status))
                         created += 1
                     t += step
             day += timedelta(days=1)

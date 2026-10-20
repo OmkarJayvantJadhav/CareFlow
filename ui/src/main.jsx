@@ -9,14 +9,17 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
+import { NotificationsProvider } from "./notifications";
 import { SessionProvider } from "./session";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <SessionProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <NotificationsProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </NotificationsProvider>
     </SessionProvider>
   </StrictMode>,
 );

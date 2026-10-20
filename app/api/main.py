@@ -13,6 +13,7 @@ from sqlalchemy import func, select, text
 
 from app.agent.llm import build_llm
 from app.api.admin_routes import router as admin_router
+from app.api.care_routes import router as care_router
 from app.api.queue_routes import router as queue_router
 from app.api.queue_routes import ws_router
 from app.api.routes import router
@@ -56,12 +57,29 @@ def _keep_slots_open(stop: threading.Event) -> None:
         stop.wait(6 * 3600)
 
 
+def _send_reminders(stop: threading.Event) -> None:
+    """Appointment reminders (the day before and two hours before), checked every 10 minutes."""
+    from app.tools.reminders import send_due_reminders
+
+    while not stop.is_set():
+        try:
+            with session_factory()() as db:
+                sent = send_due_reminders(db, now_ist())
+                db.commit()
+                if sent:
+                    log.info("sent %d reminders", sent)
+        except Exception:  # noqa: BLE001 - try again next time
+            log.exception("reminders failed")
+        stop.wait(600)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     stop = threading.Event()
     if get_settings().warm_up_retriever:
         threading.Thread(target=_warm_up, name="retriever-warm-up", daemon=True).start()
         threading.Thread(target=_keep_slots_open, args=(stop,), name="slot-top-up", daemon=True).start()
+        threading.Thread(target=_send_reminders, args=(stop,), name="reminders", daemon=True).start()
     yield
     stop.set()
 
@@ -127,6 +145,7 @@ def health() -> JSONResponse:
 
 app.include_router(router)
 app.include_router(admin_router)
+app.include_router(care_router)
 app.include_router(queue_router)
 app.include_router(ws_router)
 

@@ -15,9 +15,9 @@ def test_migrations_match_models(engine):
     assert diff == []
 
 
-def test_schema_has_the_17_designed_tables_plus_conversation_and_pgvector(engine):
+def test_schema_has_the_17_designed_tables_plus_conversation_doctor_leave_and_pgvector(engine):
     tables = set(inspect(engine).get_table_names()) - {"alembic_version"}
-    assert len(tables) == 18 and "conversation" in tables
+    assert len(tables) == 19 and {"conversation", "doctor_leave"} <= tables
     with engine.connect() as conn:
         assert conn.execute(text("SELECT 1 FROM pg_extension WHERE extname = 'vector'")).scalar() == 1
 

@@ -63,6 +63,8 @@ EVENT_TYPES = (
     "session_closed",
 )
 NOTIFICATION_CHANNELS = ("sms", "whatsapp")
+# What a notification is about; reminders are sent once per appointment and kind.
+NOTIFICATION_KINDS = ("info", "reminder_day", "reminder_soon", "rebook", "unavailable", "turn_near")
 HANDOFF_STATUSES = ("open", "in_progress", "closed")
 
 
@@ -376,7 +378,17 @@ class KbChunk(Base):
 
 class Notification(Base):
     __tablename__ = "notification"
-    __table_args__ = (CheckConstraint(_in("channel", NOTIFICATION_CHANNELS), name="ck_notification_channel"),)
+    __table_args__ = (
+        CheckConstraint(_in("channel", NOTIFICATION_CHANNELS), name="ck_notification_channel"),
+        CheckConstraint(_in("kind", NOTIFICATION_KINDS), name="ck_notification_kind"),
+        Index(
+            "uq_notification_reminder",
+            "appointment_id",
+            "kind",
+            unique=True,
+            postgresql_where=text("kind IN ('reminder_day', 'reminder_soon')"),
+        ),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     patient_id: Mapped[int] = mapped_column(ForeignKey("patient.id"), index=True)
@@ -384,6 +396,26 @@ class Notification(Base):
     message: Mapped[str] = mapped_column(Text)
     sent_at: Mapped[datetime] = mapped_column(TZ)
     mocked: Mapped[bool] = mapped_column(Boolean, default=True)
+    kind: Mapped[str] = mapped_column(String(16), default="info", server_default="info")
+    appointment_id: Mapped[int | None] = mapped_column(ForeignKey("appointment.id"))
+    read_at: Mapped[datetime | None] = mapped_column(TZ)
+
+
+class DoctorLeave(Base):
+    """Days a doctor is away; their slots are blocked and booked patients asked to rebook."""
+
+    __tablename__ = "doctor_leave"
+    __table_args__ = (CheckConstraint("end_date >= start_date", name="ck_doctor_leave_dates"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    doctor_id: Mapped[int] = mapped_column(ForeignKey("doctor.id"), index=True)
+    start_date: Mapped[date] = mapped_column(Date)
+    end_date: Mapped[date] = mapped_column(Date)
+    reason: Mapped[str] = mapped_column(String(120), default="")
+    created_by: Mapped[int | None] = mapped_column(ForeignKey("app_user.id"))
+    created_at: Mapped[datetime] = mapped_column(TZ, server_default=func.now())
+
+    doctor: Mapped[Doctor] = relationship()
 
 
 class AuditLog(Base):
@@ -439,6 +471,7 @@ class HandoffTicket(Base):
 # Everything that demo reset wipes and reloads (FR-34). The knowledge base is
 # reference content, loaded by its own ingestion step, and is left alone.
 OPERATIONAL_TABLES = (
+    "doctor_leave",
     "conversation",
     "handoff_ticket",
     "audit_log",
