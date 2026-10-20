@@ -506,8 +506,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ids", default="")
     parser.add_argument("--families", default="")
     parser.add_argument("--max-conversations", type=int, default=0, help="stop after this many new runs")
-    parser.add_argument("--out", default="agent.json")
+    parser.add_argument("--out", default=None, help="default: agent.json, or agent_baseline.json with --baseline")
+    parser.add_argument(
+        "--baseline", action="store_true", help="run without the code-level safeguards (eval/baseline.py)"
+    )
     args = parser.parse_args(argv)
+    args.out = args.out or ("agent_baseline.json" if args.baseline else "agent.json")
+    if args.baseline:
+        from eval.baseline import baseline_mode
+
+        with baseline_mode():
+            return _run(args)
+    return _run(args)
+
+
+def _run(args) -> int:
     prepare_world()
     scenarios = load_jsonl(SCENARIOS)
     if args.ids:
@@ -516,7 +529,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.families:
         wanted = set(args.families.split(","))
         scenarios = [s for s in scenarios if s["family"] in wanted]
-    store = ResultStore(RUNS_DIR / "agent" / f"{slug(args.llm)}.jsonl")
+    suffix = "-baseline" if args.baseline else ""
+    store = ResultStore(RUNS_DIR / "agent" / f"{slug(args.llm)}{suffix}.jsonl")
     agent_llm = QuotaLLM(args.llm)
     sim_base = QuotaLLM(args.sim)
     sim_base.provider.extra_body = {"reasoning_effort": "low"} if "gpt-oss" in args.sim else {}
@@ -530,8 +544,9 @@ def main(argv: list[str] | None = None) -> int:
             if args.max_conversations and new_runs >= args.max_conversations:
                 stopped = "max-conversations reached"
                 break
+            salt = f"{key}{suffix}"
             try:
-                result = run_scenario(sc, agent_llm.with_salt(key), sim_base.with_salt(key))
+                result = run_scenario(sc, agent_llm.with_salt(salt), sim_base.with_salt(salt))
             except QuotaExhausted as err:
                 stopped = str(err)
                 break
