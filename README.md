@@ -11,15 +11,15 @@ to be proven by an automated evaluation suite.
 The full specification is in [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md).
 Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 
-## Current state: Phase 5 — Ship (built; waiting for deployment accounts) · Phase 4 evaluation running
+## Current state: Phase 5 — Ship (built; deploying to Render) · Phase 4 evaluation partly run
 
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 1. Foundation | Schema + migrations, hospital simulator, seed data, core booking and queue functions | Done |
 | 2. Agent + RAG | Knowledge base, hybrid retrieval + re-ranker, agent loop, safety gate, chat API | Done (see "What has and has not been verified") |
 | 3. Queue + ML | Queue events over WebSocket, wait-time model + baselines, queue tools | **Done** — model beats both baselines |
-| 4. Evaluation | 120 agent scenarios, user simulator, RAG/ML/safety sets, results table | **In progress** — safety sets at 100%; agent and RAG-answer runs continue daily within free quotas |
-| 5. Ship | Patient and staff UI, admin dashboard, analytics agent, deployment | **Built and tested** — all nine screens, 15 browser tests; the live link needs a Neon database and a Hugging Face Space ([`docs/DEPLOY.md`](docs/DEPLOY.md)) |
+| 4. Evaluation | 120 agent scenarios, user simulator, RAG/ML/safety sets, results table | **Partly run** — safety sets at 100%, RAG recall@5 86.7%, 25 of 120 agent scenarios run once (25/25 passed); the other 95 scenarios, repeat runs, graded RAG answers and the baseline comparison have **not been run** (stopped to stay within free quotas) |
+| 5. Ship | Patient and staff UI, admin dashboard, analytics agent, deployment | **Built and tested** — all nine screens, 15 browser tests; deployed on Render's free tier with a Neon database ([`docs/DEPLOY.md`](docs/DEPLOY.md)) |
 
 ### What works
 
@@ -202,7 +202,7 @@ pytest -m e2e tests/e2e          # 15 tests: all nine screens, live queue under 
 ```
 
 GitHub Actions runs lint, the Python tests, the UI tests, the browser tests and a Docker build on every
-push; pushes to `main` deploy to Hugging Face Spaces (`docs/DEPLOY.md`).
+push; Render redeploys the demo from `develop` after each push (`docs/DEPLOY.md`).
 
 ## Configuration
 

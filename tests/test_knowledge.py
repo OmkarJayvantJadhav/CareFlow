@@ -98,6 +98,19 @@ def test_lsa_embedder_is_deterministic():
     assert a.embed_documents(corpus).shape == (3, 384)
 
 
+def test_fitted_lsa_embedder_is_cached_for_the_server(tmp_path, monkeypatch):
+    """D-67: the ingest step fits once; the server loads the same embedder instead of refitting."""
+    corpus = ["fasting before lipid profile", "parking in the basement", "cancel appointment four hours"]
+    fitted = choose_embedder("local", "unused", str(tmp_path), corpus)
+    assert [f.name for f in tmp_path.iterdir()] and fitted.name == LsaEmbedder.name_for(corpus)
+    monkeypatch.setattr(LsaEmbedder, "__init__", lambda *a: pytest.fail("refitted although cached"))
+    loaded = choose_embedder("local", "unused", str(tmp_path), corpus)
+    assert np.array_equal(loaded.embed_query("lipid fasting"), fitted.embed_query("lipid fasting"))
+    monkeypatch.undo()
+    (next(tmp_path.iterdir())).write_bytes(b"damaged")
+    assert choose_embedder("local", "unused", str(tmp_path), corpus).name == fitted.name  # refitted
+
+
 def test_neural_embedder_adapter_with_a_stand_in_model(monkeypatch):
     """The fastembed path cannot download a model in every environment; this checks our glue code."""
 
