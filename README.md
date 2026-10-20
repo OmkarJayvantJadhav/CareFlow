@@ -19,6 +19,7 @@ Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECIS
 | 2. Agent + RAG | Knowledge base, hybrid retrieval + re-ranker, agent loop, safety gate, chat API | Done (see "What has and has not been verified") |
 | 3. Queue + ML | Queue events over WebSocket, wait-time model + baselines, queue tools | **Done** — model beats both baselines |
 | 4. Evaluation | 120 agent scenarios, user simulator, RAG/ML/safety sets, results table | **Partly run** — safety sets at 100%, RAG recall@5 86.7%, 25 of 120 agent scenarios run once (25/25 passed); the other 95 scenarios, repeat runs, graded RAG answers and the baseline comparison have **not been run** (stopped to stay within free quotas) |
+| 6A. Appointments | Booking without chat, smart slots, calendars and leave, reminders, receipts, profile, utilization | **Done** — see "Appointment management" below |
 | 5. Ship | Patient and staff UI, admin dashboard, analytics agent, deployment | **Built and tested** — all nine screens, patient accounts with password sign-in, 16 browser tests; deployed on Render's free tier with a Neon database ([`docs/DEPLOY.md`](docs/DEPLOY.md)) |
 
 ### What works
@@ -40,6 +41,20 @@ Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECIS
     department charts and headline numbers on the dashboard.
   - Large-text mode (double size), 44 px tap targets, works at 360 px wide, screen-reader labels, a demo
     banner on every page; checked automatically with axe-core (no serious or critical WCAG A/AA issues).
+- **Appointment management (phase 6A)** — the features asked for after Phase 5, numbered as in the request:
+  - *Book without the chat (1, 3, 14):* pick a department, doctor, language, dates and time of day; slots are
+    ranked in code (sooner, preferred time, the doctor's language, a doctor seen before, a quieter day) and
+    each shows why it was chosen; booking, rescheduling and cancelling ask for confirmation in a dialog.
+  - *Doctor calendars (2, 13):* staff see each doctor's week, block or reopen single slots, and record leave
+    from tomorrow onwards; patients booked on a leave day are told and can rebook free of charge. The
+    expected consultation length per doctor comes from the last 60 days of visits (or the slot length).
+  - *Reminders (7):* the day before and two hours before, once each, in the patient's language, shown in a
+    notification list with an unread count (mocked: stored, not sent).
+  - *Missed-appointment recovery (18):* a no-show gets a rebooking offer and a **Rebook** button.
+  - *Digital receipts (20):* a printable receipt with a signed reference code and its QR code.
+  - *Profile (29):* name, birth year, language and phone (stored masked); password change for own accounts.
+  - *Utilization and attendance (15, 16):* booked share of the next 7 days' slots and the last 30 days'
+    attendance and no-show rates, per department and doctor, on the admin dashboard.
 - **Chat (`POST /api/v1/chat`)** — a hand-written tool-calling agent (`app/agent/`) with argument
   validation, a step limit, a token budget and a JSON trace of every LLM and tool call.
   - **Confirmation is enforced in code:** the model can only *propose* a booking, change, cancellation or
@@ -212,7 +227,7 @@ and a stand-in LLM, so they need no API key):
 
 ```bash
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e          # 16 tests: all nine screens, sign-up and log-in, live queue under 2 s, accessibility, 360 px
+pytest -m e2e tests/e2e          # 19 tests: every screen, sign-up and log-in, booking to receipt, leave, live queue under 2 s, accessibility, 360 px
 ```
 
 GitHub Actions runs lint, the Python tests, the UI tests, the browser tests and a Docker build on every

@@ -120,12 +120,13 @@ def main(port: int, real_llm: bool = False) -> None:
     import app.agent.tracing
     import app.api.admin_routes
     import app.api.auth
+    import app.api.care_routes
     import app.api.queue_routes
     import app.api.routes
     import app.timeutil
 
     for module in (app.timeutil, app.agent.tracing, app.api.auth, app.api.queue_routes, app.api.routes,
-                   app.api.admin_routes):  # fmt: skip
+                   app.api.admin_routes, app.api.care_routes):  # fmt: skip
         module.now_ist = clock
     prepare()
     from app.api.deps import get_llm

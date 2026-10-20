@@ -77,6 +77,13 @@ export function SessionProvider({ children }) {
       logIn: async (username, password) =>
         accept(await api("/auth/login", { method: "POST", body: { username, password } })),
       register: async (details) => accept(await api("/auth/register", { method: "POST", body: details })),
+      /** Re-read the signed-in user (after a profile change, so names update everywhere). */
+      refreshUser: async () => {
+        const fresh = await api("/me");
+        setUser(fresh);
+        save("careflow.user", JSON.stringify(fresh));
+        return fresh;
+      },
       signOut,
       t: (key, vars) => translate(lang, key, vars),
     }),

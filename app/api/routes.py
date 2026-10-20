@@ -1,7 +1,7 @@
 """REST endpoints (docs §7). They call the same service functions as the agent tools."""
 
 import re
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Query, Request
@@ -20,9 +20,10 @@ from app.config import get_settings
 from app.db.models import AppUser, Patient
 from app.safety.privacy import mask_phone_number
 from app.timeutil import iso, now_ist
-from app.tools import booking, waiting_list
+from app.tools import booking, policy, waiting_list
 from app.tools.errors import ToolError
 from app.tools.permissions import Actor
+from app.tools.receipts import reference_code
 
 router = APIRouter(prefix="/api/v1")
 DEMO_USERS_BY_ROLE = {"patient": "asha", "caregiver": "rajan", "staff": "priya", "admin": "mehta"}
@@ -284,7 +285,17 @@ def cancel(
 
 @router.get("/patients/{patient_id}/appointments", tags=["booking"])
 def history(patient_id: int, auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) -> dict:
-    return booking.get_patient_appointments(db, auth.actor, patient_id)
+    now = now_ist()
+    result = booking.get_patient_appointments(db, auth.actor, patient_id, now=now)
+    for appt in (*result["upcoming"], *result["past"]):
+        appt["reference"] = reference_code(appt["appointment_id"])  # shown on the receipt (feature 20)
+        # Whether the policy windows are still open, by the server's clock (the rules stay in the tools).
+        left = datetime.fromisoformat(appt["start_at"]) - now
+        displaced = appt["status"] == "displaced"
+        active = appt["status"] in ("booked", "rescheduled") or displaced
+        appt["can_reschedule"] = active and (displaced or left >= policy.RESCHEDULE_CUTOFF)
+        appt["can_cancel"] = active and (displaced or left >= policy.CANCEL_CUTOFF)
+    return result
 
 
 @router.post("/waiting-list", status_code=201, tags=["booking"])

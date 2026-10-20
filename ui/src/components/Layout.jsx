@@ -1,6 +1,9 @@
 import {
   BarChart3,
+  Bell,
   CalendarDays,
+  CalendarPlus,
+  CalendarRange,
   ClipboardList,
   HeartPulse,
   Info,
@@ -9,20 +12,24 @@ import {
   LogOut,
   MessageCircle,
   Stethoscope,
+  UserRound,
 } from "lucide-react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { initials } from "../format";
 import { LANGS } from "../i18n";
+import { useNotifications } from "../notifications";
 import { useSession } from "../session";
 
 const NAV = {
   patient: [
     { to: "/chat", label: "navChat", icon: MessageCircle },
+    { to: "/book", label: "navBook", icon: CalendarPlus },
     { to: "/appointments", label: "navAppointments", icon: CalendarDays },
     { to: "/queue", label: "navQueue", icon: ListOrdered },
   ],
   staff: [
     { to: "/desk", label: "navDesk", icon: ClipboardList },
+    { to: "/calendar", label: "navCalendar", icon: CalendarRange },
     { to: "/doctors", label: "navDoctors", icon: Stethoscope },
   ],
   admin: [
@@ -73,6 +80,35 @@ function Preferences({ languages = true }) {
         <input type="checkbox" checked={largeText} onChange={(e) => setLargeText(e.target.checked)} />
         {t("largeText")}
       </label>
+    </>
+  );
+}
+
+/** Bell with the unread count, and the profile link, for patients and caregivers. */
+function PatientTools() {
+  const { user, t } = useSession();
+  const { unread } = useNotifications();
+  if (user.role !== "patient" && user.role !== "caregiver") return null;
+  return (
+    <>
+      <NavLink
+        to="/notifications"
+        className="icon-link"
+        aria-label={unread ? t("notificationsUnread", { count: unread }) : t("notificationsTitle")}
+        title={t("notificationsTitle")}
+      >
+        <Bell size={20} aria-hidden="true" />
+        {unread > 0 && (
+          <span className="count" aria-hidden="true">
+            {unread > 9 ? "9+" : unread}
+          </span>
+        )}
+      </NavLink>
+      {user.role === "patient" && (
+        <NavLink to="/profile" className="icon-link" aria-label={t("navProfile")} title={t("navProfile")}>
+          <UserRound size={20} aria-hidden="true" />
+        </NavLink>
+      )}
     </>
   );
 }
@@ -138,6 +174,9 @@ export default function Layout() {
               <Brand />
             </span>
             <Preferences />
+            <span className="tools">
+              <PatientTools />
+            </span>
             <button
               type="button"
               className="quiet mobile-only"

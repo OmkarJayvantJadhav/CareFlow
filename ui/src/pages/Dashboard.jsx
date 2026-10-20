@@ -6,9 +6,11 @@ import {
   CircleCheck,
   Coffee,
   Database,
+  Gauge,
   RotateCcw,
   Search,
   ShieldCheck,
+  UserCheck,
   UsersRound,
   UserX,
 } from "lucide-react";
@@ -32,13 +34,16 @@ const SAFETY_LABELS = {
 export default function Dashboard() {
   const { t, lang } = useSession();
   const [data, setData] = useState(null);
+  const [usage, setUsage] = useState(null);
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      setData(await api("/admin/dashboard"));
+      const [dashboard, utilization] = await Promise.all([api("/admin/dashboard"), api("/admin/utilization?days=7")]);
+      setData(dashboard);
+      setUsage(utilization);
       setError(null);
     } catch (err) {
       setError(err);
@@ -191,6 +196,100 @@ export default function Dashboard() {
               </div>
             </section>
           </div>
+
+          {usage && (
+            <section aria-labelledby="usage-h">
+              <div className="section-title">
+                <div>
+                  <h2 id="usage-h">{t("utilizationTitle")}</h2>
+                  <p className="muted small">{t("utilizationNote")}</p>
+                </div>
+              </div>
+              <div className="kpis">
+                {[
+                  ["utilizationNext7", usage.overall.utilization, Gauge, ""],
+                  ["attendance30", usage.overall.attendance_rate, UserCheck, "info"],
+                  ["noShowRate30", usage.overall.no_show_rate, UserX, "danger"],
+                ].map(([label, value, Icon, tone]) => (
+                  <div key={label} className="card kpi">
+                    <span className={`icon-tile ${tone}`} aria-hidden="true">
+                      <Icon size={20} />
+                    </span>
+                    <div>
+                      <div className="value">{pct(value)}</div>
+                      <div className="label">{t(label)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <section className="card">
+                <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="usage-table-h">
+                  <table>
+                    <caption id="usage-table-h" className="sr-only">
+                      {t("utilizationTable")}
+                    </caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">{t("department")}</th>
+                        <th scope="col">{t("utilization")}</th>
+                        <th scope="col" className="num">
+                          {t("bookedLabel")}
+                        </th>
+                        <th scope="col" className="num">
+                          {t("freeSlots")}
+                        </th>
+                        <th scope="col" className="num">
+                          {t("attended")}
+                        </th>
+                        <th scope="col" className="num">
+                          {t("noShows")}
+                        </th>
+                        <th scope="col" className="num">
+                          {t("attendance")}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {usage.departments.map((d) => (
+                        <tr key={d.department}>
+                          <th scope="row">{d.department}</th>
+                          <td>
+                            <div className="meter-cell">
+                              <span className="meter" aria-hidden="true">
+                                <span style={{ width: `${100 * (d.utilization ?? 0)}%` }} />
+                              </span>
+                              {pct(d.utilization)}
+                            </div>
+                          </td>
+                          <td className="num">{d.booked}</td>
+                          <td className="num">{d.free}</td>
+                          <td className="num">{d.attended}</td>
+                          <td className="num">{d.no_shows}</td>
+                          <td className="num">{pct(d.attendance_rate)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <details style={{ marginTop: "0.75rem" }}>
+                  <summary>{t("byDoctor")}</summary>
+                  <ul className="booking-list">
+                    {usage.doctors.map((d) => (
+                      <li key={d.doctor_id}>
+                        <span>
+                          <strong>{d.doctor_name}</strong> <span className="muted small">{d.department}</span>
+                        </span>
+                        <span className="muted small">
+                          {t("utilization")} {pct(d.utilization)} · {t("attendance")} {pct(d.attendance_rate)} ·{" "}
+                          {d.typical_consult_min} min
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </section>
+            </section>
+          )}
 
           <div className="section-title">
             <div>

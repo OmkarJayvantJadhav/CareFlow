@@ -1,20 +1,42 @@
-import { CalendarPlus, CalendarX2, Clock, RefreshCw, Stethoscope, X } from "lucide-react";
+import {
+  CalendarPlus,
+  CalendarX2,
+  CircleCheck,
+  Clock,
+  FileText,
+  RefreshCw,
+  RotateCcw,
+  Stethoscope,
+  X,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api";
+import ConfirmDialog from "../components/ConfirmDialog";
 import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
 import { dateTile, longDate } from "../format";
 import { useSession } from "../session";
 
+// The rule itself is enforced by the server (FR-13); a refusal shows the server's explanation.
+const CANCEL_POLICY_NOTE = {
+  en: "Appointments can be cancelled free of charge up to 4 hours before the appointment time.",
+  hi: "अपॉइंटमेंट के समय से 4 घंटे पहले तक अपॉइंटमेंट मुफ़्त में रद्द किया जा सकता है।",
+  mr: "अपॉइंटमेंटच्या वेळेच्या 4 तास आधीपर्यंत अपॉइंटमेंट मोफत रद्द करता येते.",
+};
+
 const STATUS_TONE = { booked: "ok", rescheduled: "brand", displaced: "warn", cancelled: "", no_show: "danger" };
 
-/** S3: upcoming and past appointments; changes go through the chat so they get a confirmation card. */
+/** S3: upcoming and past appointments, with receipts, rescheduling, cancelling and rebooking;
+every change is confirmed in a dialog first (the same rule as the chat's confirmation cards). */
 export default function Appointments() {
   const { user, lang, t } = useSession();
   const navigate = useNavigate();
   const [histories, setHistories] = useState(null);
   const [error, setError] = useState(null);
+  const [cancelling, setCancelling] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -30,8 +52,19 @@ export default function Appointments() {
     void load();
   }, [load]);
 
-  function ask(kind, a) {
-    navigate("/chat", { state: { prefill: t(kind, { doctor: a.doctor_name, date: a.date, time: a.time }) } });
+  async function cancel() {
+    setBusy(true);
+    setError(null);
+    try {
+      await api(`/appointments/${cancelling.appointment_id}?confirmed=true`, { method: "DELETE" });
+      setNotice(t("cancelledDone"));
+      await load();
+    } catch (err) {
+      setError(err);
+    } finally {
+      setBusy(false);
+      setCancelling(null);
+    }
   }
 
   const badge = (a) => <span className={`badge ${STATUS_TONE[a.status] ?? ""}`}>{t(`status_${a.status}`)}</span>;
@@ -45,7 +78,7 @@ export default function Appointments() {
           </span>
           <strong>{t("noUpcoming")}</strong>
           <span>{t("noUpcomingHint")}</span>
-          <button type="button" onClick={() => navigate("/chat")}>
+          <button type="button" onClick={() => navigate("/book")}>
             <CalendarPlus size={18} aria-hidden="true" />
             {t("bookNew")}
           </button>
@@ -80,15 +113,34 @@ export default function Appointments() {
                 </div>
               </div>
               <div className="actions">
-                <button type="button" className="secondary" onClick={() => ask("rescheduleAsk", a)}>
-                  <RefreshCw size={16} aria-hidden="true" />
-                  {t("reschedule")}
+                <Link className="button quiet" to={`/receipt/${a.appointment_id}`}>
+                  <FileText size={16} aria-hidden="true" />
+                  {t("receipt")}
+                </Link>
+                <button
+                  type="button"
+                  className="secondary"
+                  disabled={!a.can_reschedule}
+                  onClick={() => navigate("/book", { state: { reschedule: a } })}
+                >
+                  {a.status === "displaced" ? (
+                    <RotateCcw size={16} aria-hidden="true" />
+                  ) : (
+                    <RefreshCw size={16} aria-hidden="true" />
+                  )}
+                  {a.status === "displaced" ? t("rebook") : t("reschedule")}
                 </button>
-                <button type="button" className="danger-outline" onClick={() => ask("cancelAsk", a)}>
+                <button
+                  type="button"
+                  className="danger-outline"
+                  disabled={!a.can_cancel}
+                  onClick={() => setCancelling(a)}
+                >
                   <X size={16} aria-hidden="true" />
                   {t("cancel")}
                 </button>
               </div>
+              {(!a.can_reschedule || !a.can_cancel) && <p className="hint span-row">{t("changesClosed")}</p>}
             </article>
           );
         })}
@@ -109,6 +161,12 @@ export default function Appointments() {
               </div>
             </div>
             {badge(a)}
+            {a.status === "no_show" && (
+              <button type="button" className="secondary" onClick={() => navigate("/book", { state: { rebook: a } })}>
+                <RotateCcw size={16} aria-hidden="true" />
+                {t("rebook")}
+              </button>
+            )}
           </li>
         ))}
       </ul>
@@ -123,11 +181,17 @@ export default function Appointments() {
           <h1>{t("appointmentsTitle")}</h1>
           <p className="lead">{t("appointmentsIntro")}</p>
         </div>
-        <button type="button" onClick={() => navigate("/chat")}>
+        <button type="button" onClick={() => navigate("/book")}>
           <CalendarPlus size={18} aria-hidden="true" />
           {t("bookNew")}
         </button>
       </div>
+      {notice && (
+        <div className="notice" role="status">
+          <CircleCheck size={18} aria-hidden="true" />
+          {notice}
+        </div>
+      )}
       {error !== null && <ErrorMessage error={error} onRetry={load} />}
       {histories === null && error === null && <Loading />}
       {histories?.map((h) => (
@@ -147,6 +211,26 @@ export default function Appointments() {
           {past(h.past)}
         </section>
       ))}
+      <ConfirmDialog
+        open={cancelling !== null}
+        title={t("confirmCancel")}
+        confirmLabel={t("yesCancel")}
+        cancelLabel={t("keepIt")}
+        busy={busy}
+        danger
+        onConfirm={() => void cancel()}
+        onClose={() => setCancelling(null)}
+      >
+        {cancelling && (
+          <>
+            <p>
+              <strong>{cancelling.doctor_name}</strong> ({cancelling.department}) · {longDate(cancelling.date, lang)} ·{" "}
+              {cancelling.time}
+            </p>
+            <p className="muted">{CANCEL_POLICY_NOTE[lang] ?? CANCEL_POLICY_NOTE.en}</p>
+          </>
+        )}
+      </ConfirmDialog>
     </main>
   );
 }

@@ -74,6 +74,57 @@ def test_create_an_account_then_log_in_again(page: Page):
     expect(page.get_by_text("No upcoming appointments")).to_be_visible()
 
 
+def test_book_from_recommendations_then_receipt_reschedule_and_cancel(page: Page):
+    sign_in(page, "Patient")
+    page.get_by_role("link", name="Book", exact=True).click()
+    page.get_by_label("Department").select_option("ENT")
+    page.get_by_label("From").fill("2026-10-22")  # far enough ahead to reschedule and cancel online
+    page.get_by_role("button", name="Find the best times").click()
+    first = page.locator(".slot-card").first
+    # Asha has seen an ENT doctor before: continuity ranks above the soonest time, which is still listed.
+    expect(first.locator(".reasons")).to_contain_text("Doctor you have seen")
+    expect(page.locator(".slot-card .reasons").filter(has_text="Soonest")).to_have_count(1)
+    doctor = first.locator("strong").first.inner_text()
+    first.get_by_role("button", name=re.compile("^Choose")).click()
+    dialog = page.get_by_role("dialog", name="Confirm booking")
+    expect(dialog).to_contain_text(f"{doctor} (ENT)")
+    dialog.get_by_role("button", name="Confirm").click()
+    expect(page.get_by_role("status").filter(has_text="Booked. Your receipt is ready.")).to_be_visible()
+    page.get_by_role("link", name="View receipt").click()
+    receipt = page.get_by_role("article", name="Appointment receipt")
+    expect(receipt).to_contain_text(re.compile(r"CF-\d{6}-[0-9A-F]{6}"))
+    expect(receipt.get_by_role("img", name=re.compile("^Reference CF-"))).to_be_visible()
+
+    page.get_by_role("link", name="My appointments").first.click()
+    card = page.locator("article").filter(has_text=doctor).first
+    card.get_by_role("button", name="Reschedule").click()
+    expect(page.get_by_role("heading", name="Choose a new time")).to_be_visible()
+    page.get_by_label("From").fill("2026-10-26")
+    page.get_by_role("button", name="Find the best times").click()
+    expect(page.locator(".slot-card").first).to_contain_text("26 Oct")
+    page.locator(".slot-card").first.get_by_role("button", name=re.compile("^Move here")).click()
+    page.get_by_role("dialog", name="Confirm new time").get_by_role("button", name="Confirm").click()
+    expect(page.get_by_role("status").filter(has_text="Your appointment has been moved.")).to_be_visible()
+
+    page.get_by_role("navigation", name="Main").get_by_role("link", name="My appointments").click()
+    page.locator("article").filter(has_text=doctor).first.get_by_role("button", name="Cancel").click()
+    page.get_by_role("dialog", name="Cancel this appointment?").get_by_role("button", name="Yes, cancel it").click()
+    expect(page.get_by_role("status").filter(has_text="Your appointment has been cancelled.")).to_be_visible()
+
+
+def test_profile_changes_are_saved(page: Page):
+    sign_in(page, "Patient")
+    page.get_by_role("link", name="Profile").click()
+    page.get_by_label("Full name").fill("Asha R. Patil")
+    page.get_by_label("Mobile number").fill("9123456780")
+    page.get_by_role("button", name="Save changes").click()
+    expect(page.get_by_role("status").filter(has_text="Saved.")).to_be_visible()
+    expect(page.get_by_text("On file: +91 91XXXXXX80.")).to_be_visible()
+    page.get_by_label("Full name").fill("Asha Patil")
+    page.get_by_role("button", name="Save changes").click()
+    expect(page.get_by_role("status").filter(has_text="Saved.")).to_be_visible()
+
+
 def test_emergency_takes_over_the_chat(page: Page):
     sign_in(page, "Patient")
     send(page, "My father collapsed and is not breathing")
@@ -149,6 +200,24 @@ def test_front_desk_checks_in_and_registers_a_walk_in(page: Page):
     expect(queue.get_by_text("Called — please go in")).to_be_visible()
 
 
+def test_staff_record_and_remove_leave_in_the_calendar(page: Page):
+    sign_in(page, "Front desk")
+    page.get_by_role("link", name="Calendar").click()
+    page.get_by_label("Doctor").select_option(label="Dr. Imran Shaikh — General Medicine")
+    expect(page.get_by_text(re.compile(r"^Typical visit: \d+ min"))).to_be_visible()
+    leave = page.get_by_role("region", name="Leave", exact=True)
+    leave.get_by_label("From").fill("2026-10-27")
+    leave.get_by_label("To").fill("2026-10-27")
+    leave.get_by_label("Reason (optional)").fill("Conference")
+    leave.get_by_role("button", name="Add leave").click()
+    page.get_by_role("dialog", name="Add leave").get_by_role("button", name="Add leave").click()
+    expect(page.get_by_role("status").filter(has_text="Leave recorded.")).to_be_visible()
+    page.get_by_role("button", name="Next week").click()
+    expect(page.get_by_text("On leave · Conference")).to_be_visible()
+    leave.get_by_role("button", name="Remove leave").click()
+    expect(page.get_by_role("status").filter(has_text="Leave removed")).to_be_visible()
+
+
 def test_doctor_marked_unavailable_informs_patients(page: Page):
     sign_in(page, "Front desk")
     page.get_by_role("link", name="Doctor status").click()
@@ -164,8 +233,9 @@ def test_doctor_marked_unavailable_informs_patients(page: Page):
 
 def test_dashboard_shows_departments_and_evaluation(page: Page):
     sign_in(page, "OPD admin")
-    table = page.get_by_role("table")
+    table = page.get_by_role("table", name="Departments right now")
     expect(table.get_by_role("row")).to_have_count(9)  # header + 8 departments
+    expect(page.get_by_role("table", name="Utilization by department")).to_be_visible()
     expect(page.get_by_text("Latest evaluation results")).to_be_visible()
     expect(page.get_by_text(re.compile(r"Medical-advice bait: \d+/\d+"))).to_be_visible()
 
@@ -202,8 +272,8 @@ def _axe_violations(page: Page) -> list[dict]:
     "role, links",
     [
         (None, []),
-        ("Patient", ["Assistant", "My appointments", "Queue status"]),
-        ("Front desk", ["Front desk", "Doctor status"]),
+        ("Patient", ["Assistant", "Book", "My appointments", "Queue status", "Notifications", "Profile"]),
+        ("Front desk", ["Front desk", "Calendar", "Doctor status"]),
         ("OPD admin", ["Dashboard", "Analytics"]),
     ],
 )
@@ -215,7 +285,9 @@ def test_no_serious_accessibility_violations(page: Page, role, links):
         return
     sign_in(page, role)
     for link in links:
-        page.get_by_role("link", name=link, exact=True).click()
+        # The bell's name carries the unread count: "Notifications (2 unread)".
+        name = re.compile(r"^Notifications") if link == "Notifications" else link
+        page.get_by_role("link", name=name, exact=link != "Notifications").click()
         expect(page.get_by_role("heading", level=1)).to_be_visible()
         page.wait_for_load_state("networkidle")
         assert _axe_violations(page) == [], link
@@ -225,7 +297,7 @@ def test_patient_screens_fit_a_360_px_phone_in_large_text(phone: Page):
     phone.goto("/")
     phone.get_by_label("Large text").check()
     phone.get_by_role("button", name=re.compile("^Patient")).click()
-    for link in ("Assistant", "My appointments", "Queue status"):
+    for link in ("Assistant", "Book", "My appointments", "Queue status", "Profile"):
         phone.get_by_role("link", name=link, exact=True).click()
         expect(phone.get_by_role("heading", level=1)).to_be_visible()
         overflow = phone.evaluate("document.documentElement.scrollWidth - window.innerWidth")

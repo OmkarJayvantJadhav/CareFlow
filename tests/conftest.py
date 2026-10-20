@@ -129,10 +129,13 @@ def frozen_clock(monkeypatch):
     """Freeze the application clock (everything that reads now_ist) at NOW."""
     import app.api.admin_routes
     import app.api.auth
+    import app.api.care_routes
     import app.api.queue_routes
     import app.api.routes
     import app.timeutil
 
-    for module in (app.timeutil, app.api.auth, app.api.queue_routes, app.api.routes, app.api.admin_routes):
+    modules = (app.timeutil, app.api.auth, app.api.queue_routes, app.api.routes, app.api.admin_routes,
+               app.api.care_routes)  # fmt: skip
+    for module in modules:
         monkeypatch.setattr(module, "now_ist", lambda: NOW)
     return NOW
