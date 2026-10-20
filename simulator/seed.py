@@ -48,6 +48,9 @@ def random_patient(rng: np.random.Generator) -> Patient:
     )
 
 
+DEMO_ACCOUNTS_CREATED = at(date(2026, 1, 1), time(0, 0))
+
+
 def seed_reference(db: Session, rng: np.random.Generator) -> None:
     departments = {}
     for name, floor, start, end in hospital.DEPARTMENTS:
@@ -83,6 +86,7 @@ def seed_reference(db: Session, rng: np.random.Generator) -> None:
             display_name=display,
             role=role,
             patient_id=demo_patients[patient_key].id if patient_key else None,
+            created_at=DEMO_ACCOUNTS_CREATED,  # fixed, so a demo reset restores the accounts exactly (TC-17)
         )
         db.add(user)
         users[username] = user
@@ -236,10 +240,61 @@ def truncate_operational(db: Session) -> None:
     db.execute(text(f"TRUNCATE {', '.join(OPERATIONAL_TABLES)} RESTART IDENTITY CASCADE"))
 
 
+def _own_accounts(db: Session) -> list[dict]:
+    """Accounts people created themselves, with their patient records."""
+    rows = db.execute(
+        select(AppUser, Patient).join(Patient, Patient.id == AppUser.patient_id).where(AppUser.self_registered)
+    ).all()
+    return [
+        {
+            "username": user.username,
+            "display_name": user.display_name,
+            "password_hash": user.password_hash,
+            "created_at": user.created_at,
+            "name": patient.synthetic_name,
+            "birth_year": patient.birth_year,
+            "phone_masked": patient.phone_masked,
+            "language": patient.preferred_language,
+        }
+        for user, patient in rows
+    ]
+
+
+def _restore_accounts(db: Session, accounts: list[dict]) -> None:
+    for a in accounts:
+        patient = Patient(
+            synthetic_name=a["name"],
+            birth_year=a["birth_year"],
+            phone_masked=a["phone_masked"],
+            preferred_language=a["language"],
+        )
+        db.add(patient)
+        db.flush()
+        db.add(
+            AppUser(
+                username=a["username"],
+                display_name=a["display_name"],
+                role="patient",
+                patient_id=patient.id,
+                password_hash=a["password_hash"],
+                self_registered=True,
+                created_at=a["created_at"],
+            )
+        )
+    db.flush()
+
+
 def reset_demo(db: Session, today: date, seed: int = 42, days_ahead: int = SEED_DAYS_AHEAD) -> dict:
-    """FR-34: wipe operational tables and reload the seed data."""
+    """FR-34: wipe operational tables and reload the seed data.
+
+    Accounts people created themselves are kept (with new ids, so they sign in again); their
+    appointments, queues and conversations are reset like everyone else's.
+    """
+    accounts = _own_accounts(db)
     truncate_operational(db)
-    return seed_all(db, today, seed, days_ahead)
+    summary = seed_all(db, today, seed, days_ahead)
+    _restore_accounts(db, accounts)
+    return {**summary, "own_accounts_kept": len(accounts)}
 
 
 def top_up_slots(db: Session, today: date, days_ahead: int = SEED_DAYS_AHEAD) -> int:

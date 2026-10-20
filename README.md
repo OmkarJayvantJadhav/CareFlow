@@ -19,13 +19,16 @@ Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECIS
 | 2. Agent + RAG | Knowledge base, hybrid retrieval + re-ranker, agent loop, safety gate, chat API | Done (see "What has and has not been verified") |
 | 3. Queue + ML | Queue events over WebSocket, wait-time model + baselines, queue tools | **Done** — model beats both baselines |
 | 4. Evaluation | 120 agent scenarios, user simulator, RAG/ML/safety sets, results table | **Partly run** — safety sets at 100%, RAG recall@5 86.7%, 25 of 120 agent scenarios run once (25/25 passed); the other 95 scenarios, repeat runs, graded RAG answers and the baseline comparison have **not been run** (stopped to stay within free quotas) |
-| 5. Ship | Patient and staff UI, admin dashboard, analytics agent, deployment | **Built and tested** — all nine screens, 15 browser tests; deployed on Render's free tier with a Neon database ([`docs/DEPLOY.md`](docs/DEPLOY.md)) |
+| 5. Ship | Patient and staff UI, admin dashboard, analytics agent, deployment | **Built and tested** — all nine screens, patient accounts with password sign-in, 16 browser tests; deployed on Render's free tier with a Neon database ([`docs/DEPLOY.md`](docs/DEPLOY.md)) |
 
 ### What works
 
 - **Web app (`ui/`)** — the nine screens of docs §8 in English, हिन्दी and मराठी, phone-first for
   patients and desktop-first for staff, served by the API on the same port:
-  - *Patient / caregiver:* language and role picker, chat with confirmation cards (Confirm / Change, with a
+  - *Accounts:* anyone can create a patient account (name, username, password, birth year, mobile
+    number, language) and log in again later; accounts are stored in the database, passwords as salted
+    scrypt hashes, the phone number masked only. The demo roles stay available without an account.
+  - *Patient / caregiver:* language picker, chat with confirmation cards (Confirm / Change, with a
     countdown), citation chips that open the source, progress steps, "Talk to a person", an emergency panel
     that takes over the chat, My appointments (changes go through the chat so they get a card), and a live
     queue page (token, people ahead, "about 35 min (25–50)", doctor status) over a WebSocket with polling fallback.
@@ -33,6 +36,8 @@ Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECIS
     missed / returned, priority; doctor break, delay, resume and "unavailable today".
   - *Admin:* live queues, delays and no-shows per department, the latest evaluation results, recent latency
     and cost, demo reset, and analytics questions answered with the generated SQL shown and CSV export.
+  - A sidebar on desktop and a bottom tab bar on phones, icons, cards with status badges, a live token card,
+    department charts and headline numbers on the dashboard.
   - Large-text mode (double size), 44 px tap targets, works at 360 px wide, screen-reader labels, a demo
     banner on every page; checked automatically with axe-core (no serious or critical WCAG A/AA issues).
 - **Chat (`POST /api/v1/chat`)** — a hand-written tool-calling agent (`app/agent/`) with argument
@@ -137,6 +142,15 @@ curl -s -X POST localhost:8000/api/v1/chat -H "Authorization: Bearer $TOKEN" -H 
 # Reply "yes" (with the same conversation_id), or send {"conversation_id": ..., "confirm_action_id": ...}
 ```
 
+Create your own account instead (it is saved in the database, and you can sign in again later):
+
+```bash
+curl -s -X POST localhost:8000/api/v1/auth/register -H 'content-type: application/json' \
+  -d '{"name":"Kiran Jadhav","username":"kiran","password":"monsoon-tea-7","birth_year":1992,"phone":"9822012345","language":"mr"}'
+curl -s -X POST localhost:8000/api/v1/auth/login -H 'content-type: application/json' \
+  -d '{"username":"kiran","password":"monsoon-tea-7"}'
+```
+
 Demo accounts: `asha` (patient), `rajan` (caregiver, verified for his father Vinayak), `sunil`
 (caregiver whose link is unverified, so he is refused), `priya` (staff), `mehta` (admin). Log in with
 `{"role": ...}` or `{"username": ...}`.
@@ -198,7 +212,7 @@ and a stand-in LLM, so they need no API key):
 
 ```bash
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e          # 15 tests: all nine screens, live queue under 2 s, accessibility, 360 px
+pytest -m e2e tests/e2e          # 16 tests: all nine screens, sign-up and log-in, live queue under 2 s, accessibility, 360 px
 ```
 
 GitHub Actions runs lint, the Python tests, the UI tests, the browser tests and a Docker build on every
@@ -217,7 +231,9 @@ Environment variables (see `.env.example`); names follow docs §12.
 | `EMBEDDING_MODEL`, `RERANKER_MODEL`, `MODEL_CACHE_DIR` | multilingual MiniLM, bge-reranker-v2-m3 (int8) | Retrieval models and their cache |
 | `MAX_MESSAGES_PER_SESSION`, `MAX_MESSAGES_PER_IP_PER_HOUR` | 20, 60 | Demo quota guards |
 | `PROMPT_TOKEN_BUDGET`, `RAG_TOP_K` | 3000, 4 | Token budget per agent step; chunks passed to the LLM |
-| `AUTH_SECRET` | demo value | Signs demo tokens — set a long random value when deployed |
+| `AUTH_SECRET` | demo value | Signs sign-in tokens — set a long random value when deployed |
+| `ALLOW_REGISTRATION` | `true` | Let visitors create patient accounts |
+| `MAX_REGISTRATIONS_PER_IP_PER_HOUR`, `MAX_FAILED_LOGINS_PER_15_MIN` | 10, 10 | Limits per client address (and username for sign-in) |
 | `TRACE_DIR` | `traces` | JSON-lines traces of every turn (masked) |
 | `WARM_UP_RETRIEVER` | `true` | Load the retrieval models in the background when the API starts |
 | `QUEUE_MERGE_RULE` | `slot_order` | `slot_order` (booked keep slot order, walk-ins fill gaps) or `alternate` |
@@ -311,3 +327,6 @@ docs/         specification, DECISIONS.md, DEPLOY.md
 - The live WebSocket broadcaster runs in one process (the demo deployment); several API processes
   would need a shared message bus.
 - Notifications are mocked (stored in the `notification` table, never sent).
+- Accounts have no email or SMS verification and no password reset (the phone number is stored masked,
+  so it cannot be used to reach the person); only patients can sign up — caregiver links, staff and admin
+  accounts are seeded.

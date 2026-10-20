@@ -562,6 +562,7 @@ def get_queue_status(db: Session, actor: Actor, entry_id: int, now: datetime | N
         "estimate": latest_estimate(db, entry.id, now) if entry.status == "waiting" else None,
         "doctor_id": session.doctor_id,
         "doctor_name": session.doctor.name,
+        "department": session.doctor.department.name,
         "doctor_status": session.doctor_status,
         "delay_minutes": session.delay_minutes,
         "busy_until": session.busy_until.isoformat() if session.busy_until else None,

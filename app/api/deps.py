@@ -75,7 +75,7 @@ class SlidingWindowLimiter:
         with self._lock:
             self._hits.clear()
 
-    def check(self, key: str, limit: int) -> None:
+    def check(self, key: str, limit: int, message: str = "Too many messages; please wait a little.") -> None:
         now = time.monotonic()
         with self._lock:
             hits = self._hits[key]
@@ -83,8 +83,21 @@ class SlidingWindowLimiter:
                 hits.popleft()
             if len(hits) >= limit:
                 retry_after = int(hits[0] + self.window - now) + 1
-                raise ToolError("RATE_LIMITED", "Too many messages; please wait a little.", retry_after=retry_after)
+                raise ToolError("RATE_LIMITED", message, retry_after=retry_after)
             hits.append(now)
+
+    def count(self, key: str) -> int:
+        """Hits in the current window, without adding one."""
+        now = time.monotonic()
+        with self._lock:
+            hits = self._hits[key]
+            while hits and hits[0] <= now - self.window:
+                hits.popleft()
+            return len(hits)
+
+    def add(self, key: str) -> None:
+        with self._lock:
+            self._hits[key].append(time.monotonic())
 
 
 def client_key(request: Request) -> str:

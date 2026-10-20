@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     # Demo bearer tokens are signed with this secret; set it in production.
     auth_secret: str = "careflow-demo-secret-change-me"
     token_ttl_hours: int = 12
+    # Anyone may create a patient account; both limits are per client address.
+    allow_registration: bool = True
+    max_registrations_per_ip_per_hour: int = 10
+    max_failed_logins_per_15_min: int = 10
 
     trace_dir: str = "traces"
     warm_up_retriever: bool = True  # load the retrieval models when the API starts

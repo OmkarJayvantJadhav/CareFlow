@@ -1,7 +1,11 @@
+import { Hourglass, ListOrdered, RefreshCw, Stethoscope, Timer, UsersRound } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, socketUrl } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
+import Loading from "../components/Loading";
 import { useSession } from "../session";
+
+const MAX_DOTS = 12;
 
 const POLL_MS = 5000;
 
@@ -14,13 +18,14 @@ function EntryCard({ initial }) {
 
   const refresh = useCallback(async () => {
     try {
-      setStatus(await api(`/queue/entries/${initial.entry_id}/status`));
+      // The status endpoint has no patient name; keep the one the list gave.
+      setStatus({ ...(await api(`/queue/entries/${initial.entry_id}/status`)), patient_name: initial.patient_name });
       setUpdated(new Date());
       setError(null);
     } catch (err) {
       setError(err);
     }
-  }, [initial.entry_id]);
+  }, [initial.entry_id, initial.patient_name]);
 
   // Live updates over the WebSocket; if it cannot connect or drops, poll every 5 s (FR-26, NFR-02).
   const socket = useRef(null);
@@ -57,55 +62,86 @@ function EntryCard({ initial }) {
   }, [initial.session_id, refresh]);
 
   const doctorKey = `doctor_${status.doctor_status}`;
+  const ahead = status.ahead ?? null;
+  const yourTurn = status.status === "called";
   return (
-    <section className="card" aria-labelledby={`entry-${status.entry_id}`}>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <h2 id={`entry-${status.entry_id}`} style={{ margin: 0 }}>
-          {status.doctor_name}
-          {status.patient_name ? ` · ${status.patient_name}` : ""}
-        </h2>
-        <span className="pill ok" title={live ? t("live") : t("polling")}>
-          {live ? (
-            <>
-              <span className="live-dot" aria-hidden="true" /> {t("live")}
-            </>
-          ) : (
-            t("polling")
-          )}
-        </span>
-      </div>
-      {status.doctor_status !== "available" && (
-        <div className="notice" role="status">
-          ⏱ {t(doctorKey, { minutes: status.delay_minutes })}
-        </div>
-      )}
-      <div className="queue-card" style={{ marginTop: 12 }}>
+    <section className="card token-card" aria-labelledby={`entry-${status.entry_id}`}>
+      <div className="token-hero">
         <div>
-          <div className="muted">{t("token")}</div>
-          <div className="stat">{status.token}</div>
-        </div>
-        <div>
-          <div className="muted">{t("peopleAhead")}</div>
-          <div className="stat">{status.ahead ?? "—"}</div>
-        </div>
-        <div>
-          <div className="muted">{t("estimatedWait")}</div>
-          <div className="stat" style={{ fontSize: "1.4rem" }}>
-            {status.estimate?.display ?? "—"}
+          <h2 id={`entry-${status.entry_id}`}>{status.doctor_name}</h2>
+          <div className="sub">
+            {status.department ? `${status.department}` : ""}
+            {status.patient_name ? `${status.department ? " · " : ""}${status.patient_name}` : ""}
           </div>
+          <span className="live-badge" title={live ? t("live") : t("polling")}>
+            {live ? (
+              <>
+                <span className="dot pulse" aria-hidden="true" /> {t("live")}
+              </>
+            ) : (
+              <>
+                <RefreshCw size={13} aria-hidden="true" /> {t("polling")}
+              </>
+            )}
+          </span>
         </div>
-        <div>
-          <div className="muted">{t("doctorStatus")}</div>
-          <div>
-            <strong>{t(doctorKey, { minutes: status.delay_minutes })}</strong>
-          </div>
-          <div className="muted">{t(`entry_${status.status}`)}</div>
+        <div className="token">
+          <small>{t("yourToken")}</small>
+          <strong>{status.token}</strong>
         </div>
       </div>
-      <p className="muted" aria-live="polite">
-        {t("lastUpdated", { time: updated.toLocaleTimeString() })}
-      </p>
-      {error !== null && <ErrorMessage error={error} onRetry={refresh} />}
+      <div className="token-body">
+        {yourTurn && (
+          <div className="notice your-turn" role="status">
+            {t("entry_called")}
+          </div>
+        )}
+        {status.doctor_status !== "available" && (
+          <div className="notice warn" role="status">
+            <Timer size={18} aria-hidden="true" />
+            {t(doctorKey, { minutes: status.delay_minutes })}
+          </div>
+        )}
+        <div className="stat-row">
+          <div className="stat-box">
+            <div className="label">
+              <UsersRound size={15} aria-hidden="true" />
+              {t("peopleAhead")}
+            </div>
+            <div className="value">{ahead ?? "—"}</div>
+            {ahead !== null && ahead > 0 && (
+              <div className="ahead-dots" aria-hidden="true">
+                {Array.from({ length: Math.min(ahead, MAX_DOTS) }, (_, i) => (
+                  <i key={i} />
+                ))}
+                <i className="you" />
+              </div>
+            )}
+          </div>
+          <div className="stat-box">
+            <div className="label">
+              <Hourglass size={15} aria-hidden="true" />
+              {t("estimatedWait")}
+            </div>
+            <div className="value">{status.estimate?.display ?? "—"}</div>
+          </div>
+          <div className="stat-box">
+            <div className="label">
+              <Stethoscope size={15} aria-hidden="true" />
+              {t("doctorStatus")}
+            </div>
+            <div className="value" style={{ fontSize: "1.05rem" }}>
+              {t(doctorKey, { minutes: status.delay_minutes })}
+            </div>
+            <div className="muted small">{yourTurn ? "" : t(`entry_${status.status}`)}</div>
+          </div>
+        </div>
+        <p className="updated" aria-live="polite">
+          <RefreshCw size={13} aria-hidden="true" />
+          {t("lastUpdated", { time: updated.toLocaleTimeString() })}
+        </p>
+        {error !== null && <ErrorMessage error={error} onRetry={refresh} />}
+      </div>
     </section>
   );
 }
@@ -128,11 +164,23 @@ export default function QueueStatus() {
   }, [load]);
   return (
     <main className="narrow">
-      <h1>{t("queueTitle")}</h1>
+      <div className="page-header">
+        <div>
+          <h1>{t("queueTitle")}</h1>
+          <p className="lead">{t("queueIntro")}</p>
+        </div>
+      </div>
       {error !== null && <ErrorMessage error={error} onRetry={load} />}
-      {entries === null && error === null && <p className="muted">{t("loading")}</p>}
-      {entries?.length === 0 && <p className="card">{t("queueNone")}</p>}
-      <div style={{ display: "grid", gap: 12 }}>
+      {entries === null && error === null && <Loading />}
+      {entries?.length === 0 && (
+        <div className="card empty">
+          <span className="icon-tile" aria-hidden="true">
+            <ListOrdered size={22} />
+          </span>
+          <span>{t("queueNone")}</span>
+        </div>
+      )}
+      <div style={{ display: "grid", gap: "1rem" }}>
         {entries?.map((e) => (
           <EntryCard key={e.entry_id} initial={e} />
         ))}

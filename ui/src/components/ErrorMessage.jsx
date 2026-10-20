@@ -1,7 +1,16 @@
+import { AlertCircle } from "lucide-react";
 import { ApiError } from "../api";
 import { useSession } from "../session";
 
-const KNOWN = new Set(["RATE_LIMITED", "LLM_UNAVAILABLE", "FORBIDDEN", "UNAUTHORIZED", "UNSAFE_QUERY"]);
+const KNOWN = new Set([
+  "RATE_LIMITED",
+  "LLM_UNAVAILABLE",
+  "FORBIDDEN",
+  "UNAUTHORIZED",
+  "UNSAFE_QUERY",
+  "INVALID_CREDENTIALS",
+  "USERNAME_TAKEN",
+]);
 
 /** Plain-language error with a next step; never a bare code (docs §8). */
 export function useErrorText() {
@@ -23,15 +32,18 @@ export default function ErrorMessage({ error, onRetry }) {
   const text = useErrorText()(error);
   return (
     <div className="error" role="alert">
-      {text}
-      {onRetry && (
-        <>
-          {" "}
-          <button type="button" className="link-button" onClick={onRetry}>
-            {t("retry")}
-          </button>
-        </>
-      )}
+      <AlertCircle size={18} aria-hidden="true" />
+      <div>
+        {text}
+        {onRetry && (
+          <>
+            {" "}
+            <button type="button" className="link-button" onClick={onRetry}>
+              {t("retry")}
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }

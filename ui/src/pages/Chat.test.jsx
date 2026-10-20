@@ -89,7 +89,7 @@ describe("chat", () => {
     type("Book Dr Kulkarni on Saturday");
     expect(await screen.findByText("Please confirm")).toBeInTheDocument();
     expect(screen.getByText("Dr. Anand Kulkarni (Cardiology)")).toBeInTheDocument();
-    expect(screen.getByText("✓ Preparing the booking")).toBeInTheDocument();
+    expect(screen.getByText("Preparing the booking")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
     await waitFor(() => expect(calls[1].body.confirm_action_id).toBe("abc123"));
     expect(await screen.findByRole("button", { name: "[1] Lipid profile — Before the test" })).toBeInTheDocument();
