@@ -40,7 +40,7 @@ EVAL_NOW = at(EVAL_TODAY, clock(8, 0))
 SEED = 42
 CACHE_DIR = Path("eval/.cache")
 RESULTS_DIR = Path("eval/results")
-RUNS_DIR = Path("eval/runs")
+RUNS_DIR = Path(os.environ.get("EVAL_RUNS_DIR", "eval/runs"))  # in-progress logs may live elsewhere
 MAX_WAIT_SECONDS = 90
 
 
