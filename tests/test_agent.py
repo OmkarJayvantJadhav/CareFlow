@@ -518,3 +518,11 @@ def test_full_width_citations_count_as_citations(clinic):
     )
     reply = say(world, world.asha, "Do I need to fast before a lipid profile?", llm)
     assert reply.reply.endswith("test[1].") and reply.citations and not reply.offer_handoff
+
+
+def test_internal_ids_never_reach_the_user(clinic):
+    """Found in the demo recording: the model listed "09:00 AM (slot ID 1293)" despite the prompt."""
+    world, _, _ = clinic
+    llm = ScriptedLLM([lambda m: "Free times:\n- 09:00 AM (slot ID 1293)\n- 09:15 AM (slot_id: 1294)"])
+    reply = say(world, world.asha, "What times are free on Saturday?", llm)
+    assert reply.reply == "Free times:\n- 09:00 AM\n- 09:15 AM"

@@ -23,6 +23,17 @@ log = logging.getLogger(__name__)
 
 MAX_CALLS_PER_STEP = 4
 MAX_INVALID_CALLS = 3
+# Internal ids never reach the user (the prompt asks for this; this makes it a rule): "(slot ID 1293)",
+# "appointment_id: 45", "patient id 1".
+_ID_WORD = r"(?:slot|appointment|patient|doctor|entry|waiting[_ ]?list)[_ ]?(?:id|ID|Id)"
+_INTERNAL_ID = re.compile(rf"\s*\([^()]*\b{_ID_WORD}\b[^()]*\)|\b{_ID_WORD}\b\s*[:#=]?\s*\d+,?", re.I)
+
+
+def strip_internal_ids(text: str) -> str:
+    cleaned = _INTERNAL_ID.sub("", text)
+    return re.sub(r"[ \t]{2,}", " ", cleaned).replace(" \n", "\n").strip()
+
+
 # [1], and the full-width 【1】 some models write; both are shown as [1].
 _CITATION = re.compile(r"[\[【]\s*(\d{1,2})\s*[\]】]")
 CONFIRM_KEYS = {
@@ -130,7 +141,7 @@ class Agent:
         return TurnResult(reply, turn + [{"role": "assistant", "content": reply}], actions=actions, failed=True)
 
     def _final(self, ctx: ToolContext, text: str, turn: list[dict], actions: list[dict]) -> TurnResult:
-        text = _CITATION.sub(lambda m: f"[{m.group(1)}]", text)
+        text = strip_internal_ids(_CITATION.sub(lambda m: f"[{m.group(1)}]", text))
         if not text:
             reply = message("agent_failed", ctx.language)
             return TurnResult(reply, turn + [{"role": "assistant", "content": reply}], actions=actions, failed=True)

@@ -11,7 +11,7 @@ to be proven by an automated evaluation suite.
 The full specification is in [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md).
 Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 
-## Current state: Phase 4 — Evaluation (running on free tiers)
+## Current state: Phase 5 — Ship (built; waiting for deployment accounts) · Phase 4 evaluation running
 
 | Phase | Scope | Status |
 | --- | --- | --- |
@@ -19,10 +19,22 @@ Decisions taken where the spec is silent are in [`docs/DECISIONS.md`](docs/DECIS
 | 2. Agent + RAG | Knowledge base, hybrid retrieval + re-ranker, agent loop, safety gate, chat API | Done (see "What has and has not been verified") |
 | 3. Queue + ML | Queue events over WebSocket, wait-time model + baselines, queue tools | **Done** — model beats both baselines |
 | 4. Evaluation | 120 agent scenarios, user simulator, RAG/ML/safety sets, results table | **In progress** — safety sets at 100%; agent and RAG-answer runs continue daily within free quotas |
-| 5. Ship | Patient and staff UI, admin dashboard, analytics agent, deployment | Not started |
+| 5. Ship | Patient and staff UI, admin dashboard, analytics agent, deployment | **Built and tested** — all nine screens, 15 browser tests; the live link needs a Neon database and a Hugging Face Space ([`docs/DEPLOY.md`](docs/DEPLOY.md)) |
 
 ### What works
 
+- **Web app (`ui/`)** — the nine screens of docs §8 in English, हिन्दी and मराठी, phone-first for
+  patients and desktop-first for staff, served by the API on the same port:
+  - *Patient / caregiver:* language and role picker, chat with confirmation cards (Confirm / Change, with a
+    countdown), citation chips that open the source, progress steps, "Talk to a person", an emergency panel
+    that takes over the chat, My appointments (changes go through the chat so they get a card), and a live
+    queue page (token, people ahead, "about 35 min (25–50)", doctor status) over a WebSocket with polling fallback.
+  - *Front desk:* today's doctors and bookings, check-in, walk-in registration, call next / start / end /
+    missed / returned, priority; doctor break, delay, resume and "unavailable today".
+  - *Admin:* live queues, delays and no-shows per department, the latest evaluation results, recent latency
+    and cost, demo reset, and analytics questions answered with the generated SQL shown and CSV export.
+  - Large-text mode (double size), 44 px tap targets, works at 360 px wide, screen-reader labels, a demo
+    banner on every page; checked automatically with axe-core (no serious or critical WCAG A/AA issues).
 - **Chat (`POST /api/v1/chat`)** — a hand-written tool-calling agent (`app/agent/`) with argument
   validation, a step limit, a token budget and a JSON trace of every LLM and tool call.
   - **Confirmation is enforced in code:** the model can only *propose* a booking, change, cancellation or
@@ -111,6 +123,7 @@ docker compose up --build
 On start the container migrates the database, seeds the fictional hospital, loads the knowledge base
 (re-embedding only if documents or the embedding model changed) and serves on <http://localhost:8000>:
 
+- **The app:** <http://localhost:8000> — pick a language and a demo role
 - Health: <http://localhost:8000/api/v1/health> (`"degraded"` means no LLM key is configured)
 - OpenAPI docs: <http://localhost:8000/docs>
 
@@ -147,6 +160,14 @@ uvicorn app.api.main:app --reload
 Without internet access to Hugging Face, set `EMBEDDING_BACKEND=local` and `RERANKER_BACKEND=local`
 to skip the download attempt (about 40 s) and use the local retrieval models directly.
 
+The UI (Node 22):
+
+```bash
+cd ui && npm ci
+npm run dev        # http://localhost:5173, proxies /api and /ws to the API on :8000
+npm run build      # ui/dist, which the API then serves at http://localhost:8000
+```
+
 ### Commands
 
 | Command | What it does |
@@ -172,7 +193,16 @@ pytest
 ruff check . && ruff format --check .
 ```
 
-GitHub Actions runs lint, the tests and a Docker build on every push.
+UI unit tests and browser tests (the browser tests start the app with their own database, a fixed clock
+and a stand-in LLM, so they need no API key):
+
+```bash
+cd ui && npm test && npm run build && cd ..
+pytest -m e2e tests/e2e          # 15 tests: all nine screens, live queue under 2 s, accessibility, 360 px
+```
+
+GitHub Actions runs lint, the Python tests, the UI tests, the browser tests and a Docker build on every
+push; pushes to `main` deploy to Hugging Face Spaces (`docs/DEPLOY.md`).
 
 ## Configuration
 
@@ -222,10 +252,10 @@ alembic/      migrations
 simulator/    fictional hospital, seed data, day replay, invariant checks
   kb/         the knowledge-base generator (content in three languages)
 knowledge/    generated knowledge base: <language>/<collection>/<document>.md
-eval/         evaluation suites and results (Phase 4)
-ui/           React app (Phase 5)
-tests/        pytest suite
-docs/         specification and DECISIONS.md
+eval/         evaluation suites, datasets, run logs and results
+ui/           React app (Vite + TypeScript): src/pages/ holds the nine screens, src/i18n.ts the text
+tests/        pytest suite; tests/e2e/ the browser tests and the demo recorder
+docs/         specification, DECISIONS.md, DEPLOY.md
 ```
 
 ## Traceability
@@ -251,11 +281,15 @@ docs/         specification and DECISIONS.md
 | FR-21–23, 27, 28 queue | `app/queue/engine.py`, `app/api/queue_routes.py` | `test_queue.py`, `test_queue_api.py`, TC-09, TC-12, TC-13 |
 | FR-24 estimate with a range | `app/ml/`, `app/queue/predictions.py` | `test_wait_time.py`, s30 |
 | FR-25 recompute after every event | `engine._after_event` | TC-10, TC-11 |
-| FR-26 live push / NFR-02 within 2 s | `app/queue/broadcast.py`, `/ws/queue/{id}` | TC-20 |
+| FR-26 live push / NFR-02 within 2 s | `app/queue/broadcast.py`, `/ws/queue/{id}`, `ui/src/pages/QueueStatus.tsx` | TC-20 (`test_queue_api.py`, e2e in the browser) |
 | FR-27 rebooking offered in chat | `app/agent/chat.py::displaced_notes` | s32 |
 | NFR-06 MAE below both baselines | `app/ml/train.py` | `eval/results/ml_wait_time.json` |
 | FR-33 audit log | `app/tools/audit.py` | TC-16 |
-| FR-34 demo reset | `simulator/seed.py` | TC-17 |
+| FR-29 admin dashboard | `app/api/admin_routes.py`, `ui/src/pages/Dashboard.tsx` | `test_admin_api.py`, e2e |
+| FR-30/31 analytics, read-only SQL | `app/analytics/`, migration 0003 | TC-14, TC-15, `test_analytics.py`, e2e |
+| FR-32 dashboard shows evaluation results | `app/api/admin_routes.py` | `test_admin_api.py`, e2e |
+| FR-34 demo reset | `simulator/seed.py`, `POST /admin/reset` | TC-17 (`test_admin_api.py`, e2e) |
+| NFR-12/13 phone, large text, accessibility | `ui/src/styles.css`, labels | e2e (axe-core, 360 px) |
 | NFR-07 roles in tools | every service function | `test_permissions.py`, s14, s15 |
 | NFR-08 masking | `app/safety/privacy.py`, traces | TC-18, s29 |
 | NFR-09 quota guard | `app/api/routes.py` | `test_api.py` |
@@ -267,8 +301,10 @@ docs/         specification and DECISIONS.md
 ## Limitations
 
 - Synthetic data only; the simulator's parameters are assumptions (`docs/DECISIONS.md`, D-21).
-- No real-LLM conversation and no neural-model retrieval has been run in the development sandbox yet
-  (see "What has and has not been verified").
+- No neural-model retrieval has been run in the development environment (Hugging Face is unreachable
+  there); every retrieval number is for the local fallback models.
+- The agent evaluation runs within free LLM quotas, so its numbers grow over several weeks; each states
+  how many runs it rests on.
 - The local fallback retrieval models handle Marathi inflections less well than the neural models.
 - The wait-time model is trained on synthetic days whose queues are short; real OPDs may differ.
 - The live WebSocket broadcaster runs in one process (the demo deployment); several API processes
