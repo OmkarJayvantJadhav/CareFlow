@@ -1,17 +1,27 @@
-# Backup host (docs §12): the same Docker image on Render's free web service.
-# Create it from this blueprint, then set the secret values in the Render dashboard.
+# The demo host (docs §12): the Docker image on Render's free web service (512 MB RAM).
+# Create it with New → Blueprint, then paste the secret values when Render asks for them.
 services:
   - type: web
     name: careflow
     runtime: docker
     plan: free
     region: singapore
+    branch: develop
+    autoDeploy: true
     healthCheckPath: /api/v1/health
     envVars:
       - key: PORT
         value: "7860"
       - key: DEMO_MODE
         value: "true"
+      # The local retriever: the configuration every published evaluation result was measured
+      # with, and the one that fits in 512 MB (the neural models need about 1 GB).
+      - key: EMBEDDING_BACKEND
+        value: local
+      - key: RERANKER_BACKEND
+        value: local
+      - key: PRELOAD_MODELS # Docker build argument: do not bake the unused neural models in
+        value: "false"
       - key: DATABASE_URL
         sync: false
       - key: GROQ_API_KEY

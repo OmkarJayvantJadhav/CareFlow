@@ -12,6 +12,8 @@ vectors made by the same embedder.
 
 import hashlib
 import logging
+import os
+import pickle
 from collections.abc import Sequence
 from typing import Protocol
 
@@ -73,8 +75,7 @@ class LsaEmbedder:
 
         if not corpus:
             raise ValueError("the LSA embedder needs a non-empty corpus")
-        digest = hashlib.sha256("\x1e".join(corpus).encode()).hexdigest()[:12]
-        self.name = f"{self.version}:{digest}"
+        self.name = self.name_for(corpus)
         self._vectorizer = TfidfVectorizer(
             analyzer="char_wb", ngram_range=(2, 4), sublinear_tf=True, min_df=1, preprocessor=normalize
         )
@@ -82,6 +83,11 @@ class LsaEmbedder:
         components = max(1, min(self.dim, tfidf.shape[0] - 1, tfidf.shape[1] - 1))
         self._svd = TruncatedSVD(n_components=components, algorithm="randomized", n_iter=7, random_state=0)
         self._svd.fit(tfidf)
+
+    @classmethod
+    def name_for(cls, corpus: Sequence[str]) -> str:
+        digest = hashlib.sha256("\x1e".join(corpus).encode()).hexdigest()[:12]
+        return f"{cls.version}:{digest}"
 
     def _project(self, texts: Sequence[str]) -> np.ndarray:
         reduced = self._svd.transform(self._vectorizer.transform(list(texts)))
@@ -94,6 +100,40 @@ class LsaEmbedder:
 
     def embed_query(self, text: str) -> np.ndarray:
         return self._project([text])[0]
+
+
+def load_or_fit_lsa(corpus: Sequence[str], cache_dir: str | None) -> LsaEmbedder:
+    """The LSA embedder for this corpus, fitted once and kept in ``cache_dir`` when one is set.
+
+    Fitting peaks at ~450 MB, so in the container it happens in the ingest step that runs before the
+    server starts; the server then loads the fitted embedder (the fit is deterministic, so the vectors
+    are the same either way) and stays within a 512 MB free-tier instance.
+    """
+    if not cache_dir:
+        return LsaEmbedder(corpus)
+    import sklearn
+
+    name = LsaEmbedder.name_for(corpus)
+    path = os.path.join(cache_dir, f"{name.replace(':', '-')}-sklearn{sklearn.__version__}.pkl")
+    try:
+        with open(path, "rb") as f:
+            cached = pickle.load(f)
+        if isinstance(cached, LsaEmbedder) and cached.name == name:
+            return cached
+    except FileNotFoundError:
+        pass
+    except Exception as err:  # noqa: BLE001 - a damaged cache file is refitted
+        log.warning("ignoring the cached LSA embedder %s (%s)", path, err)
+    embedder = LsaEmbedder(corpus)
+    try:
+        os.makedirs(cache_dir, exist_ok=True)
+        tmp = f"{path}.{os.getpid()}.tmp"
+        with open(tmp, "wb") as f:
+            pickle.dump(embedder, f, protocol=pickle.HIGHEST_PROTOCOL)
+        os.replace(tmp, path)
+    except OSError as err:
+        log.warning("could not cache the LSA embedder in %s (%s)", cache_dir, err)
+    return embedder
 
 
 _neural_cache: dict[str, object] = {}
@@ -120,4 +160,4 @@ def choose_embedder(backend: str, model_name: str, cache_dir: str | None, corpus
             return neural
         if backend == "fastembed":
             raise RuntimeError(f"embedding model {model_name} could not be loaded")
-    return LsaEmbedder(corpus)
+    return load_or_fit_lsa(corpus, cache_dir)
