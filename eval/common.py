@@ -106,6 +106,7 @@ class QuotaLLM:
         self.calls = 0
         self.cached = 0
         self.waited = 0.0
+        self.seconds_inside = 0.0  # wall time spent in chat(), including quota waits and cache reads
 
     def with_salt(self, salt: str) -> "QuotaLLM":
         clone = QuotaLLM.__new__(QuotaLLM)
@@ -119,6 +120,13 @@ class QuotaLLM:
         return CACHE_DIR / digest[:2] / f"{digest}.json"
 
     def chat(self, messages: list[dict], tools: list[dict], max_tokens: int) -> LLMResponse:
+        started = time.perf_counter()
+        try:
+            return self._chat(messages, tools, max_tokens)
+        finally:
+            self.seconds_inside += time.perf_counter() - started
+
+    def _chat(self, messages: list[dict], tools: list[dict], max_tokens: int) -> LLMResponse:
         path = self._key(messages, tools, max_tokens)
         if self.cache and path.exists():
             self.cached += 1
