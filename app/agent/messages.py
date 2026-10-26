@@ -7,32 +7,29 @@ M: dict[str, dict[str, str]] = {
     "emergency": {
         "en": (
             "This may be a medical emergency. Please call 112 or 108 for an ambulance now, or go to the nearest "
-            "emergency department immediately. At Indravani General Hospital the emergency department is on the "
-            "ground floor near the main gate and is open 24 hours. Do not wait for an OPD appointment.\n"
+            "emergency department immediately.{note} Do not wait for an OPD appointment.\n"
             "If this is not an emergency, tell me and I will help you with an appointment."
         ),
         "hi": (
             "यह मेडिकल इमरजेंसी हो सकती है। कृपया अभी एम्बुलेंस के लिए 112 या 108 पर कॉल करें, या तुरंत नज़दीकी "
-            "इमरजेंसी विभाग जाएं। इंद्रवाणी जनरल हॉस्पिटल का इमरजेंसी विभाग मुख्य द्वार के पास भूतल पर है और "
-            "24 घंटे खुला रहता है। ओपीडी अपॉइंटमेंट का इंतज़ार न करें।\n"
+            "इमरजेंसी विभाग जाएं।{note} ओपीडी अपॉइंटमेंट का इंतज़ार न करें।\n"
             "अगर यह इमरजेंसी नहीं है, तो मुझे बताएं, मैं अपॉइंटमेंट में आपकी मदद करूंगा।"
         ),
         "mr": (
             "ही वैद्यकीय आपत्कालीन स्थिती असू शकते. कृपया आत्ताच रुग्णवाहिकेसाठी 112 किंवा 108 वर कॉल करा, किंवा "
-            "लगेच जवळच्या आपत्कालीन विभागात जा. इंद्रवाणी जनरल हॉस्पिटलचा आपत्कालीन विभाग मुख्य प्रवेशद्वाराजवळ "
-            "तळमजल्यावर आहे आणि 24 तास सुरू असतो. ओपीडी अपॉइंटमेंटची वाट पाहू नका.\n"
+            "लगेच जवळच्या आपत्कालीन विभागात जा.{note} ओपीडी अपॉइंटमेंटची वाट पाहू नका.\n"
             "ही आपत्कालीन स्थिती नसल्यास मला सांगा, मी अपॉइंटमेंटसाठी मदत करेन."
         ),
     },
     "handoff": {
-        "en": "I have asked a member of our reception team to help you (ticket #{ticket_id}). They will contact you during working hours, 08:00–20:00. You can also visit the help desk at the reception on the ground floor.",
-        "hi": "मैंने हमारी रिसेप्शन टीम के सदस्य से आपकी मदद करने को कहा है (टिकट #{ticket_id})। वे कामकाज के समय 08:00–20:00 में आपसे संपर्क करेंगे। आप भूतल के रिसेप्शन पर हेल्प डेस्क पर भी आ सकते हैं।",
-        "mr": "मी आमच्या रिसेप्शन टीममधील सदस्याला तुमची मदत करण्यास सांगितले आहे (तिकीट #{ticket_id}). ते कामकाजाच्या वेळेत 08:00–20:00 तुमच्याशी संपर्क साधतील. तुम्ही तळमजल्यावरील रिसेप्शनमधील हेल्प डेस्कवरही येऊ शकता.",
+        "en": "I have asked a member of our reception team to help you (ticket #{ticket_id}). They will contact you during working hours{hours}. You can also visit the help desk at the reception.",
+        "hi": "मैंने हमारी रिसेप्शन टीम के सदस्य से आपकी मदद करने को कहा है (टिकट #{ticket_id})। वे कामकाज के समय{hours} में आपसे संपर्क करेंगे। आप रिसेप्शन पर हेल्प डेस्क पर भी आ सकते हैं।",
+        "mr": "मी आमच्या रिसेप्शन टीममधील सदस्याला तुमची मदत करण्यास सांगितले आहे (तिकीट #{ticket_id}). ते कामकाजाच्या वेळेत{hours} तुमच्याशी संपर्क साधतील. तुम्ही रिसेप्शनमधील हेल्प डेस्कवरही येऊ शकता.",
     },
     "handoff_after_failures": {
-        "en": "I'm sorry, I couldn't sort this out. I have passed your request to our reception team (ticket #{ticket_id}); they will contact you during working hours, 08:00–20:00.",
-        "hi": "माफ़ कीजिए, मैं यह काम पूरा नहीं कर सका। मैंने आपका अनुरोध हमारी रिसेप्शन टीम को भेज दिया है (टिकट #{ticket_id}); वे कामकाज के समय 08:00–20:00 में आपसे संपर्क करेंगे।",
-        "mr": "माफ करा, मला हे पूर्ण करता आले नाही. मी तुमची विनंती आमच्या रिसेप्शन टीमकडे पाठवली आहे (तिकीट #{ticket_id}); ते कामकाजाच्या वेळेत 08:00–20:00 तुमच्याशी संपर्क साधतील.",
+        "en": "I'm sorry, I couldn't sort this out. I have passed your request to our reception team (ticket #{ticket_id}); they will contact you during working hours{hours}.",
+        "hi": "माफ़ कीजिए, मैं यह काम पूरा नहीं कर सका। मैंने आपका अनुरोध हमारी रिसेप्शन टीम को भेज दिया है (टिकट #{ticket_id}); वे कामकाज के समय{hours} में आपसे संपर्क करेंगे।",
+        "mr": "माफ करा, मला हे पूर्ण करता आले नाही. मी तुमची विनंती आमच्या रिसेप्शन टीमकडे पाठवली आहे (तिकीट #{ticket_id}); ते कामकाजाच्या वेळेत{hours} तुमच्याशी संपर्क साधतील.",
     },
     "no_source": {
         "en": "I couldn't find this in the hospital's documents, so I don't want to guess. Would you like me to connect you to a person?",

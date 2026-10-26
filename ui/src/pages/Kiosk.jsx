@@ -11,7 +11,7 @@ const RESET_MS = 20000;
 /** S15: a self-service check-in screen at reception (feature 27). Staff open it on a tablet; patients
  * type the code from their receipt. Only the first name, doctor and time are shown, never other data. */
 export default function Kiosk() {
-  const { demo, lang, setLang, t } = useSession();
+  const { demo, hospitalName, lang, setLang, t } = useSession();
   const errorText = useErrorText();
   const [code, setCode] = useState("");
   const [found, setFound] = useState(null);
@@ -74,7 +74,7 @@ export default function Kiosk() {
         <span className="brand-mark" aria-hidden="true">
           <HeartPulse size={24} />
         </span>
-        <strong>{t("hospital")}</strong>
+        <strong>{hospitalName || t("appName")}</strong>
         <div className="segmented" role="group" aria-label={t("chooseLanguage")}>
           {LANGS.map((l) => (
             <button

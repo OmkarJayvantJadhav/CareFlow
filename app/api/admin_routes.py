@@ -23,6 +23,7 @@ from app.timeutil import now_ist, to_ist
 from app.tools.errors import ToolError
 from app.tools.permissions import require_role
 from app.tools.registration import categories
+from app.tools.timetable import holds_opd
 
 router = APIRouter(prefix="/api/v1")
 RESULTS_DIR = Path(__file__).resolve().parents[2] / "eval" / "results"
@@ -52,7 +53,7 @@ def staff_today(auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) -
     }
     doctors = []
     for doctor in db.scalars(select(Doctor).order_by(Doctor.name)):
-        if today.isoweekday() not in doctor.opd_days and doctor.id not in sessions:
+        if doctor.id not in sessions and not holds_opd(db, doctor, today):
             continue
         session = sessions.get(doctor.id)
         appts = db.scalars(

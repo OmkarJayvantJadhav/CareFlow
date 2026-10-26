@@ -1,6 +1,5 @@
 """Normalisation of free-text search arguments (English, Hindi, Marathi)."""
 
-import re
 from datetime import date, datetime, timedelta
 
 from app.tools.errors import ToolError
@@ -11,6 +10,7 @@ LANGUAGE_ALIASES = {
     "mr": "mr", "marathi": "mr", "मराठी": "mr",
 }  # fmt: skip
 
+# Common words for well-known specialties, used for a department with that name (app.tools.hospital).
 # Keys are department names; values are lower-case aliases.
 SPECIALTY_ALIASES = {
     "General Medicine": ["general medicine", "general physician", "physician", "medicine", "gp", "fever",
@@ -43,19 +43,6 @@ def normalize_language(value: str) -> str:
     if key not in LANGUAGE_ALIASES:
         raise ToolError("VALIDATION_ERROR", f"Unsupported language '{value}'. Use English, Hindi or Marathi.")
     return LANGUAGE_ALIASES[key]
-
-
-def normalize_specialty(value: str) -> str:
-    key = value.strip().lower()
-    for department, aliases in SPECIALTY_ALIASES.items():
-        if key == department.lower() or key in aliases:
-            return department
-    for department, aliases in SPECIALTY_ALIASES.items():
-        if any(re.search(rf"\b{re.escape(a)}\b", key) for a in aliases if a.isascii()):
-            return department
-        if any(a in key for a in aliases if not a.isascii()):
-            return department
-    raise ToolError("VALIDATION_ERROR", f"Unknown specialty '{value}'.", known=list(SPECIALTY_ALIASES))
 
 
 def parse_date(value: str | date) -> date:

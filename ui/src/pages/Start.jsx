@@ -34,7 +34,7 @@ const FEATURES = [
 
 /** S1: what CareFlow does, the language, sign-in and sign-up; the demo roles only on the demo deployment. */
 export default function Start() {
-  const { user, config, demo, lang, setLang, signIn, t } = useSession();
+  const { user, config, demo, hospitalName, lang, setLang, signIn, t } = useSession();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
@@ -58,7 +58,7 @@ export default function Start() {
   return (
     <main className="start">
       <section className="hero">
-        <span className="eyebrow">{t("hospital")}</span>
+        {hospitalName && <span className="eyebrow">{hospitalName}</span>}
         <h1>{t("heroTitle")}</h1>
         <p className="lead">{t("tagline")}</p>
         <ul className="features">

@@ -581,7 +581,16 @@ def _axe_violations(page: Page) -> list[dict]:
         ("Front desk", ["Front desk", "Calendar", "Doctor status", "Coordination", "My account"]),
         (
             "OPD admin",
-            ["Dashboard", "Analytics", "Accounts", "Registration form", "Priority rules", "Coordination", "My account"],
+            [
+                "Dashboard",
+                "Analytics",
+                "Hospital setup",
+                "Accounts",
+                "Registration form",
+                "Priority rules",
+                "Coordination",
+                "My account",
+            ],
         ),
         ("Doctor", ["My queue", "My account"]),
     ],
@@ -618,6 +627,45 @@ def test_kiosk_has_no_serious_accessibility_violations(page: Page):
     assert _axe_violations(page) == []
 
 
+PHONE_WIDTH = 360
+
+
+def _overflow(page: Page) -> int:
+    # Against the phone's own width: on a mobile viewport window.innerWidth grows with the page.
+    return page.evaluate("document.documentElement.scrollWidth") - PHONE_WIDTH
+
+
+@pytest.mark.parametrize(
+    "role, paths",
+    [
+        ("Front desk", ["/desk", "/calendar", "/doctors", "/coordination", "/account"]),
+        ("Doctor", ["/my-queue", "/account"]),
+        (
+            "OPD admin",
+            [
+                "/admin",
+                "/analytics",
+                "/hospital-setup",
+                "/accounts",
+                "/registration-form",
+                "/priority-rules",
+                "/coordination",
+            ],
+        ),
+    ],
+)
+def test_staff_screens_fit_a_360_px_phone_in_large_text(phone: Page, role, paths):
+    phone.goto("/")
+    phone.get_by_label("Large text").check()
+    phone.get_by_role("button", name=re.compile(f"^{role}")).click()
+    expect(phone.get_by_role("navigation", name="Main")).to_be_visible()
+    for path in paths:
+        phone.goto(path)
+        expect(phone.get_by_role("heading", level=1)).to_be_visible()
+        phone.wait_for_load_state("networkidle")
+        assert _overflow(phone) <= 0, f"{role} {path}: {_overflow(phone)}px of horizontal scroll"
+
+
 def test_patient_screens_fit_a_360_px_phone_in_large_text(phone: Page):
     phone.goto("/")
     phone.get_by_label("Large text").check()
@@ -625,14 +673,72 @@ def test_patient_screens_fit_a_360_px_phone_in_large_text(phone: Page):
     for link in ("Assistant", "Book", "My appointments", "Queue status", "Profile"):
         phone.get_by_role("link", name=link, exact=True).click()
         expect(phone.get_by_role("heading", level=1)).to_be_visible()
-        overflow = phone.evaluate("document.documentElement.scrollWidth - window.innerWidth")
-        assert overflow <= 0, f"{link}: {overflow}px of horizontal scroll"
+        assert _overflow(phone) <= 0, f"{link}: {_overflow(phone)}px of horizontal scroll"
     # A checkbox counts with its label (the whole label is the tap target).
     targets = phone.evaluate(
         "[...document.querySelectorAll('button, a, input, select')].filter(e => e.offsetParent)"
         ".map(e => (e.closest('label') || e).getBoundingClientRect().height).filter(h => h < 44).length"
     )
     assert targets == 0, f"{targets} tap targets are smaller than 44 px"
+
+
+# --------------------------------------------------------------------------- hospital setup (adds a department), then reset
+
+
+def test_admin_sets_up_a_department_and_doctor_that_patients_can_book(page: Page):
+    sign_in(page, "OPD admin")
+    page.get_by_role("link", name="Hospital setup", exact=True).click()
+    details = page.get_by_role("form", name="Hospital details")
+    details.get_by_label("Hospital name (English)").fill("Indravani General Hospital and Research Centre")
+    details.get_by_role("button", name="Save changes").click()
+    expect(details.get_by_role("status")).to_contain_text("Saved.")
+    expect(page.locator(".brand-sub").first).to_have_text("Indravani General Hospital and Research Centre")
+    details.get_by_label("Hospital name (English)").fill("Indravani General Hospital")
+    details.get_by_role("button", name="Save changes").click()
+    expect(page.locator(".brand-sub").first).to_have_text("Indravani General Hospital")
+
+    page.get_by_role("button", name="Add department").click()
+    dialog = page.get_by_role("dialog", name="Add department")
+    dialog.get_by_label("Department").fill("Neurology")
+    dialog.get_by_label("Floor").fill("5")
+    dialog.get_by_label("OPD opens").fill("10:00")
+    dialog.get_by_label("OPD closes").fill("13:00")
+    dialog.get_by_label("Other words patients use").fill("brain, nerves")
+    dialog.get_by_role("button", name="Save").click()
+    expect(page.get_by_role("status").filter(has_text="Saved Neurology.")).to_be_visible()
+
+    page.get_by_role("button", name="Add doctor: Neurology").click()
+    dialog = page.get_by_role("dialog", name="Add doctor")
+    dialog.get_by_label("Doctor's name").fill("Dr. Kiran Patkar")
+    dialog.get_by_label("Minutes per appointment").fill("20")
+    dialog.get_by_label("मराठी").check()
+    dialog.get_by_role("button", name="Save").click()
+    expect(page.get_by_role("status").filter(has_text="Added Dr. Kiran Patkar.")).to_contain_text("applies from Tue")
+    page.get_by_role("button", name=re.compile("^Sign out")).click()
+
+    sign_in(page, "Patient")
+    page.get_by_role("link", name="Book", exact=True).click()
+    page.get_by_label("Department").select_option("Neurology")
+    page.get_by_role("button", name="Find the best times").click()
+    first = page.locator(".slot-card").first
+    expect(first).to_contain_text("Dr. Kiran Patkar")
+    first.get_by_role("button", name=re.compile("^Choose")).click()
+    page.get_by_role("dialog", name="Confirm booking").get_by_role("button", name="Confirm").click()
+    expect(page.get_by_role("status").filter(has_text="Booked. Your receipt is ready.")).to_be_visible()
+    page.get_by_role("button", name=re.compile("^Sign out")).click()
+
+    # The doctor leaves after today: the patient's visit is moved off and they are told.
+    sign_in(page, "OPD admin")
+    page.get_by_role("link", name="Hospital setup", exact=True).click()
+    page.get_by_role("button", name="Last day: Dr. Kiran Patkar").click()
+    dialog = page.get_by_role("dialog", name="Last day")
+    dialog.get_by_label("Last OPD day").fill(TODAY)
+    dialog.get_by_role("button", name="Save").click()
+    expect(page.get_by_role("status").filter(has_text="Later visits moved off (patients told): 1.")).to_be_visible()
+    page.get_by_role("button", name=re.compile("^Sign out")).click()
+    sign_in(page, "Patient")
+    page.get_by_role("link", name=re.compile("^Notifications")).click()
+    expect(page.get_by_text("Dr. Kiran Patkar no longer holds OPD here").first).to_be_visible()
 
 
 # --------------------------------------------------------------------------- demo reset (TC-17), last

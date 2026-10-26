@@ -2,6 +2,7 @@ import {
   BarChart3,
   Bell,
   BookOpen,
+  Building2,
   CalendarDays,
   CalendarPlus,
   CalendarRange,
@@ -45,6 +46,7 @@ const NAV = {
   admin: [
     { to: "/admin", label: "navDashboard", icon: LayoutDashboard },
     { to: "/analytics", label: "navAnalytics", icon: BarChart3 },
+    { to: "/hospital-setup", label: "navSetup", icon: Building2 },
     { to: "/accounts", label: "navAccounts", icon: UserCog },
     { to: "/registration-form", label: "navRegistrationForm", icon: ClipboardPen },
     { to: "/priority-rules", label: "navPriorityRules", icon: Scale },
@@ -62,7 +64,7 @@ const ROLE_LABEL = {
 };
 
 function Brand() {
-  const { t } = useSession();
+  const { hospitalName, t } = useSession();
   return (
     <a className="brand" href="/">
       <span className="brand-mark" aria-hidden="true">
@@ -70,7 +72,7 @@ function Brand() {
       </span>
       <span className="brand-text">
         <span className="brand-name">{t("appName")}</span>
-        <span className="brand-sub">{t("hospital")}</span>
+        {hospitalName && <span className="brand-sub">{hospitalName}</span>}
       </span>
     </a>
   );

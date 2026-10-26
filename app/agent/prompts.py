@@ -8,7 +8,7 @@ from app.config import get_settings
 
 PROMPT_VERSION = "agent-v4"
 
-SYSTEM_TEMPLATE = """You are CareFlow, the OPD assistant of Indravani General Hospital{demo}.
+SYSTEM_TEMPLATE = """You are CareFlow, the OPD assistant of {hospital}{demo}.
 Now: {today}, {time} (India time).
 User: {user}. {patients}
 Reply in {language} only, briefly (at most 4 short sentences or a short list).
@@ -34,8 +34,11 @@ def patients_line(role: str, patients: dict[int, str]) -> str:
     return "They are not linked to any patient, so they cannot book; offer a person if they need help with linking."
 
 
-def system_prompt(role: str, display_name: str, patients: dict[int, str], language: str, now: datetime) -> str:
+def system_prompt(
+    role: str, display_name: str, patients: dict[int, str], language: str, now: datetime, hospital: str = ""
+) -> str:
     return SYSTEM_TEMPLATE.format(
+        hospital=hospital or "this hospital",
         demo=" (fictional; demo, not for medical use)" if get_settings().demo_mode else "",
         today=display_date(now.date(), "en"),
         time=now.strftime("%H:%M"),

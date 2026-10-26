@@ -19,9 +19,11 @@ from app.timeutil import at, resolve_now, to_ist
 from app.tools import policy
 from app.tools.audit import write_tool
 from app.tools.errors import ToolError
+from app.tools.hospital import resolve_department
 from app.tools.permissions import Actor, require_patient_access
 from app.tools.serialize import appointment_dict, doctor_dict, slot_dict
-from app.tools.vocab import normalize_language, normalize_specialty, parse_day
+from app.tools.timetable import current_doctor
+from app.tools.vocab import normalize_language, parse_day
 
 # --------------------------------------------------------------------------- reads
 
@@ -35,10 +37,10 @@ def search_doctors(
 ) -> dict:
     """FR-07: doctors filtered by specialty, spoken language and OPD day."""
     now = resolve_now(now)
-    query = select(Doctor).join(Department).order_by(Department.name, Doctor.name)
+    query = select(Doctor).join(Department).where(current_doctor(now.date())).order_by(Department.name, Doctor.name)
     criteria: dict = {}
     if specialty:
-        department = normalize_specialty(specialty)
+        department = resolve_department(db, specialty)
         query = query.where(Department.name == department)
         criteria["department"] = department
     if language:
@@ -47,7 +49,7 @@ def search_doctors(
         criteria["language"] = lang
     if day:
         weekday, next_date = parse_day(day, now)
-        query = query.where(literal(weekday) == any_(Doctor.opd_days))
+        query = query.where(literal(weekday) == any_(Doctor.opd_days), current_doctor(next_date))
         criteria["date"] = next_date.isoformat()
     doctors = [doctor_dict(d) for d in db.scalars(query)]
     return {"criteria": criteria, "doctors": doctors}
@@ -77,7 +79,7 @@ def check_availability(
         raise ToolError("NOT_FOUND", f"Doctor {doctor_id} does not exist.")
     target = parse_day(day, now)[1] if isinstance(day, str) else day
     result = {"doctor": doctor_dict(doctor), "date": target.isoformat(), "works_that_day": True, "slots": []}
-    if target.isoweekday() not in doctor.opd_days:
+    if not doctor.works_on(target):
         result["works_that_day"] = False
         return result
     if target < now.date() or target > (now + policy.BOOKING_HORIZON).date():
@@ -205,7 +207,9 @@ def _flush_or_conflict(db: Session) -> None:
 
 
 def _free_slot(db: Session, slot: Slot, now: datetime) -> None:
-    """Release a slot and offer it to the waiting list first (FR-14)."""
+    """Release a slot and offer it to the waiting list first (FR-14). A slot the doctor's timetable no longer
+    has (it changed, or the doctor has left) is retired instead, and the timetable's own slots take its place."""
+    from app.tools.timetable import ensure_slots, on_timetable
     from app.tools.waiting_list import offer_freed_slot
 
     if slot.status == "booked":
@@ -213,6 +217,12 @@ def _free_slot(db: Session, slot: Slot, now: datetime) -> None:
     slot.held_for_patient_id = None
     slot.held_until = None
     db.flush()
+    day = to_ist(slot.start_at).date()
+    if slot.status == "free" and day > now.date() and not on_timetable(slot.doctor, slot):  # today runs as planned
+        slot.status = "retired"
+        db.flush()
+        ensure_slots(db, day, day, [slot.doctor_id])
+        return
     if slot.status == "free":
         offer_freed_slot(db, slot, now)
 

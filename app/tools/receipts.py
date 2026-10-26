@@ -10,11 +10,12 @@ import re
 
 from sqlalchemy.orm import Session
 
-from app.config import HOSPITAL_ADDRESS, HOSPITAL_NAME, get_settings
+from app.config import get_settings
 from app.db.models import Appointment
 from app.timeutil import iso, to_ist
 from app.tools import policy
 from app.tools.errors import ToolError
+from app.tools.hospital import get_profile, hospital_name
 from app.tools.permissions import Actor, require_patient_access
 
 _CODE = re.compile(r"^CF-(\d{1,9})-([0-9A-F]{6})$")
@@ -45,6 +46,7 @@ def receipt(db: Session, actor: Actor, appointment_id: int) -> dict:
     require_patient_access(db, actor, appt.patient_id)
     start = to_ist(appt.slot.start_at)
     doctor = appt.doctor
+    profile = get_profile(db)
     return {
         "reference": reference_code(appt.id),
         "appointment_id": appt.id,
@@ -60,8 +62,9 @@ def receipt(db: Session, actor: Actor, appointment_id: int) -> dict:
         "booked_at": iso(appt.created_at) if appt.created_at else None,
         "updated_at": iso(appt.updated_at) if appt.updated_at else None,
         "fee": None,  # the demo hospital charges nothing online; payment is at the desk
-        "hospital": HOSPITAL_NAME,
-        "hospital_address": HOSPITAL_ADDRESS,
+        "hospital": hospital_name(db),
+        "hospital_address": profile.address if profile else "",
+        "hospital_phone": profile.phone if profile else "",
         "arrive_note": "Please arrive 15 minutes early and show this receipt at the reception desk.",
         "cancellation_policy": policy.CANCEL_POLICY,
     }

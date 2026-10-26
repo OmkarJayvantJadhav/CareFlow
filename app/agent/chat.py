@@ -36,6 +36,7 @@ from app.timeutil import resolve_now, to_ist
 from app.tools import policy
 from app.tools.errors import ToolError
 from app.tools.handoff import handoff_to_human
+from app.tools.hospital import hospital_name, message_values
 from app.tools.permissions import Actor, linked_patient_ids
 
 FULL_TURNS = 2
@@ -256,7 +257,7 @@ def handle_chat(
         )
         if emergency.is_emergency:
             conv.pending_action = None
-            reply_text = message("emergency", language)
+            reply_text = message("emergency", language, **message_values(db, language))
             reply = ChatReply(conv.id, reply_text, language, emergency=True,
                               actions=[{"tool": "emergency_redirect", "ok": True, "label": "Showing emergency guidance"}])  # fmt: skip
             return finish(reply, [user_message, {"role": "assistant", "content": reply_text}], "emergency")
@@ -266,7 +267,7 @@ def handle_chat(
         conv.pending_action = None
         ticket = handoff_to_human(db, actor, conv.id, "user_request", text[:200], now=now)
         conv.handoff_ticket_id = ticket["ticket_id"]
-        reply_text = message("handoff", language, ticket_id=ticket["ticket_id"])
+        reply_text = message("handoff", language, ticket_id=ticket["ticket_id"], **message_values(db, language))
         reply = ChatReply(conv.id, reply_text, language, handoff=True, ticket_id=ticket["ticket_id"],
                           actions=[{"tool": "handoff_to_human", "ok": True, "label": "Connecting you to a person"}])  # fmt: skip
         return finish(reply, [user_message, {"role": "assistant", "content": reply_text}], "handoff")
@@ -320,7 +321,7 @@ def handle_chat(
 
     # 5. The agent.
     ctx = ToolContext(db, actor, now, language, conv.id, trace, patients=patients)
-    prompt = system_prompt(actor.role, user.display_name, patients, language, to_ist(now))
+    prompt = system_prompt(actor.role, user.display_name, patients, language, to_ist(now), hospital_name(db))
     for note in displaced_notes(db, patients, now):
         prompt += f"\n{note}"
     if conv.summary:
@@ -356,7 +357,9 @@ def handle_chat(
         ticket = handoff_to_human(db, actor, conv.id, "repeated_failure", text[:200], now=now)
         conv.failed_attempts = 0
         conv.handoff_ticket_id = ticket["ticket_id"]
-        reply.reply = message("handoff_after_failures", language, ticket_id=ticket["ticket_id"])
+        reply.reply = message(
+            "handoff_after_failures", language, ticket_id=ticket["ticket_id"], **message_values(db, language)
+        )
         reply.handoff, reply.ticket_id = True, ticket["ticket_id"]
         reply.actions.append({"tool": "handoff_to_human", "ok": True, "label": "Connecting you to a person"})
         messages = messages[:-1] + [{"role": "assistant", "content": reply.reply}]

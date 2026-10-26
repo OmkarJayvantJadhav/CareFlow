@@ -43,7 +43,7 @@ def join_waiting_list(
     horizon = (now + policy.BOOKING_HORIZON).date()
     if any(d < now.date() or d > horizon for d in wanted):
         raise ToolError("VALIDATION_ERROR", "Preferred dates must be between today and 30 days ahead.")
-    working = [d for d in wanted if d.isoweekday() in doctor.opd_days]
+    working = [d for d in wanted if doctor.works_on(d)]
     if not working:
         raise ToolError("VALIDATION_ERROR", f"{doctor.name} has no OPD on the requested dates.")
 

@@ -45,6 +45,7 @@ from app.tools.permissions import (
 )
 from app.tools.registration import categories
 from app.tools.serialize import entry_dict
+from app.tools.timetable import holds_opd
 
 DOCTOR_EVENTS = ("break", "delay", "emergency", "resume", "unavailable")
 MAX_PRIORITY = 3
@@ -65,7 +66,7 @@ def _ensure_session(db: Session, doctor_id: int, day: date, merge_rule: str | No
     doctor = db.get(Doctor, doctor_id)
     if doctor is None:
         raise ToolError("NOT_FOUND", f"Doctor {doctor_id} does not exist.")
-    if day.isoweekday() not in doctor.opd_days:
+    if not holds_opd(db, doctor, day):
         raise ToolError("VALIDATION_ERROR", f"{doctor.name} has no OPD on {day:%A}.")
     rule = merge_rule or get_settings().queue_merge_rule
     if rule not in MERGE_RULES:
@@ -686,7 +687,7 @@ def _colleague_session_ids(db: Session, doctor_id: int, day: date) -> list[int]:
     for other in db.scalars(
         select(Doctor).where(Doctor.department_id == doctor.department_id, Doctor.id != doctor_id).order_by(Doctor.id)
     ):
-        if day.isoweekday() in other.opd_days and (other.id, day) not in away:
+        if holds_opd(db, other, day) and (other.id, day) not in away:
             session_id = _ensure_session(db, other.id, day)
             if db.scalar(select(QueueSession.status).where(QueueSession.id == session_id)) == "open":
                 ids.append(session_id)
@@ -706,7 +707,7 @@ def join_virtual_queue(db: Session, actor: Actor, doctor_id: int, patient_id: in
     if doctor is None:
         raise ToolError("NOT_FOUND", f"Doctor {doctor_id} does not exist.")
     day = now.date()
-    if day.isoweekday() not in doctor.opd_days or _doctor_on_leave(db, doctor_id, day):
+    if not holds_opd(db, doctor, day) or _doctor_on_leave(db, doctor_id, day):
         raise ToolError("INVALID_STATE", f"{doctor.name} has no OPD today.")
     dept = doctor.department
     opens = at(day, dept.opd_start) - policy.VIRTUAL_JOIN_OPENS

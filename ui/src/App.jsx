@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import Account from "./pages/Account";
 import Accounts from "./pages/Accounts";
 import Analytics from "./pages/Analytics";
+import HospitalSetup from "./pages/HospitalSetup";
 import Appointments from "./pages/Appointments";
 import Book from "./pages/Book";
 import Calendar from "./pages/Calendar";
@@ -176,6 +177,14 @@ export default function App() {
           element={
             <Guard roles={["staff", "admin"]}>
               <Coordination />
+            </Guard>
+          }
+        />
+        <Route
+          path="/hospital-setup"
+          element={
+            <Guard roles={["admin"]}>
+              <HospitalSetup />
             </Guard>
           }
         />

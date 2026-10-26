@@ -20,7 +20,8 @@ from app.api.queue_routes import router as queue_router
 from app.api.queue_routes import ws_router
 from app.api.registration_routes import router as registration_router
 from app.api.routes import router
-from app.config import HOSPITAL_NAME, get_settings
+from app.api.setup_routes import router as setup_router
+from app.config import get_settings
 from app.db.models import KbChunk
 from app.db.session import get_engine, session_factory
 from app.rag.retriever import get_retriever
@@ -44,17 +45,16 @@ def _warm_up() -> None:
 
 
 def _keep_slots_open(stop: threading.Event) -> None:
-    """A demo that runs for weeks keeps the next 21 days bookable (checked every 6 hours)."""
-    from simulator.seed import is_seeded, top_up_slots
+    """A deployment that runs for weeks keeps the next 21 days bookable (checked every 6 hours)."""
+    from app.tools.timetable import top_up_slots
 
     while not stop.is_set():
         try:
             with session_factory()() as db:
-                if is_seeded(db):
-                    added = top_up_slots(db, now_ist().date())
-                    db.commit()
-                    if added:
-                        log.info("added %d slots", added)
+                added = top_up_slots(db, now_ist().date())
+                db.commit()
+                if added:
+                    log.info("added %d slots", added)
         except Exception:  # noqa: BLE001 - try again next time
             log.exception("slot top-up failed")
         stop.wait(6 * 3600)
@@ -90,7 +90,7 @@ async def lifespan(_: FastAPI):
 app = FastAPI(
     title="CareFlow API",
     version="0.2.0",
-    description=f"{HOSPITAL_NAME} (fictional). {DEMO_BANNER}",
+    description="OPD appointments, hospital information and live queues.",
     lifespan=lifespan,
 )
 
@@ -141,7 +141,7 @@ def health() -> JSONResponse:
         "status": "ok" if healthy and providers else ("degraded" if healthy else "down"),
         "checks": checks,
         "demo_mode": get_settings().demo_mode,
-        "banner": DEMO_BANNER,
+        "banner": DEMO_BANNER if get_settings().demo_mode else None,
     }
     return JSONResponse(body, status_code=200 if healthy else 503)
 
@@ -153,6 +153,7 @@ app.include_router(care_router)
 app.include_router(library_router)
 app.include_router(registration_router)
 app.include_router(queue_router)
+app.include_router(setup_router)
 app.include_router(ws_router)
 
 # The built React app (ui/dist) is served from the same origin, so one container serves everything.

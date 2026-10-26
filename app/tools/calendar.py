@@ -133,7 +133,7 @@ def doctor_calendar(
         calendar.append(
             {
                 "date": day.isoformat(),
-                "works": day.isoweekday() in doctor.opd_days,
+                "works": doctor.works_on(day),
                 "leave": _leave_dict(leave) if leave else None,
                 "free": sum(1 for s in day_slots if s.status == "free"),
                 "booked": sum(1 for s in day_slots if s.status == "booked"),

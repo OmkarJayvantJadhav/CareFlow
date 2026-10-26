@@ -58,3 +58,9 @@ export function clockTime(iso) {
     timeZone: "Asia/Kolkata",
   }).format(new Date(iso));
 }
+
+/** "Mon" (or "सोम", "सोम") for an ISO weekday, 1 = Monday … 7 = Sunday. */
+export function weekdayName(isoDay, lang, width = "short") {
+  // 5 Jan 2026 was a Monday.
+  return new Intl.DateTimeFormat(LOCALES[lang] ?? "en-IN", { weekday: width }).format(new Date(2026, 0, 4 + isoDay));
+}

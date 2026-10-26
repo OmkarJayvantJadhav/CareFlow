@@ -15,7 +15,7 @@ time — while doctors and the front desk run, balance and coordinate every queu
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-416%20Python%20·%2036%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-428%20Python%20·%2040%20browser-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
 > ⚠️ **The live demo uses a fictional hospital (Indravani General Hospital) and synthetic data. Not for medical use.**
@@ -80,6 +80,10 @@ principles:
   <tr>
     <td><img src="docs/screenshots/accounts.png" alt="Accounts page with a new account's temporary password shown once"><br><sub><b>Accounts</b> — admins add staff and doctors; the temporary password is shown once</sub></td>
     <td><img src="docs/screenshots/start-hospital.png" alt="Start page of a hospital's own deployment, without demo roles"><br><sub><b>A hospital's own deployment</b> — sign-in and sign-up, no demo</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/hospital-setup.png" alt="Hospital setup: a changed timetable keeps its bookings and lists those outside it"><br><sub><b>Hospital setup</b> — a changed timetable keeps every booking and lists those to call</sub></td>
+    <td><p align="center"><img src="docs/screenshots/phone-add-doctor.png" alt="Adding a doctor on a phone in large text" width="46%"></p><sub><b>Phone</b> — every admin screen also works at 360 px in large text</sub></td>
   </tr>
   <tr>
     <td><img src="docs/screenshots/kiosk.png" alt="Self check-in kiosk"><br><sub><b>Kiosk</b> — self check-in at reception, first name only</sub></td>
@@ -150,6 +154,7 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | **Analytics in plain language** | Questions answered with one validated, read-only SQL query (shown, with CSV export); requests to change data are refused before any model call. |
 | **Registration form** | Add extra registration questions in three languages — asked at sign-up and at the desk, checked by the server. |
 | **Evaluation results** | The latest results shipped with the build, each with its sample size. |
+| **Hospital setup** | The hospital's name in three languages, address, reception hours and emergency directions; add, edit and remove departments and doctors and their OPD timetables. Changes apply from tomorrow and never cancel a booking; a departing doctor gets a last day and later patients are told and rebook free. |
 | **Accounts** | Create front-desk, doctor, admin and caregiver accounts with a one-time temporary password; switch accounts off and on; reset forgotten passwords. Switching off or resetting ends that person's sessions at once. |
 | **Demo reset** | Back to the seed data in one click (people's own accounts and consent are kept; demo deployment only). |
 
@@ -292,14 +297,14 @@ INITIAL_ADMIN_NAME="Dr. Sharma"
 ```
 
 At start-up the first admin is created only if no admin can sign in yet, and must choose a new password at the
-first sign-in. That admin creates the front-desk, doctor and other admin accounts under **Accounts**. Each new
+first sign-in. That admin enters the hospital's details, departments, doctors and OPD timetables under
+**Hospital setup**, then creates the front-desk, doctor and other admin accounts under **Accounts**. Each new
 account gets a temporary password shown once, which must be replaced at its first sign-in. Patients and
 caregivers sign up on the start page or are registered at the desk. With a shell you can also run
 `python -m app.manage create-admin --username U --name "…"` or `reset-password --username U`.
 
-> Still to come: departments, doctors and OPD schedules are not yet editable in the app (next phase), so
-> a production database starts without them. The hospital information library still describes the demo
-> hospital until documents can be edited.
+> Still to come: the hospital information library (and so the assistant's cited answers) still describes the
+> demo hospital until documents can be edited in the app.
 
 <details>
 <summary><b>Try it from the command line</b></summary>
@@ -351,10 +356,10 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 416 tests
+pytest                                     # 428 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e                    # 36 browser tests, including accessibility and 360 px
+pytest -m e2e tests/e2e                    # 40 browser tests, including accessibility and 360 px
 ```
 
 GitHub Actions runs all of these and a Docker build on every push; Render redeploys from `develop`.
@@ -494,8 +499,9 @@ docs/         specification, decisions, deployment guide, screenshots
 - **Measured on synthetic data.** The demo and the evaluation use the simulated hospital, whose parameters are
   assumptions ([`docs/DECISIONS.md`](docs/DECISIONS.md), D-21); the wait-time model learned from simulated days
   whose queues are short.
-- **Real use is being built in phases** (D-99): accounts and production mode are done; departments, doctors
-  and schedules, staff editing of patient records, editable documents and real SMS or email come next.
+- **Real use is being built in phases** (D-99): accounts, production mode and hospital setup are done; staff
+  editing of patient records, editable documents and real SMS or email come next. Department names are shown
+  as entered, in one language.
 - **Evaluation is incomplete** (see [Measured results](#measured-results)); retrieval was measured with the local
   models, which handle Marathi inflections less well than the neural ones.
 - **Notifications are simulated** — stored and shown in the app, never sent by SMS.

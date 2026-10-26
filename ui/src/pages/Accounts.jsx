@@ -270,140 +270,142 @@ export default function Accounts() {
         </button>
       </div>
 
-      <section className="card" aria-labelledby="accounts-h">
-        <div className="card-head">
-          <h2 id="accounts-h">
-            <UsersRound size={20} aria-hidden="true" />
-            {t("accountsList")}
-          </h2>
-        </div>
-        <form
-          className="row account-filters"
-          role="search"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setQuery(search.trim());
-          }}
-        >
-          <div className="field">
-            <label htmlFor="acc-filter-role">{t("accountRole")}</label>
-            <select id="acc-filter-role" value={role} onChange={(e) => setRole(e.target.value)}>
-              <option value="">{t("allRoles")}</option>
-              {ROLES.map((r) => (
-                <option key={r} value={r}>
-                  {t(ROLE_LABEL[r])}
-                  {data ? ` (${data.counts[r]})` : ""}
-                </option>
-              ))}
-            </select>
+      <div className="stack">
+        <section className="card" aria-labelledby="accounts-h">
+          <div className="card-head">
+            <h2 id="accounts-h">
+              <UsersRound size={20} aria-hidden="true" />
+              {t("accountsList")}
+            </h2>
           </div>
-          <div className="field grow">
-            <label htmlFor="acc-search">{t("searchAccounts")}</label>
-            <input
-              id="acc-search"
-              type="search"
-              maxLength={60}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <button type="submit" className="secondary">
-            <Search size={16} aria-hidden="true" />
-            {t("search")}
-          </button>
-        </form>
-        {notice && (
-          <p className="notice" role="status">
-            {notice}
-          </p>
-        )}
-        {error !== null && <ErrorMessage error={error} onRetry={load} />}
-        {data === null && error === null && <Loading />}
-        {data && data.accounts.length === 0 && <p className="muted">{t("noAccounts")}</p>}
-        {data && data.accounts.length > 0 && (
-          <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="accounts-h">
-            <table className="accounts-table">
-              <caption className="sr-only">{t("accountsList")}</caption>
-              <thead>
-                <tr>
-                  <th scope="col">{t("fullName")}</th>
-                  <th scope="col">{t("accountRole")}</th>
-                  <th scope="col">{t("accountStatus")}</th>
-                  <th scope="col">{t("lastSignIn")}</th>
-                  <th scope="col">
-                    <span className="sr-only">{t("actions")}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.accounts.map((a) => {
-                  const self = a.user_id === user.user_id;
-                  return (
-                    <tr key={a.user_id}>
-                      <th scope="row">
-                        <span className="account-name">{a.display_name}</span>
-                        <span className="muted small"> @{a.username}</span>
-                        {self && <span className="badge brand">{t("you")}</span>}
-                      </th>
-                      <td>{t(ROLE_LABEL[a.role])}</td>
-                      <td>
-                        <span className="badges">
-                          {a.active ? (
-                            <span className="badge ok">{t("accountActive")}</span>
-                          ) : (
-                            <span className="badge danger">{t("accountOff")}</span>
-                          )}
-                          {a.must_change_password && <span className="badge warn">{t("temporaryPassword")}</span>}
-                          {!a.has_password && <span className="badge">{t("noPassword")}</span>}
-                        </span>
-                      </td>
-                      <td className="small">{lastSeen(a.last_login_at, lang, t)}</td>
-                      <td>
-                        <span className="row account-actions">
-                          {a.role !== "patient" && (
-                            <button
-                              type="button"
-                              className="quiet"
-                              aria-label={`${t("editAccount")}: ${a.display_name}`}
-                              title={t("editAccount")}
-                              onClick={() => open("edit", a)}
-                            >
-                              <Pencil size={16} aria-hidden="true" />
-                            </button>
-                          )}
-                          {!self && (
-                            <>
+          <form
+            className="row account-filters"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setQuery(search.trim());
+            }}
+          >
+            <div className="field">
+              <label htmlFor="acc-filter-role">{t("accountRole")}</label>
+              <select id="acc-filter-role" value={role} onChange={(e) => setRole(e.target.value)}>
+                <option value="">{t("allRoles")}</option>
+                {ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {t(ROLE_LABEL[r])}
+                    {data ? ` (${data.counts[r]})` : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field grow">
+              <label htmlFor="acc-search">{t("searchAccounts")}</label>
+              <input
+                id="acc-search"
+                type="search"
+                maxLength={60}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <button type="submit" className="secondary">
+              <Search size={16} aria-hidden="true" />
+              {t("search")}
+            </button>
+          </form>
+          {notice && (
+            <p className="notice" role="status">
+              {notice}
+            </p>
+          )}
+          {error !== null && <ErrorMessage error={error} onRetry={load} />}
+          {data === null && error === null && <Loading />}
+          {data && data.accounts.length === 0 && <p className="muted">{t("noAccounts")}</p>}
+          {data && data.accounts.length > 0 && (
+            <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="accounts-h">
+              <table className="accounts-table">
+                <caption className="sr-only">{t("accountsList")}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{t("fullName")}</th>
+                    <th scope="col">{t("accountRole")}</th>
+                    <th scope="col">{t("accountStatus")}</th>
+                    <th scope="col">{t("lastSignIn")}</th>
+                    <th scope="col">
+                      <span className="sr-only">{t("actions")}</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.accounts.map((a) => {
+                    const self = a.user_id === user.user_id;
+                    return (
+                      <tr key={a.user_id}>
+                        <th scope="row">
+                          <span className="account-name">{a.display_name}</span>
+                          <span className="muted small"> @{a.username}</span>
+                          {self && <span className="badge brand">{t("you")}</span>}
+                        </th>
+                        <td>{t(ROLE_LABEL[a.role])}</td>
+                        <td>
+                          <span className="badges">
+                            {a.active ? (
+                              <span className="badge ok">{t("accountActive")}</span>
+                            ) : (
+                              <span className="badge danger">{t("accountOff")}</span>
+                            )}
+                            {a.must_change_password && <span className="badge warn">{t("temporaryPassword")}</span>}
+                            {!a.has_password && <span className="badge">{t("noPassword")}</span>}
+                          </span>
+                        </td>
+                        <td className="small">{lastSeen(a.last_login_at, lang, t)}</td>
+                        <td>
+                          <span className="row account-actions">
+                            {a.role !== "patient" && (
                               <button
                                 type="button"
                                 className="quiet"
-                                aria-label={`${t("resetPassword")}: ${a.display_name}`}
-                                title={t("resetPassword")}
-                                onClick={() => open("reset", a)}
+                                aria-label={`${t("editAccount")}: ${a.display_name}`}
+                                title={t("editAccount")}
+                                onClick={() => open("edit", a)}
                               >
-                                <KeyRound size={16} aria-hidden="true" />
+                                <Pencil size={16} aria-hidden="true" />
                               </button>
-                              <button
-                                type="button"
-                                className="quiet"
-                                aria-label={`${a.active ? t("turnOff") : t("turnOn")}: ${a.display_name}`}
-                                title={a.active ? t("turnOff") : t("turnOn")}
-                                onClick={() => open("toggle", a)}
-                              >
-                                <Power size={16} aria-hidden="true" />
-                              </button>
-                            </>
-                          )}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-        {data?.more && <p className="muted small">{t("accountsMore")}</p>}
-      </section>
+                            )}
+                            {!self && (
+                              <>
+                                <button
+                                  type="button"
+                                  className="quiet"
+                                  aria-label={`${t("resetPassword")}: ${a.display_name}`}
+                                  title={t("resetPassword")}
+                                  onClick={() => open("reset", a)}
+                                >
+                                  <KeyRound size={16} aria-hidden="true" />
+                                </button>
+                                <button
+                                  type="button"
+                                  className="quiet"
+                                  aria-label={`${a.active ? t("turnOff") : t("turnOn")}: ${a.display_name}`}
+                                  title={a.active ? t("turnOff") : t("turnOn")}
+                                  onClick={() => open("toggle", a)}
+                                >
+                                  <Power size={16} aria-hidden="true" />
+                                </button>
+                              </>
+                            )}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {data?.more && <p className="muted small">{t("accountsMore")}</p>}
+        </section>
+      </div>
 
       <ConfirmDialog
         open={dialog !== null}

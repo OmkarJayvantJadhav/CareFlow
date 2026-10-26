@@ -34,7 +34,8 @@ EMBEDDING_DIM = 384
 
 ROLES = ("patient", "caregiver", "staff", "admin", "doctor")
 LANGUAGES = ("en", "hi", "mr")
-SLOT_STATUSES = ("free", "booked", "blocked")
+# "retired": a free slot taken off the schedule (a changed OPD timetable or a doctor who left); kept for history.
+SLOT_STATUSES = ("free", "booked", "blocked", "retired")
 # "left": the patient checked in but went home before being seen (feature 47); a no-show never arrived.
 APPOINTMENT_STATUSES = ("booked", "rescheduled", "cancelled", "completed", "no_show", "displaced", "left")
 ACTIVE_APPOINTMENT_STATUSES = ("booked", "rescheduled")
@@ -100,6 +101,8 @@ class Department(Base):
     floor: Mapped[int] = mapped_column(SmallInteger)
     opd_start: Mapped[time] = mapped_column(Time)
     opd_end: Mapped[time] = mapped_column(Time)
+    # Extra words patients use for it, in any of the three languages ("heart", "हृदय"); lower case.
+    aliases: Mapped[list[str]] = mapped_column(ARRAY(String(40)), default=list, server_default="{}")
 
     doctors: Mapped[list["Doctor"]] = relationship(back_populates="department")
 
@@ -115,8 +118,17 @@ class Doctor(Base):
     # ISO weekdays, 1 = Monday … 7 = Sunday.
     opd_days: Mapped[list[int]] = mapped_column(ARRAY(SmallInteger))
     slot_minutes: Mapped[int] = mapped_column(SmallInteger)
+    # The last day the doctor holds OPD here; None while they stay (phase 7B).
+    last_day: Mapped[date | None] = mapped_column(Date)
 
     department: Mapped[Department] = relationship(back_populates="doctors")
+
+    def works_on(self, day: date) -> bool:
+        """Holds OPD that day by the timetable (leave is separate)."""
+        return day.isoweekday() in self.opd_days and (self.last_day is None or day <= self.last_day)
+
+    def is_current(self, today: date) -> bool:
+        return self.last_day is None or today <= self.last_day
 
 
 class Slot(Base):
@@ -611,6 +623,25 @@ class HandoffTicket(Base):
     created_at: Mapped[datetime] = mapped_column(TZ, server_default=func.now())
 
 
+class HospitalProfile(Base):
+    """The hospital's own details (phase 7B): one row, edited by an admin. Without it the app names no hospital."""
+
+    __tablename__ = "hospital_profile"
+    __table_args__ = (CheckConstraint("id = 1", name="ck_hospital_profile_single_row"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    # {"en": ..., "hi": ..., "mr": ...}; English is required, the others fall back to it.
+    name: Mapped[dict] = mapped_column(JSONB)
+    address: Mapped[str] = mapped_column(String(200), default="", server_default="")
+    phone: Mapped[str] = mapped_column(String(30), default="", server_default="")
+    reception_opens: Mapped[time] = mapped_column(Time)
+    reception_closes: Mapped[time] = mapped_column(Time)
+    # Where the hospital's emergency department is, one sentence per language; added to the emergency message.
+    emergency_note: Mapped[dict] = mapped_column(JSONB, default=dict, server_default="{}")
+    updated_at: Mapped[datetime | None] = mapped_column(TZ)
+    updated_by: Mapped[int | None] = mapped_column(ForeignKey("app_user.id"))
+
+
 # Everything that demo reset wipes and reloads (FR-34). The knowledge base is
 # reference content, loaded by its own ingestion step, and is left alone.
 OPERATIONAL_TABLES = (
@@ -635,4 +666,5 @@ OPERATIONAL_TABLES = (
     "patient",
     "doctor",
     "department",
+    "hospital_profile",
 )

@@ -11,6 +11,7 @@ from app.queue.balance import DoctorLoad, Waiting, suggest_moves
 from app.timeutil import at, iso, to_ist
 from app.tools import policy
 from app.tools.calendar import consult_minutes, leave_days
+from app.tools.timetable import holds_opd
 
 
 def _state(session: QueueSession | None, on_leave: bool) -> str:
@@ -33,7 +34,7 @@ def department_board(db: Session, now: datetime, department_id: int | None = Non
     doctors = [
         d
         for d in db.scalars(select(Doctor).where(Doctor.department_id.in_([x.id for x in departments])))
-        if day.isoweekday() in d.opd_days
+        if holds_opd(db, d, day)
     ]
     typical = consult_minutes(db, [d.id for d in doctors], now) if doctors else {}
     sessions = {

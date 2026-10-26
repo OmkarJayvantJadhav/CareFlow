@@ -18,6 +18,7 @@ from app.db.models import (
     Consent,
     Department,
     Doctor,
+    HospitalProfile,
     Patient,
     PatientFieldValue,
     Slot,
@@ -26,10 +27,11 @@ from app.safety.privacy import mask_phone_number
 from app.timeutil import at
 from app.tools.booking import book_appointment
 from app.tools.permissions import Actor
+from app.tools.timetable import SLOT_DAYS_AHEAD, ensure_slots, top_up_slots  # noqa: F401 - re-exported
 from simulator import hospital
 
 PATIENT_COUNT = 400
-SEED_DAYS_AHEAD = 21
+SEED_DAYS_AHEAD = SLOT_DAYS_AHEAD
 UPCOMING_OCCUPANCY = (0.25, 0.55)
 LANGUAGE_WEIGHTS = {"mr": 0.45, "hi": 0.30, "en": 0.25}
 
@@ -54,6 +56,7 @@ DEMO_ACCOUNTS_CREATED = at(date(2026, 1, 1), time(0, 0))
 
 
 def seed_reference(db: Session, rng: np.random.Generator) -> None:
+    db.add(HospitalProfile(id=1, **hospital.PROFILE))
     departments = {}
     for name, floor, start, end in hospital.DEPARTMENTS:
         dept = Department(name=name, floor=floor, opd_start=start, opd_end=end)
@@ -123,38 +126,6 @@ def ensure_doctor_accounts(db: Session) -> int:
         added += 1
     db.flush()
     return added
-
-
-def ensure_slots(db: Session, start: date, end: date) -> int:
-    """Create every OPD slot between two dates (inclusive). Existing slots are kept."""
-    existing = {
-        (doctor_id, start_at)
-        for doctor_id, start_at in db.execute(
-            select(Slot.doctor_id, Slot.start_at).where(
-                Slot.start_at >= at(start, time.min), Slot.start_at < at(end + timedelta(days=1), time.min)
-            )
-        )
-    }
-    from app.tools.calendar import leave_days
-
-    away = leave_days(db, start, end)  # slots created on a leave day start blocked
-    created = 0
-    for doctor in db.scalars(select(Doctor).order_by(Doctor.id)):
-        dept = doctor.department
-        step = timedelta(minutes=doctor.slot_minutes)
-        day = start
-        while day <= end:
-            if day.isoweekday() in doctor.opd_days:
-                t, close = at(day, dept.opd_start), at(day, dept.opd_end)
-                while t + step <= close:
-                    if (doctor.id, t) not in existing:
-                        status = "blocked" if (doctor.id, day) in away else "free"
-                        db.add(Slot(doctor_id=doctor.id, start_at=t, end_at=t + step, status=status))
-                        created += 1
-                    t += step
-            day += timedelta(days=1)
-    db.flush()
-    return created
 
 
 def system_actor(db: Session) -> Actor:
@@ -271,7 +242,17 @@ def truncate_operational(db: Session) -> None:
 
 def _own_accounts(db: Session) -> list[dict]:
     """Accounts people created themselves, with their patient records, consent history and answers to
-    the registration questions (a withdrawn consent must survive a demo reset)."""
+    the registration questions (a withdrawn consent must survive a demo reset), and caregivers' own accounts."""
+    caregivers = [
+        {
+            "username": user.username,
+            "display_name": user.display_name,
+            "password_hash": user.password_hash,
+            "created_at": user.created_at,
+            "caregiver": True,
+        }
+        for user in db.scalars(select(AppUser).where(AppUser.self_registered, AppUser.role == "caregiver"))
+    ]
     rows = db.execute(
         select(AppUser, Patient).join(Patient, Patient.id == AppUser.patient_id).where(AppUser.self_registered)
     ).all()
@@ -301,11 +282,23 @@ def _own_accounts(db: Session) -> list[dict]:
             ],
         }
         for user, patient in rows
-    ]
+    ] + caregivers
 
 
 def _restore_accounts(db: Session, accounts: list[dict]) -> None:
     for a in accounts:
+        if a.get("caregiver"):
+            db.add(
+                AppUser(
+                    username=a["username"],
+                    display_name=a["display_name"],
+                    role="caregiver",
+                    password_hash=a["password_hash"],
+                    self_registered=True,
+                    created_at=a["created_at"],
+                )
+            )
+            continue
         patient = Patient(
             synthetic_name=a["name"],
             birth_year=a["birth_year"],
@@ -347,9 +340,13 @@ def reset_demo(db: Session, today: date, seed: int = 42, days_ahead: int = SEED_
     return {**summary, "own_accounts_kept": len(accounts)}
 
 
-def top_up_slots(db: Session, today: date, days_ahead: int = SEED_DAYS_AHEAD) -> int:
-    """Keep the next ``days_ahead`` days bookable on a long-running demo (only missing slots are added)."""
-    return ensure_slots(db, today, today + timedelta(days=days_ahead - 1))
+def ensure_demo_profile(db: Session) -> bool:
+    """The demo hospital's details on a database seeded before they were stored (phase 7B)."""
+    if db.get(HospitalProfile, 1) is not None or not is_seeded(db):
+        return False
+    db.add(HospitalProfile(id=1, **hospital.PROFILE))
+    db.flush()
+    return True
 
 
 def is_seeded(db: Session) -> bool:

@@ -3,7 +3,7 @@
 import functools
 import inspect
 from collections.abc import Callable
-from datetime import date, datetime
+from datetime import date, datetime, time
 from typing import Any, TypeVar
 
 from sqlalchemy.orm import Session
@@ -18,7 +18,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 def _jsonable(value: Any) -> Any:
-    if isinstance(value, (datetime, date)):
+    if isinstance(value, (datetime, date, time)):
         return value.isoformat()
     if isinstance(value, dict):
         return {k: _jsonable(v) for k, v in value.items()}

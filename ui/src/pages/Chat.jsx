@@ -200,7 +200,7 @@ function ConfirmCard({ card, busy, onConfirm, onChange }) {
 }
 
 function EmergencyPanel({ onBack }) {
-  const { t } = useSession();
+  const { emergencyNote, t } = useSession();
   return (
     <section className="emergency" role="alert" aria-live="assertive">
       <div className="em-head">
@@ -217,6 +217,7 @@ function EmergencyPanel({ onBack }) {
           <div>
             <strong>{t("emergencyWhere")}</strong>
             <p>{t("emergencyBody")}</p>
+            {emergencyNote && <p>{emergencyNote}</p>}
           </div>
         </div>
         <div>

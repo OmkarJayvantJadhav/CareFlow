@@ -23,6 +23,7 @@ from app.timeutil import now_ist
 from app.tools.errors import ToolError
 from app.tools.permissions import can_manage_patient, require_queue_control, require_role
 from app.tools.registration import categories
+from app.tools.timetable import holds_opd
 
 router = APIRouter(prefix="/api/v1/queue", tags=["queue"])
 ws_router = APIRouter()
@@ -119,12 +120,12 @@ def doctor_today(auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) 
     session = db.scalars(
         select(QueueSession).where(QueueSession.doctor_id == doctor.id, QueueSession.date == day)
     ).first()
-    if session is None and day.isoweekday() in doctor.opd_days:
+    if session is None and holds_opd(db, doctor, day):
         session = run_and_commit(db, lambda: engine.get_or_create_session(db, doctor.id, day))
     others = [
         {"doctor_id": d.id, "name": d.name, "department": d.department.name}
         for d in db.scalars(select(Doctor).join(Department).order_by(Department.name, Doctor.name))
-        if d.id != doctor.id and day.isoweekday() in d.opd_days
+        if d.id != doctor.id and holds_opd(db, d, day)
     ]
     return {
         "doctor_id": doctor.id,

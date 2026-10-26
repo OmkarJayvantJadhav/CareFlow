@@ -57,15 +57,16 @@ export function SessionProvider({ children }) {
   }, []);
 
   useEffect(() => setUnauthorizedHandler(signOut), [signOut]);
+  const loadConfig = useCallback(
+    () =>
+      api("/config")
+        .then(setConfig)
+        .catch(() => setConfig((c) => c ?? { demo_mode: false, allow_registration: true, hospital: null })),
+    [],
+  );
   useEffect(() => {
-    let current = true;
-    api("/config")
-      .then((c) => current && setConfig(c))
-      .catch(() => current && setConfig({ demo_mode: false, allow_registration: true }));
-    return () => {
-      current = false;
-    };
-  }, []);
+    void loadConfig();
+  }, [loadConfig]);
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.classList.toggle("large-text", largeText);
@@ -84,6 +85,10 @@ export function SessionProvider({ children }) {
       user,
       config,
       demo: config?.demo_mode === true,
+      /** The hospital's name in the interface language; empty until an admin has entered it. */
+      hospitalName: config?.hospital?.name?.[lang] ?? "",
+      emergencyNote: config?.hospital?.emergency_note?.[lang] ?? "",
+      reloadConfig: loadConfig,
       lang,
       largeText,
       setLang: (next) => {
@@ -112,7 +117,7 @@ export function SessionProvider({ children }) {
       signOut,
       t: (key, vars) => translate(lang, key, vars),
     }),
-    [user, config, lang, largeText, signOut, accept, refreshUser],
+    [user, config, lang, largeText, signOut, accept, refreshUser, loadConfig],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

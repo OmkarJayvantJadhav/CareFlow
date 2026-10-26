@@ -72,6 +72,11 @@ def prepare() -> None:
         from simulator.__main__ import main as simulator_main
 
         simulator_main(["seed", "--if-empty"])
+        from simulator.seed import ensure_demo_profile
+
+        with session_scope() as db:
+            if ensure_demo_profile(db):
+                print("Added the demo hospital's details.")
     username, password = os.environ.get("INITIAL_ADMIN_USERNAME"), os.environ.get("INITIAL_ADMIN_PASSWORD")
     if username and password:
         with session_scope() as db:

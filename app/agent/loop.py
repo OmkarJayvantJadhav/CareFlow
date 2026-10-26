@@ -18,6 +18,7 @@ from app.agent.messages import message
 from app.agent.tools import TOOLS, ToolContext, dumps, run_tool, tool_schemas
 from app.config import get_settings
 from app.safety.output_guard import mentions_medication
+from app.tools.hospital import message_values
 
 log = logging.getLogger(__name__)
 
@@ -120,12 +121,14 @@ class Agent:
                 turn.append({"role": "tool", "tool_call_id": call.id, "content": dumps(result)})
 
             if ctx.emergency:
-                reply = message("emergency", ctx.language)
+                reply = message("emergency", ctx.language, **message_values(ctx.db, ctx.language))
                 return TurnResult(
                     reply, turn + [{"role": "assistant", "content": reply}], actions=actions, emergency=True
                 )
             if ctx.handoff_ticket_id is not None:
-                reply = message("handoff", ctx.language, ticket_id=ctx.handoff_ticket_id)
+                reply = message(
+                    "handoff", ctx.language, ticket_id=ctx.handoff_ticket_id, **message_values(ctx.db, ctx.language)
+                )
                 return TurnResult(
                     reply,
                     turn + [{"role": "assistant", "content": reply}],

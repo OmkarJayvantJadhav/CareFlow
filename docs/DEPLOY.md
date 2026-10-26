@@ -65,13 +65,15 @@ once an admin exists. Render's free plan has no shell, which is why the first ad
 environment. With a shell, `python -m app.manage create-admin --username U --name "…"` does the same and
 prints a temporary password once.
 
-The admin then opens **Accounts** and creates the front-desk, doctor and other admin accounts. Each gets a
+The admin first opens **Hospital setup**: the hospital's name (in English, and in Hindi and Marathi if you
+like), address, reception phone and hours, and one sentence per language on where the emergency department
+is; then each department with its OPD hours, and each doctor with their languages, OPD days and appointment
+length. Slots open from the next day. Then **Accounts**: the front-desk, doctor and other admin accounts. Each gets a
 temporary password, shown once, to hand over in person or by phone; it must be replaced at the first sign-in.
 A forgotten password is reset there in the same way. Switching an account off ends its sessions immediately.
 
-Not yet possible in the app (coming in the next phases): adding departments, doctors and OPD schedules, and
-editing the hospital information documents, which still describe the demo hospital. The demo reset and the
-demo roles are switched off in this mode.
+Not yet possible in the app (coming in the next phases): editing the hospital information documents, which
+still describe the demo hospital. The demo reset and the demo roles are switched off in this mode.
 
 ## 4. Monitoring
 
@@ -89,6 +91,8 @@ demo roles are switched off in this mode.
 | Visitors left messy data (demo only) | Admin → Dashboard → **Reset demo data** |
 | An admin forgot their password (hospital deployment) | Another admin resets it under **Accounts**. If no admin can sign in, run `DATABASE_URL='<the Neon string>' python -m app.manage reset-password --username U` from a checkout of this repository on any computer; it prints a temporary password once |
 | Someone left or a device was lost | Admin → **Accounts** → switch the account off (its sessions end at once) or reset its password |
+| A doctor leaves the hospital | Admin → **Hospital setup** → the doctor's **Last day**; later patients are told and rebook free with a colleague. Switch off their account under **Accounts** |
+| A timetable changes | Admin → **Hospital setup** → edit the department's OPD hours or the doctor's days or appointment length; it applies from tomorrow and lists bookings that no longer fit, which are kept |
 | Database suspended (free limit hit) | Wait for the monthly reset, or create a new Neon project and update `DATABASE_URL` |
 | A deploy broke the demo | Render → the service → **Events** → roll back to the previous deploy |
 | Slots run out on a long-running demo | They should not: the next 21 days are topped up at every start and every 6 hours |

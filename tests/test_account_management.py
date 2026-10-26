@@ -169,7 +169,9 @@ def test_first_admin_is_refused_for_a_non_admin_username(world):
 
 
 def test_production_mode_hides_the_demo(api, monkeypatch):
-    assert api.get("/api/v1/config").json() == {"demo_mode": True, "allow_registration": True}
+    config = api.get("/api/v1/config").json()
+    assert config["demo_mode"] is True and config["allow_registration"] is True
+    assert config["hospital"]["name"]["en"] == "Indravani General Hospital"
     prompt = system_prompt("patient", "Asha", {1: "Asha Patil"}, "en", NOW)
     assert "fictional; demo" in prompt
     monkeypatch.setattr(get_settings(), "demo_mode", False)

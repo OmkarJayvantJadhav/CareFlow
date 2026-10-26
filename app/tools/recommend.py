@@ -23,8 +23,10 @@ from app.timeutil import at, resolve_now, to_ist
 from app.tools import policy
 from app.tools.calendar import consult_minutes
 from app.tools.errors import ToolError
+from app.tools.hospital import resolve_department
 from app.tools.permissions import Actor, require_patient_access
-from app.tools.vocab import normalize_language, normalize_specialty
+from app.tools.timetable import current_doctor
+from app.tools.vocab import normalize_language
 
 DEFAULT_WINDOW_DAYS = 14
 PER_DOCTOR_DAY = 2
@@ -65,11 +67,11 @@ def recommend_slots(
     if last < first:
         raise ToolError("VALIDATION_ERROR", "The date range is empty or outside the 30-day booking window.")
 
-    doctors_q = select(Doctor).join(Department).order_by(Doctor.id)
+    doctors_q = select(Doctor).join(Department).where(current_doctor(now.date())).order_by(Doctor.id)
     if doctor_id is not None:
         doctors_q = doctors_q.where(Doctor.id == doctor_id)
     else:
-        doctors_q = doctors_q.where(Department.name == normalize_specialty(specialty))
+        doctors_q = doctors_q.where(Department.name == resolve_department(db, specialty))
     if language and doctor_id is None:
         doctors_q = doctors_q.where(literal(lang) == any_(Doctor.languages))
     doctors = {d.id: d for d in db.scalars(doctors_q)}
@@ -81,7 +83,13 @@ def recommend_slots(
     slots = list(
         db.scalars(
             select(Slot)
-            .where(Slot.doctor_id.in_(doctors), Slot.start_at >= lo, Slot.start_at < hi, Slot.start_at >= earliest)
+            .where(
+                Slot.doctor_id.in_(doctors),
+                Slot.start_at >= lo,
+                Slot.start_at < hi,
+                Slot.start_at >= earliest,
+                Slot.status != "retired",
+            )
             .order_by(Slot.start_at)
         )
     )

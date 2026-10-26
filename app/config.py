@@ -6,8 +6,6 @@ from zoneinfo import ZoneInfo
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 HOSPITAL_TZ = ZoneInfo("Asia/Kolkata")
-HOSPITAL_NAME = "Indravani General Hospital"
-HOSPITAL_ADDRESS = "Hospital Road, Indravani Nagar (fictional)"  # as in knowledge/en/facilities
 
 
 class Settings(BaseSettings):
