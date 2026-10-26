@@ -15,7 +15,7 @@ time — while doctors and the front desk run, balance and coordinate every queu
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-394%20Python%20·%2031%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-395%20Python%20·%2031%20browser-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
 > ⚠️ **Demo with a fictional hospital (Indravani General Hospital). Not for medical use.**
@@ -316,7 +316,7 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 394 tests
+pytest                                     # 395 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
 pytest -m e2e tests/e2e                    # 31 browser tests, including accessibility and 360 px

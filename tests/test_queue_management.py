@@ -387,3 +387,17 @@ def test_doctor_actor_carries_their_doctor(world):
     actor = world.doctor_account("Dr. Suresh Pawar")
     assert isinstance(actor, Actor) and actor.role == "doctor"
     assert actor.doctor_id == world.doctor("Dr. Suresh Pawar").id
+
+
+def test_a_database_seeded_before_the_doctor_role_gets_doctor_accounts(world):
+    from sqlalchemy import delete
+
+    from app.db.models import AppUser
+    from simulator.seed import ensure_doctor_accounts
+
+    db = world.db
+    assert ensure_doctor_accounts(db) == 0  # the seed already made them
+    db.execute(delete(AppUser).where(AppUser.role == "doctor"))
+    assert ensure_doctor_accounts(db) == 18
+    assert world.doctor_account("Dr. Suresh Pawar").doctor_id == world.doctor("Dr. Suresh Pawar").id
+    assert ensure_doctor_accounts(db) == 0

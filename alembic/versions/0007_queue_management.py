@@ -47,16 +47,25 @@ def _in(column: str, values: tuple[str, ...]) -> str:
     return f"{column} IN ({', '.join(repr(v) for v in values)})"
 
 
-def _replace_checks(values: dict) -> None:
+def _replace_checks(values: dict, not_valid: bool = False) -> None:
     for key, (name, table, column) in CHECKS.items():
         op.drop_constraint(name, table, type_="check")
-        op.create_check_constraint(name, table, _in(column, values[key]))
+        if not_valid:
+            # Rows written under 0007 (some in append-only tables) keep their values; new rows are checked.
+            op.execute(f"ALTER TABLE {table} ADD CONSTRAINT {name} CHECK ({_in(column, values[key])}) NOT VALID")
+        else:
+            op.create_check_constraint(name, table, _in(column, values[key]))
 
 
 def upgrade() -> None:
     _replace_checks(NEW)
 
     op.add_column("app_user", sa.Column("doctor_id", sa.Integer(), sa.ForeignKey("doctor.id"), nullable=True))
+    # Doctor accounts left behind by a downgrade find their doctor again by username (dr-<surname>).
+    op.execute(
+        "UPDATE app_user u SET doctor_id = d.id FROM doctor d "
+        "WHERE u.role = 'doctor' AND u.username = 'dr-' || lower(substring(d.name from '([^ ]+)$'))"
+    )
     op.create_check_constraint("ck_app_user_doctor_has_record", "app_user", "role <> 'doctor' OR doctor_id IS NOT NULL")
 
     op.add_column(
@@ -115,10 +124,12 @@ def downgrade() -> None:
     op.drop_table("priority_request")
     op.drop_table("priority_rule")
     op.drop_index("uq_queue_entry_appointment", table_name="queue_entry")
+    # A moved patient's earlier entry gives its appointment to the entry that replaced it.
+    op.execute("UPDATE queue_entry SET appointment_id = NULL, kind = 'walk_in' WHERE status = 'transferred'")
     op.create_unique_constraint("uq_queue_entry_appointment", "queue_entry", ["appointment_id"])
     op.drop_column("queue_entry", "transferred_from_id")
     op.drop_column("queue_entry", "arrived_at")
     op.drop_column("queue_entry", "joined_remotely")
     op.drop_constraint("ck_app_user_doctor_has_record", "app_user", type_="check")
     op.drop_column("app_user", "doctor_id")
-    _replace_checks(OLD)
+    _replace_checks(OLD, not_valid=True)

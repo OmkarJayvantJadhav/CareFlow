@@ -19,7 +19,7 @@ from app.queue.predictions import predictions_disabled
 from app.safety.privacy import install_log_masking
 from app.timeutil import now_ist
 from simulator.day import history_days, replay_day
-from simulator.seed import SEED_DAYS_AHEAD, is_seeded, reset_demo, seed_all, top_up_slots
+from simulator.seed import SEED_DAYS_AHEAD, ensure_doctor_accounts, is_seeded, reset_demo, seed_all, top_up_slots
 from simulator.validate import validate_day
 
 
@@ -48,7 +48,9 @@ def main(argv: list[str] | None = None) -> int:
             if args.command == "seed" and is_seeded(db):
                 if args.if_empty:
                     added = top_up_slots(db, today)
-                    print(f"Database already seeded; {added} slots added to keep {SEED_DAYS_AHEAD} days bookable.")
+                    accounts = ensure_doctor_accounts(db)
+                    print(f"Database already seeded; {added} slots added to keep {SEED_DAYS_AHEAD} days bookable, "
+                          f"{accounts} doctor accounts added.")  # fmt: skip
                     return 0
                 print("Database already seeded; use 'reset' to start again.", file=sys.stderr)
                 return 1

@@ -92,7 +92,25 @@ def seed_reference(db: Session, rng: np.random.Generator) -> None:
         )
         db.add(user)
         users[username] = user
+    db.flush()
+    ensure_doctor_accounts(db)
+    for caregiver, patient_key, verified in hospital.CAREGIVER_LINKS:
+        db.add(
+            CaregiverLink(
+                caregiver_user_id=users[caregiver].id, patient_id=demo_patients[patient_key].id, verified=verified
+            )
+        )
+    db.flush()
+
+
+def ensure_doctor_accounts(db: Session) -> int:
+    """Every doctor gets an account for their own queue; databases seeded before the doctor role get theirs
+    at the next start. Returns how many were added."""
+    have = set(db.scalars(select(AppUser.doctor_id).where(AppUser.doctor_id.is_not(None))))
+    added = 0
     for doctor in db.scalars(select(Doctor).order_by(Doctor.id)):
+        if doctor.id in have:
+            continue
         db.add(
             AppUser(
                 username=hospital.doctor_username(doctor.name),
@@ -102,14 +120,9 @@ def seed_reference(db: Session, rng: np.random.Generator) -> None:
                 created_at=DEMO_ACCOUNTS_CREATED,
             )
         )
+        added += 1
     db.flush()
-    for caregiver, patient_key, verified in hospital.CAREGIVER_LINKS:
-        db.add(
-            CaregiverLink(
-                caregiver_user_id=users[caregiver].id, patient_id=demo_patients[patient_key].id, verified=verified
-            )
-        )
-    db.flush()
+    return added
 
 
 def ensure_slots(db: Session, start: date, end: date) -> int:
