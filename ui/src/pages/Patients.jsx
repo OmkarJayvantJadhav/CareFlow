@@ -15,6 +15,9 @@ function formFrom(record, fields) {
     name: record.name,
     birth_year: String(record.birth_year),
     phone: "",
+    email: "",
+    removeEmail: false,
+    contact_by: record.contact_by,
     language: record.language,
     pregnant: record.pregnant,
     disability: record.disability,
@@ -81,6 +84,9 @@ function Record({ record, onChanged, onErased }) {
         answers: form.answers,
       };
       if (form.phone.trim()) body.phone = form.phone;
+      if (form.removeEmail) body.email = "";
+      else if (form.email.trim()) body.email = form.email.trim();
+      body.contact_by = form.removeEmail && form.contact_by === "email" ? "sms" : form.contact_by;
       const updated = await api(`/staff/patients/${record.patient_id}`, { method: "PATCH", body });
       setForm(formFrom(updated, fields));
       setPhone(null);
@@ -178,6 +184,46 @@ function Record({ record, onChanged, onErased }) {
             <p id="pt-phone-hint" className="hint">
               {t("newMobileHint")}
             </p>
+          </div>
+          <div className="field">
+            <label htmlFor="pt-email">{t("emailOptional")}</label>
+            <input
+              id="pt-email"
+              type="email"
+              inputMode="email"
+              maxLength={254}
+              aria-describedby="pt-email-hint"
+              value={form.email}
+              disabled={form.removeEmail}
+              onChange={set("email")}
+            />
+            <p id="pt-email-hint" className="hint">
+              {record.email_masked ? t("emailOnFile", { email: record.email_masked }) : t("noEmailOnFile")}
+            </p>
+            {record.email_masked && (
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={form.removeEmail}
+                  onChange={(e) => setForm({ ...form, removeEmail: e.target.checked, email: "" })}
+                />
+                {t("removeEmailStaff")}
+              </label>
+            )}
+          </div>
+          <div className="field">
+            <label htmlFor="pt-contact">{t("contactByStaff")}</label>
+            <select id="pt-contact" value={form.contact_by} onChange={set("contact_by")}>
+              {["sms", "email", "app"].map((choice) => (
+                <option
+                  key={choice}
+                  value={choice}
+                  disabled={choice === "email" && !((record.email_masked && !form.removeEmail) || form.email.trim())}
+                >
+                  {t(`contact_${choice}`)}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="field">
             <label htmlFor="pt-lang">{t("preferredLanguage")}</label>

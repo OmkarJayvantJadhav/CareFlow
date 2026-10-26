@@ -84,6 +84,35 @@ information documents start as the demo hospital's. Edit the ones that apply (po
 rules automatically), hide the ones that do not (the demo's departments, doctors, facilities and insurers),
 and add your own. Changes are live at once. The demo reset and the demo roles are switched off in this mode.
 
+### Messages by SMS and e-mail
+
+Every message is shown in the app. To also send them, set a provider in the environment, then turn sending on
+under **SMS and e-mail** and choose the kinds (reminders, changes to a visit, queue updates, waiting-list
+offers). Nothing is sent until both are done, and the real providers never send in demo mode.
+
+| Name | Value |
+| --- | --- |
+| `SMS_PROVIDER` | `none` (default), `log` (written to the server log, to try it out), `twilio` or `webhook` |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM` | for `twilio`: the account, its auth token and the sending number |
+| `SMS_WEBHOOK_URL`, `SMS_WEBHOOK_SECRET` | for `webhook`: your SMS gateway's address and a shared secret |
+| `EMAIL_PROVIDER` | `none` (default), `log` or `smtp` |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURITY` | the mail server, port (587) and `starttls` (default), `ssl` (port 465) or `none` |
+| `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM` | the sign-in (if the server needs one) and the sender address |
+
+* **E-mail** is the free option: any SMTP service works, e.g. a mailbox with an app password, or a
+  transactional mail service's free plan. Patients add an address and choose e-mail under **My profile**.
+* **SMS** costs money. Twilio's trial sends only to numbers verified in its console. For Indian providers, use
+  `webhook`: CareFlow sends `POST {"channel": "sms", "to": "+91…", "text": "…", "reference": "n123"}` with the
+  headers `X-CareFlow-Timestamp` and `X-CareFlow-Signature: sha256=<HMAC-SHA-256 of "<timestamp>.<body>" with
+  the secret>`; your gateway checks the signature and answers 2xx (optionally `{"id": "…"}`). Commercial SMS to
+  Indian numbers need a DLT-registered sender ID and templates, which you and your provider arrange.
+* Send a test from the page first. Failures, and messages not sent (too late to be useful, a patient who chose
+  "only in the app", no address), are listed there with the reason; failed ones can be sent again.
+* Messages are sent by a background task every 20 seconds while the server is awake. Render's free instance
+  sleeps after 15 idle minutes, and reminders and queued messages then wait until it wakes. To keep it awake
+  during OPD hours, point a free uptime monitor at `/api/v1/health` every 10 minutes (one service running all
+  month stays within the free plan's hours).
+
 ## 4. Monitoring
 
 * Add a free uptime monitor (e.g. UptimeRobot) on `/api/v1/health` every 30 minutes; alert after two failures.

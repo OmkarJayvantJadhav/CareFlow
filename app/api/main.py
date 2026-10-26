@@ -17,6 +17,7 @@ from app.api.admin_routes import router as admin_router
 from app.api.care_routes import router as care_router
 from app.api.documents_routes import router as documents_router
 from app.api.library_routes import router as library_router
+from app.api.messaging_routes import router as messaging_router
 from app.api.patients_routes import router as patients_router
 from app.api.queue_routes import router as queue_router
 from app.api.queue_routes import ws_router
@@ -78,7 +79,22 @@ def _send_reminders(stop: threading.Event) -> None:
         stop.wait(600)
 
 
-@asynccontextmanager
+def _deliver_messages(stop: threading.Event) -> None:
+    """Messages by SMS and e-mail (phase 7E): the outbox is checked every 20 seconds."""
+    from app.tools.messaging import deliver_due
+
+    while not stop.is_set():
+        try:
+            with session_factory()() as db:
+                counts = deliver_due(db)
+                db.commit()
+                if counts:
+                    log.info("message delivery: %s", counts)
+        except Exception:  # noqa: BLE001 - try again next time
+            log.exception("message delivery failed")
+        stop.wait(20)
+
+
 def _load_policy() -> None:
     """The hospital's own booking and queue rules (phase 7D); the defaults if the database cannot be read."""
     from app.tools.policy_settings import load_policy
@@ -90,6 +106,7 @@ def _load_policy() -> None:
         log.exception("could not load the policy settings; using the defaults")
 
 
+@asynccontextmanager
 async def lifespan(_: FastAPI):
     stop = threading.Event()
     _load_policy()
@@ -97,6 +114,7 @@ async def lifespan(_: FastAPI):
         threading.Thread(target=_warm_up, name="retriever-warm-up", daemon=True).start()
         threading.Thread(target=_keep_slots_open, args=(stop,), name="slot-top-up", daemon=True).start()
         threading.Thread(target=_send_reminders, args=(stop,), name="reminders", daemon=True).start()
+    threading.Thread(target=_deliver_messages, args=(stop,), name="message-delivery", daemon=True).start()
     yield
     stop.set()
 
@@ -170,6 +188,7 @@ app.include_router(queue_router)
 app.include_router(setup_router)
 app.include_router(patients_router)
 app.include_router(documents_router)
+app.include_router(messaging_router)
 app.include_router(ws_router)
 
 # The built React app (ui/dist) is served from the same origin, so one container serves everything.

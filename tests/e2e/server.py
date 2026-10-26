@@ -30,6 +30,8 @@ os.environ.update(
     TRACE_DIR=os.environ.get("E2E_TRACE_DIR", "/tmp/careflow-e2e-traces"),
     MAX_MESSAGES_PER_SESSION="200",
     MAX_MESSAGES_PER_IP_PER_HOUR="1000",
+    SMS_PROVIDER="log",  # messages are written to the server log; sending stays off until a test turns it on
+    EMAIL_PROVIDER="log",
 )
 os.environ.update(_keys)
 

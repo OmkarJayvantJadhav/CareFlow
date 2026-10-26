@@ -82,6 +82,62 @@ def decrypt_phone(token: str | None) -> str | None:
         return None
 
 
+_EMAIL_AAD = b"careflow:patient-email"
+_EMAIL = re.compile(r"[A-Za-z0-9._%+'-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}")
+
+
+def normalize_email(value: str | None) -> str:
+    """An e-mail address as typed, trimmed and with the domain in lower case; "" means none."""
+    text = (value or "").strip()
+    if not text:
+        return ""
+    if len(text) > 254 or not _EMAIL.fullmatch(text):
+        raise ToolError("VALIDATION_ERROR", "Enter an e-mail address such as name@example.com, or leave it empty.")
+    local, domain = text.rsplit("@", 1)
+    return f"{local}@{domain.lower()}"
+
+
+def mask_email(address: str) -> str:
+    local, domain = address.rsplit("@", 1)
+    return f"{local[0]}***@{domain}"
+
+
+def encrypt_email(address: str) -> str:
+    nonce = os.urandom(12)
+    sealed = AESGCM(_current_keys()[0]).encrypt(nonce, address.encode(), _EMAIL_AAD)
+    return _PREFIX + base64.b64encode(nonce + sealed).decode()
+
+
+def decrypt_email(token: str | None) -> str | None:
+    if not token or not token.startswith(_PREFIX):
+        return None
+    raw = base64.b64decode(token[len(_PREFIX) :])
+    try:
+        return AESGCM(_current_keys()[0]).decrypt(raw[:12], raw[12:], _EMAIL_AAD).decode()
+    except InvalidTag:
+        log.warning("a stored e-mail address could not be decrypted; was DATA_KEY or AUTH_SECRET changed?")
+        return None
+
+
+def set_email(patient, value: str | None) -> str:
+    """Store (or, with "", remove) a patient's e-mail address: masked for screens, encrypted at rest."""
+    address = normalize_email(value)
+    patient.email_masked = mask_email(address) if address else ""
+    patient.email_encrypted = encrypt_email(address) if address else None
+    if not address and patient.contact_by == "email":
+        patient.contact_by = "sms"
+    return address
+
+
+def set_contact_by(patient, choice: str) -> None:
+    """How messages reach the patient outside the app: "sms", "email" or "app" (only in the app)."""
+    if choice not in ("sms", "email", "app"):
+        raise ToolError("VALIDATION_ERROR", "Choose SMS, e-mail or in the app only.")
+    if choice == "email" and not patient.email_encrypted:
+        raise ToolError("VALIDATION_ERROR", "Add an e-mail address first.")
+    patient.contact_by = choice
+
+
 def phone_index(digits: str) -> str:
     return hmac.new(_current_keys()[1], digits.encode(), hashlib.sha256).hexdigest()
 

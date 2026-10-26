@@ -29,9 +29,17 @@ const KIND = {
   delay: { icon: Timer, tone: "warn" },
 };
 
-/** S13: reminders, rebooking offers and other messages (stored, as the demo sends no SMS). */
+// Phase 7E: whether a message also went out by SMS or e-mail.
+function deliveryLabel(n) {
+  if (n.delivery === "sent") return n.delivered_via === "email" ? "sentByEmail" : "sentBySms";
+  if (n.delivery === "pending") return "deliveryPending";
+  if (n.delivery === "failed") return "deliveryFailed";
+  return null;
+}
+
+/** S13: reminders, rebooking offers and other messages; also sent by SMS or e-mail when the hospital does so. */
 export default function Notifications() {
-  const { t } = useSession();
+  const { t, demo } = useSession();
   const { refresh: refreshBadge } = useNotifications();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -63,7 +71,7 @@ export default function Notifications() {
       <div className="page-header">
         <div>
           <h1>{t("notificationsTitle")}</h1>
-          <p className="lead">{t("notificationsNote")}</p>
+          <p className="lead">{demo ? t("notificationsNote") : t("notificationsNoteLive")}</p>
         </div>
         {data?.unread > 0 && (
           <button type="button" className="secondary" onClick={() => void markAll()}>
@@ -86,6 +94,7 @@ export default function Notifications() {
         <ul className="card note-list">
           {data.notifications.map((n) => {
             const { icon: Icon, tone } = KIND[n.kind] ?? KIND.info;
+            const delivery = deliveryLabel(n);
             return (
               <li key={n.notification_id} className={n.read ? "" : "unread"}>
                 <span className={`icon-tile ${tone}`} aria-hidden="true">
@@ -95,6 +104,7 @@ export default function Notifications() {
                   <div className="row">
                     <span className={`badge ${tone}`}>{t(`kind_${n.kind}`)}</span>
                     <span className="muted small">{new Date(n.sent_at).toLocaleString()}</span>
+                    {delivery && <span className="muted small">· {t(delivery)}</span>}
                     {!n.read && <span className="sr-only">(unread)</span>}
                   </div>
                   <p>{n.message}</p>

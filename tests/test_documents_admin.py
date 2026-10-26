@@ -83,6 +83,8 @@ def test_admins_edit_a_shipped_document_and_can_revert_it(api, world):
     original = api.get(f"/api/v1/admin/documents/{did}", headers=admin).json()
     assert original["origin"] == "template" and "{{cancel_hours}}" in original["body"]
     body = original["body"] + "\n## Bicycle parking\n\nBicycles can be parked free of charge next to Gate 3.\n"
+    # The library was read before the change (and the clock is behind the database's): it must not stay stale.
+    assert api.get("/api/v1/library/policies/cancellation-policy").status_code == 200
     saved = api.put(f"/api/v1/admin/documents/{did}", json={"title": original["title"], "body": body}, headers=admin)
     assert saved.status_code == 200, saved.text
     assert saved.json()["origin"] == "edited" and saved.json()["last_verified"] == TODAY.isoformat()

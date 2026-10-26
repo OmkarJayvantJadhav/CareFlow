@@ -800,6 +800,42 @@ def test_admin_edits_a_document_and_a_rule_and_the_library_follows(page: Page):
     expect(rules.get_by_role("status")).to_contain_text("Documents updated", timeout=60000)
 
 
+def test_admin_turns_on_sms_and_a_patient_chooses_email(page: Page):
+    sign_in(page, "OPD admin")
+    page.get_by_role("link", name="SMS and e-mail", exact=True).click()
+    expect(page.get_by_role("heading", name="Messages by SMS and e-mail")).to_be_visible()
+    expect(page.get_by_text("Test mode: written to the server log only").first).to_be_visible()
+    sending = page.get_by_role("form", name="Sending")
+    sending.get_by_label("Send messages by SMS and e-mail").check()
+    sending.get_by_label(re.compile("^Delay")).uncheck()
+    sending.get_by_role("button", name="Save changes").click()
+    expect(sending.get_by_role("status")).to_contain_text("New messages of the chosen kinds will be sent")
+    test = page.get_by_role("form", name="Send a test message")
+    test.get_by_label("Mobile number").fill("98765 43210")
+    test.get_by_role("button", name="Send test").click()
+    expect(test.get_by_role("status")).to_contain_text("Test sent to +91")
+    page.get_by_role("button", name=re.compile("^Sign out")).first.click()
+
+    sign_in(page, "Patient")
+    page.goto("/profile")
+    page.get_by_label("E-mail address (optional)").fill("asha.k@example.in")
+    page.get_by_label("E-mail", exact=True).check()
+    page.get_by_role("button", name="Save changes").first.click()
+    expect(page.get_by_text("On file: a***@example.in.")).to_be_visible()
+    expect(page.get_by_label("E-mail", exact=True)).to_be_checked()
+    page.get_by_label("Only in the app").check()
+    page.get_by_role("button", name="Save changes").first.click()
+    expect(page.get_by_role("status").first).to_contain_text("Saved")
+    page.get_by_role("button", name=re.compile("^Sign out")).first.click()
+
+    sign_in(page, "OPD admin")
+    page.goto("/messaging")
+    sending = page.get_by_role("form", name="Sending")
+    sending.get_by_label("Send messages by SMS and e-mail").uncheck()
+    sending.get_by_role("button", name="Save changes").click()
+    expect(sending.get_by_role("status")).to_contain_text("Messages are shown in the app only")
+
+
 # --------------------------------------------------------------------------- hospital setup (adds a department), then reset
 
 

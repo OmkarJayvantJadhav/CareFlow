@@ -72,6 +72,9 @@ EVENT_TYPES = (
     "priority_request",
 )
 NOTIFICATION_CHANNELS = ("sms", "whatsapp")
+# Phase 7E: how a patient wants messages outside the app, and what became of sending one.
+CONTACT_CHOICES = ("sms", "email", "app")
+DELIVERY_STATUSES = ("pending", "sent", "failed", "skipped")
 # What a notification is about; reminders are sent once per appointment and kind.
 NOTIFICATION_KINDS = (
     "info", "reminder_day", "reminder_soon", "rebook", "unavailable", "turn_near", "transfer", "delay",
@@ -155,6 +158,7 @@ class Patient(Base):
     __tablename__ = "patient"
     __table_args__ = (
         CheckConstraint(_in("preferred_language", LANGUAGES), name="ck_patient_language"),
+        CheckConstraint(_in("contact_by", CONTACT_CHOICES), name="ck_patient_contact_by"),
         # The masked form is what screens, logs and the LLM see (NFR-08); an erased record keeps none.
         CheckConstraint(
             "phone_masked ~ '^\\+91 [0-9]{2}X{6}[0-9]{2}$' OR (erased_at IS NOT NULL AND phone_masked = '')",
@@ -171,6 +175,11 @@ class Patient(Base):
     phone_hash: Mapped[str | None] = mapped_column(String(64), index=True)
     # Set when the patient's personal details were erased on request; the visit history stays, anonymous.
     erased_at: Mapped[datetime | None] = mapped_column(TZ)
+    # Optional e-mail address (phase 7E), encrypted like the phone number; the masked form is for screens.
+    email_masked: Mapped[str] = mapped_column(String(120), default="", server_default="")
+    email_encrypted: Mapped[str | None] = mapped_column(Text)
+    # How messages reach the patient outside the app when the hospital sends them: sms, email or app only.
+    contact_by: Mapped[str] = mapped_column(String(8), default="sms", server_default="sms")
     preferred_language: Mapped[str] = mapped_column(String(8), default="en")
     # Patient categories set by staff (feature 30); senior and child are worked out from the birth year.
     pregnant: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
@@ -447,6 +456,8 @@ class Notification(Base):
     __table_args__ = (
         CheckConstraint(_in("channel", NOTIFICATION_CHANNELS), name="ck_notification_channel"),
         CheckConstraint(_in("kind", NOTIFICATION_KINDS), name="ck_notification_kind"),
+        CheckConstraint(_in("delivery", DELIVERY_STATUSES), name="ck_notification_delivery"),
+        Index("ix_notification_delivery_pending", "id", postgresql_where=text("delivery = 'pending'")),
         Index(
             "uq_notification_reminder",
             "appointment_id",
@@ -465,6 +476,14 @@ class Notification(Base):
     kind: Mapped[str] = mapped_column(String(16), default="info", server_default="info")
     appointment_id: Mapped[int | None] = mapped_column(ForeignKey("appointment.id"))
     read_at: Mapped[datetime | None] = mapped_column(TZ)
+    # Sending by SMS or e-mail (phase 7E). NULL: shown in the app only. "pending" rows are the outbox, sent by
+    # app.tools.messaging.deliver_due; the note says why one failed or was skipped (never an address).
+    delivery: Mapped[str | None] = mapped_column(String(10))
+    delivered_via: Mapped[str | None] = mapped_column(String(10))
+    delivery_attempts: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
+    delivery_next_at: Mapped[datetime | None] = mapped_column(TZ)
+    delivered_at: Mapped[datetime | None] = mapped_column(TZ)
+    delivery_note: Mapped[str | None] = mapped_column(String(200))
 
 
 CONSENT_PURPOSES = ("reuse_registration", "reminders", "caregiver_access")
@@ -651,6 +670,20 @@ class PolicySetting(Base):
 
     key: Mapped[str] = mapped_column(String(40), primary_key=True)
     value: Mapped[int] = mapped_column(Integer)
+    updated_at: Mapped[datetime] = mapped_column(TZ)
+    updated_by: Mapped[str | None] = mapped_column(String(60))  # a username: settings outlive a demo reset
+
+
+class MessagingSetting(Base):
+    """Whether the hospital sends messages by SMS or e-mail, and which kinds (phase 7E): one row, off until an
+    admin turns it on. The providers and their keys are environment variables, never stored here."""
+
+    __tablename__ = "messaging_setting"
+    __table_args__ = (CheckConstraint("id = 1", name="ck_messaging_setting_single_row"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    kinds: Mapped[list] = mapped_column(JSONB, default=list, server_default="[]")
     updated_at: Mapped[datetime] = mapped_column(TZ)
     updated_by: Mapped[str | None] = mapped_column(String(60))  # a username: settings outlive a demo reset
 

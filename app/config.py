@@ -50,6 +50,24 @@ class Settings(BaseSettings):
     max_registrations_per_ip_per_hour: int = 10
     max_failed_logins_per_15_min: int = 10
 
+    # Messages by SMS and e-mail (phase 7E). Off unless a provider is chosen here AND an admin turns sending on.
+    # SMS: "none", "log" (written to the server log, for trying it out), "twilio" or "webhook" (a POST to the
+    # hospital's own SMS gateway). E-mail: "none", "log" or "smtp". Real providers never send in demo mode.
+    sms_provider: str = "none"
+    twilio_account_sid: str = ""
+    twilio_auth_token: str = ""
+    twilio_from: str = ""
+    sms_webhook_url: str = ""
+    sms_webhook_secret: str = ""
+    email_provider: str = "none"
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_security: str = "starttls"  # starttls, ssl or none
+    smtp_username: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+    delivery_timeout_seconds: float = 15.0
+
     trace_dir: str = "traces"
     warm_up_retriever: bool = True  # load the retrieval models when the API starts
 

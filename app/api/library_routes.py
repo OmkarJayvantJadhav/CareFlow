@@ -11,7 +11,8 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func, select
+from sqlalchemy import func, literal_column, select
+from sqlalchemy.dialects.postgresql import aggregate_order_by
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
@@ -40,8 +41,15 @@ _cache: dict = {"key": None, "docs": {}}
 def _library(db: Session) -> dict[tuple[str, str, str], Document]:
     """(language, collection, slug) -> document, rebuilt when a document or a policy number changes."""
     visible = KbDocument.hidden_at.is_(None)
-    key = (*db.execute(select(func.count(KbDocument.id), func.max(KbDocument.updated_at)).where(visible)).one(),
-           tuple(sorted(policy.current().items())))  # fmt: skip
+    # A digest of which documents are visible and of their text as indexed (re-indexing after every change
+    # updates content_hash). Timestamps are not used: a server clock can be behind the database's.
+    fingerprint = func.md5(
+        func.string_agg(
+            func.concat(KbDocument.id, ":", KbDocument.content_hash),
+            aggregate_order_by(literal_column("','"), KbDocument.id),
+        )
+    )
+    key = (db.execute(select(fingerprint).where(visible)).scalar(), tuple(sorted(policy.current().items())))
     with _cache_lock:
         if _cache["key"] != key:
             rows = db.execute(select(KbDocument.source_path, KbDocument.template).where(visible)).all()

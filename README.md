@@ -125,7 +125,7 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | **Online check-in** | From an hour before the slot until 15 minutes after it starts; the token appears at once. |
 | **Join a queue online** | No appointment? Join a doctor's queue today from your phone (from an hour before OPD opens), come in when your turn is near, or leave the queue if plans change. |
 | **Live queue** | Your token, people ahead and "about 35 min (25–50)", updated over a WebSocket in under 2 seconds; a message if the doctor is delayed by an emergency, and your new token if you are moved to another doctor. |
-| **Reminders** | The day before and two hours before, in your language, in a notification list with an unread badge. |
+| **Reminders and messages** | The day before and two hours before, in your language, in a notification list with an unread badge — and by SMS or e-mail when the hospital sends them; you choose SMS, e-mail or only in the app. |
 | **Profile and privacy** | Edit your details, change your password, switch reminders and reuse of your details on or off, approve or remove caregivers, download all your data, or delete your account. |
 | **Accounts** | Create an account with a password — for yourself, or as a caregiver for a family member — or try the demo roles without one. |
 
@@ -164,6 +164,7 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | **Registration form** | Add extra registration questions in three languages — asked at sign-up and at the desk, checked by the server. |
 | **Evaluation results** | The latest results shipped with the build, each with its sample size. |
 | **Hospital setup** | The hospital's name in three languages, address, reception hours and emergency directions; the booking and queue rules (cut-offs, windows, online queue cap); add, edit and remove departments and doctors and their OPD timetables. Changes apply from tomorrow and never cancel a booking; a departing doctor gets a last day and later patients are told and rebook free. |
+| **SMS and e-mail** | Turn sending on and choose which kinds of message go out (reminders, changes to a visit, queue updates, waiting-list offers); send a test; see what was sent, what failed and why, and send failed ones again. Providers (Twilio, your own SMS gateway, any SMTP mail server) are set on the server; nothing is sent until an admin turns it on. |
 | **Information documents** | Edit, add, translate, hide or restore the documents the library shows and the assistant answers from; rule numbers are placeholders that always match the rules in force. Saved changes are searchable at once. |
 | **Accounts** | Create front-desk, doctor, admin and caregiver accounts with a one-time temporary password; switch accounts off and on; reset forgotten passwords. Switching off or resetting ends that person's sessions at once. |
 | **Demo reset** | Back to the seed data in one click (people's own accounts and consent are kept; demo deployment only). |
@@ -313,6 +314,10 @@ account gets a temporary password shown once, which must be replaced at its firs
 caregivers sign up on the start page or are registered at the desk. With a shell you can also run
 `python -m app.manage create-admin --username U --name "…"` or `reset-password --username U`.
 
+> To send reminders and other messages by SMS or e-mail, set `SMS_PROVIDER` and/or `EMAIL_PROVIDER` and their
+> keys (see [`docs/DEPLOY.md`](docs/DEPLOY.md#messages-by-sms-and-e-mail)), then turn sending on under
+> **SMS and e-mail**. E-mail through any SMTP service is free; SMS cost money.
+>
 > The information documents start as the demo hospital's (policies with your own rule numbers, but also its
 > departments, doctors, facilities and fictional insurers). Review them under **Documents**: edit what applies,
 > hide what does not, and add your own.
@@ -416,8 +421,9 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 | `ALLOW_REGISTRATION` | `true` | Let visitors create patient and caregiver accounts |
 | `INITIAL_ADMIN_USERNAME`, `INITIAL_ADMIN_PASSWORD`, `INITIAL_ADMIN_NAME` | — | The first admin, created at start-up only if no admin can sign in yet |
 | `MAX_REGISTRATIONS_PER_IP_PER_HOUR`, `MAX_FAILED_LOGINS_PER_15_MIN` | 10, 10 | Limits per client address (and username for sign-in) |
+| `SMS_PROVIDER`, `EMAIL_PROVIDER` | `none` | Send messages by SMS (`log`, `twilio`, `webhook`) or e-mail (`log`, `smtp`); an admin must also turn sending on. Keys: `TWILIO_*`, `SMS_WEBHOOK_URL`/`_SECRET`, `SMTP_*` ([DEPLOY](docs/DEPLOY.md#messages-by-sms-and-e-mail)) |
 | `TRACE_DIR` | `traces` | JSON-lines traces of every turn (masked) |
-| `WARM_UP_RETRIEVER` | `true` | Load retrieval at start-up; also starts the slot top-up and reminder threads |
+| `WARM_UP_RETRIEVER` | `true` | Load retrieval at start-up; also starts the slot top-up and reminder threads (the message sender always runs) |
 | `QUEUE_MERGE_RULE` | `slot_order` | `slot_order` (booked keep slot order, walk-ins fill gaps) or `alternate` |
 | `DEMO_MODE`, `SIMULATOR_SEED` | `true`, `42` | `true`: the fictional hospital, demo roles, demo reset and banner; `false`: a hospital's own deployment. Seed for the synthetic data |
 
@@ -513,9 +519,8 @@ docs/         specification, decisions, deployment guide, screenshots
 - **Measured on synthetic data.** The demo and the evaluation use the simulated hospital, whose parameters are
   assumptions ([`docs/DECISIONS.md`](docs/DECISIONS.md), D-21); the wait-time model learned from simulated days
   whose queues are short.
-- **Real use is being built in phases** (D-99): accounts, production mode, hospital setup, patient records
-  (encryption, correction, export, erasure) and editable documents and rules are done; real SMS or email
-  comes next. After documents are edited, new words are found by keyword search at once and by the dense
+- **Real use** (D-99): accounts, production mode, hospital setup, patient records (encryption, correction,
+  export, erasure), editable documents and rules, and messages by SMS and e-mail are in place. After documents are edited, new words are found by keyword search at once and by the dense
   embeddings after the next deployment (D-121).
   Department names are shown as entered, in one language.
 - **Chat and real patient data** (D-117): chat messages (numbers masked), patient names and appointment details
@@ -523,9 +528,11 @@ docs/         specification, decisions, deployment guide, screenshots
   agreement with, or run a local model with Ollama.
 - **Evaluation is incomplete** (see [Measured results](#measured-results)); retrieval was measured with the local
   models, which handle Marathi inflections less well than the neural ones.
-- **Notifications are simulated** — stored and shown in the app, never sent by SMS.
-- **Accounts** have no email or SMS verification and no self-service password reset (phone numbers are stored
-  masked); an admin resets a forgotten password with a temporary one.
+- **Messages** — sent by SMS or e-mail only once a hospital sets up a provider and turns sending on (never in
+  the demo). Reminders are in the patient's language; the other notices are in English. Indian commercial SMS
+  need DLT registration through the hospital's provider. While the free server sleeps, messages wait (D-123).
+- **Accounts** have no e-mail or SMS verification and no self-service password reset; an admin resets a
+  forgotten password with a temporary one.
 - **One process** — the live WebSocket broadcaster runs in a single process; several servers would need a
   shared message bus.
 - **Free hosting** — the Render free instance sleeps after 15 idle minutes; the first visit then takes

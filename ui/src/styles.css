@@ -574,6 +574,11 @@ h1.h2 {
   color: var(--info-text);
 }
 
+.icon-tile.ok {
+  background: var(--ok-soft);
+  color: var(--ok-text);
+}
+
 .icon-tile.warn {
   background: var(--warn-soft);
   color: var(--warn-text);
@@ -3108,4 +3113,23 @@ textarea.doc-body {
 
 .card-intro {
   margin: 0 0 1rem;
+}
+
+/* Phase 7E: SMS and e-mail settings. */
+.channel-list {
+  gap: 0.75rem;
+}
+
+.channel-list .badge {
+  max-width: 100%;
+  white-space: normal;
+  border-radius: var(--radius-sm);
+}
+
+.kind-choices {
+  margin-top: 1rem;
+}
+
+.kind-choices .check {
+  align-items: flex-start;
 }

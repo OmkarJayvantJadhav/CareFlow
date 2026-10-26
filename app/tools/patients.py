@@ -32,7 +32,16 @@ from app.db.models import (
     Slot,
     WaitingList,
 )
-from app.safety.pii import decrypt_phone, display_phone, normalize_mobile, phone_index, set_phone
+from app.safety.pii import (
+    decrypt_email,
+    decrypt_phone,
+    display_phone,
+    normalize_mobile,
+    phone_index,
+    set_contact_by,
+    set_email,
+    set_phone,
+)
 from app.timeutil import iso, resolve_now, to_ist
 from app.tools import registration
 from app.tools.audit import write_tool
@@ -133,6 +142,8 @@ def patient_record(db: Session, actor: Actor, patient_id: int, now: datetime | N
         "pregnant": p.pregnant,
         "disability": p.disability,
         "has_full_phone": p.phone_encrypted is not None,
+        "email_masked": p.email_masked,
+        "contact_by": p.contact_by,
         "erased_at": iso(p.erased_at) if p.erased_at else None,
         "answers": registration.patient_answers(db, p.id),
         "consent": registration.consent_state(db, p.id),
@@ -154,6 +165,8 @@ def update_patient(
     pregnant: bool | None = None,
     disability: bool | None = None,
     answers: dict | None = None,
+    email: str | None = None,
+    contact_by: str | None = None,
     now: datetime | None = None,
 ) -> dict:
     """Correct a patient's details (the desk, with the patient). The patient's own account name follows."""
@@ -173,6 +186,10 @@ def update_patient(
         p.birth_year = birth_year
     if phone is not None:
         set_phone(p, phone)
+    if email is not None:
+        set_email(p, email)
+    if contact_by is not None:
+        set_contact_by(p, contact_by)
     if language is not None:
         if language not in LANGUAGES:
             raise ToolError("VALIDATION_ERROR", "Language must be English, Hindi or Marathi.")
@@ -294,6 +311,7 @@ def erase_patient(db: Session, actor: Actor, patient_id: int, reason: str = "", 
     p.name = ERASED_NAME
     p.birth_year = p.birth_year - p.birth_year % 10  # keep only the decade, for age-group statistics
     p.phone_masked, p.phone_encrypted, p.phone_hash = "", None, None
+    p.email_masked, p.email_encrypted, p.contact_by = "", None, "app"
     p.pregnant = p.disability = False
     p.erased_at = now
     db.flush()
@@ -384,6 +402,8 @@ def export_own_data(db: Session, actor: Actor, now: datetime | None = None) -> d
         "name": p.name,
         "birth_year": p.birth_year,
         "phone": display_phone(digits) if digits else p.phone_masked,
+        "email": decrypt_email(p.email_encrypted) or p.email_masked,
+        "messages_by": p.contact_by,
         "language": p.preferred_language,
         "pregnant": p.pregnant,
         "disability": p.disability,
@@ -391,7 +411,7 @@ def export_own_data(db: Session, actor: Actor, now: datetime | None = None) -> d
     }
     out["appointments"] = all_visits
     out["notifications"] = [
-        {"at": iso(n.sent_at), "message": n.message}
+        {"at": iso(n.sent_at), "message": n.message, "sent_by": n.delivered_via if n.delivery == "sent" else None}
         for n in db.scalars(select(Notification).where(Notification.patient_id == p.id).order_by(Notification.sent_at))
     ]
     out["consent_history"] = registration.consent_history(db, p.id)

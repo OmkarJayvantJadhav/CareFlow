@@ -10,7 +10,7 @@ import { LANGS } from "../i18n";
 import { useSession } from "../session";
 import { PasswordCard } from "./Account";
 
-/** S12: the patient's own details (feature 29); the phone number is stored masked only. */
+/** S12: the patient's own details (feature 29); the phone number and e-mail address are kept encrypted. */
 export default function Profile() {
   const { user } = useSession();
   return user.role === "caregiver" ? <CaregiverProfile /> : <PatientProfile />;
@@ -34,7 +34,7 @@ function CaregiverProfile() {
 }
 
 function PatientProfile() {
-  const { t, lang, refreshUser } = useSession();
+  const { t, lang, refreshUser, config } = useSession();
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState(null);
   const [error, setError] = useState(null);
@@ -45,7 +45,15 @@ function PatientProfile() {
     api("/me/profile")
       .then((p) => {
         setProfile(p);
-        setForm({ name: p.name, birth_year: String(p.birth_year), phone: "", language: p.language });
+        setForm({
+          name: p.name,
+          birth_year: String(p.birth_year),
+          phone: "",
+          language: p.language,
+          email: "",
+          removeEmail: false,
+          contact_by: p.contact_by,
+        });
       })
       .catch(setError);
   }, []);
@@ -58,9 +66,12 @@ function PatientProfile() {
     try {
       const body = { name: form.name, birth_year: Number(form.birth_year), language: form.language };
       if (form.phone.trim()) body.phone = form.phone;
+      if (form.removeEmail) body.email = "";
+      else if (form.email.trim()) body.email = form.email;
+      if (showContact) body.contact_by = form.removeEmail && form.contact_by === "email" ? "sms" : form.contact_by;
       const p = await api("/me/profile", { method: "PATCH", body });
       setProfile(p);
-      setForm({ ...form, name: p.name, phone: "" });
+      setForm({ ...form, name: p.name, phone: "", email: "", removeEmail: false, contact_by: p.contact_by });
       setSaved(true);
       await refreshUser();
     } catch (err) {
@@ -71,6 +82,12 @@ function PatientProfile() {
   }
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
+  const channels = config?.messaging ?? {};
+  // Messages outside the app: only when the hospital sends them, or the patient has already chosen.
+  const showContact = Boolean(
+    profile && (channels.sms || channels.email || profile.email_masked || profile.contact_by !== "sms"),
+  );
+  const hasEmail = Boolean((profile?.email_masked && !form?.removeEmail) || form?.email.trim());
   return (
     <main className="narrow">
       <div className="page-header">
@@ -150,6 +167,55 @@ function PatientProfile() {
                   {t("phoneOnFile", { phone: profile.phone_masked })} {t("mobileHint")}
                 </p>
               </div>
+              {showContact && (
+                <>
+                  <div className="field">
+                    <label htmlFor="pf-email">{t("emailOptional")}</label>
+                    <input
+                      id="pf-email"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      maxLength={254}
+                      aria-describedby="pf-email-hint"
+                      value={form.email}
+                      disabled={form.removeEmail}
+                      onChange={set("email")}
+                    />
+                    <p id="pf-email-hint" className="hint">
+                      {profile.email_masked ? `${t("emailOnFile", { email: profile.email_masked })} ` : ""}
+                      {t("emailHint")}
+                    </p>
+                    {profile.email_masked && (
+                      <label className="check">
+                        <input
+                          type="checkbox"
+                          checked={form.removeEmail}
+                          onChange={(e) => setForm({ ...form, removeEmail: e.target.checked, email: "" })}
+                        />
+                        {t("removeEmail")}
+                      </label>
+                    )}
+                  </div>
+                  <fieldset className="plain">
+                    <legend>{t("contactBy")}</legend>
+                    {["sms", "email", "app"].map((choice) => (
+                      <label className="check" key={choice}>
+                        <input
+                          type="radio"
+                          name="contact_by"
+                          value={choice}
+                          checked={form.contact_by === choice}
+                          disabled={choice === "email" && !hasEmail}
+                          onChange={set("contact_by")}
+                        />
+                        {t(`contact_${choice}`)}
+                      </label>
+                    ))}
+                    <p className="hint">{t("contactHint")}</p>
+                  </fieldset>
+                </>
+              )}
               {error !== null && <ErrorMessage error={error} />}
               {saved && (
                 <p className="notice" role="status">

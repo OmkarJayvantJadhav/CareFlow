@@ -1,5 +1,7 @@
 """Patient records for staff and admins, and a patient's own data: export and erasure (phase 7C)."""
 
+from typing import Literal
+
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -21,6 +23,8 @@ class PatientChange(BaseModel):
     pregnant: bool | None = None
     disability: bool | None = None
     answers: dict[str, str] | None = None
+    email: str | None = Field(None, max_length=254)
+    contact_by: Literal["sms", "email", "app"] | None = None
 
 
 class Erasure(BaseModel):

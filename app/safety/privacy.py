@@ -16,9 +16,13 @@ def mask_phone_number(digits: str) -> str:
     return f"+91 {d[:2]}XXXXXX{d[-2:]}"
 
 
+_EMAIL_RE = re.compile(r"\b([A-Za-z0-9._%+'-])[A-Za-z0-9._%+'-]*@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})\b")
+
+
 def mask_text(text: str) -> str:
-    """Replace every phone number in free text with its masked form."""
-    return _PHONE_RE.sub(lambda m: mask_phone_number(m.group(1)), text)
+    """Replace every phone number and e-mail address in free text with its masked form."""
+    text = _PHONE_RE.sub(lambda m: mask_phone_number(m.group(1)), text)
+    return _EMAIL_RE.sub(lambda m: f"{m.group(1)}***@{m.group(2)}", text) if "@" in text else text
 
 
 # Values under these keys are never stored or logged (a temporary password returned once, for example).

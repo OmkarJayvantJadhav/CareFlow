@@ -14,7 +14,7 @@ from app.api.auth import issue_token
 from app.api.deps import Auth, get_auth, get_db, run_and_commit
 from app.api.passwords import check_new_password, hash_password, verify_password
 from app.db.models import AppUser, Department, Notification, Patient
-from app.safety.pii import set_phone
+from app.safety.pii import set_contact_by, set_email, set_phone
 from app.timeutil import iso, now_ist
 from app.tools import calendar, receipts, recommend
 from app.tools.errors import ToolError
@@ -36,6 +36,8 @@ def _profile(user: AppUser, patient: Patient) -> dict:
         "birth_year": patient.birth_year,
         "phone_masked": patient.phone_masked,
         "language": patient.preferred_language,
+        "email_masked": patient.email_masked,
+        "contact_by": patient.contact_by,
         "has_password": user.password_hash is not None,
         "member_since": iso(user.created_at) if user.created_at else None,
     }
@@ -49,6 +51,8 @@ class ProfileUpdate(BaseModel):
     birth_year: int | None = None
     phone: str | None = Field(None, max_length=20)
     language: Literal["en", "hi", "mr"] | None = None
+    email: str | None = Field(None, max_length=254)  # "" removes it
+    contact_by: Literal["sms", "email", "app"] | None = None
 
 
 class PasswordChange(BaseModel):
@@ -78,6 +82,10 @@ def update_profile(body: ProfileUpdate, auth: Auth = Depends(get_auth), db: Sess
         set_phone(patient, body.phone)  # masked for display, encrypted at rest (D-111)
     if body.language is not None:
         patient.preferred_language = body.language
+    if body.email is not None:
+        set_email(patient, body.email)  # masked for display, encrypted at rest (phase 7E)
+    if body.contact_by is not None:
+        set_contact_by(patient, body.contact_by)
     db.commit()
     return _profile(user, patient)
 
@@ -129,6 +137,9 @@ def my_notifications(auth: Auth = Depends(get_auth), db: Session = Depends(get_d
                 "read": n.read_at is not None,
                 "appointment_id": n.appointment_id,
                 "channel": n.channel,
+                # Phase 7E: "sent" with delivered_via sms/email, "pending", "failed", "skipped" or null (app only).
+                "delivery": n.delivery,
+                "delivered_via": n.delivered_via,
             }
             for n in rows
         ],
