@@ -159,6 +159,24 @@ def test_assistant_joins_a_queue_online_and_leaves_it(page: Page):
     expect(page.locator(".msg.assistant").last).to_contain_text("has left Dr. Ritu Agarwal's queue")
 
 
+def test_anyone_can_read_the_hospital_information_without_signing_in(page: Page):
+    page.goto("/")
+    page.get_by_role("link", name="Hospital information").click()
+    expect(page.get_by_role("heading", level=1, name="Hospital information")).to_be_visible()
+    page.get_by_label("Search the documents").fill("lipid fasting")
+    page.get_by_role("button", name="Search").click()
+    expect(page.get_by_text("Found 1 for “lipid fasting”")).to_be_visible()
+    page.get_by_role("link", name=re.compile("^Lipid profile")).click()
+    expect(page.get_by_role("heading", level=1, name=re.compile("^Lipid profile"))).to_be_visible()
+    page.get_by_role("group", name="Read in").get_by_role("button", name="हिन्दी").click()
+    expect(page.get_by_role("heading", level=1, name=re.compile("लिपिड"))).to_be_visible()
+    assert page.evaluate("document.querySelector('article').lang") == "hi"
+    page.get_by_role("group", name="पढ़ें", exact=False).get_by_role("button", name="English").click()
+    page.get_by_role("link", name="All hospital information").click()
+    page.get_by_role("button", name=re.compile(r"^Test preparation \(")).click()
+    expect(page.locator(".library-item")).to_have_count(51)
+
+
 def test_interface_switches_to_hindi_and_marathi(page: Page):
     sign_in(page, "Patient")
     page.get_by_role("button", name="हिन्दी").first.click()
@@ -476,7 +494,18 @@ def _axe_violations(page: Page) -> list[dict]:
     "role, links",
     [
         (None, []),
-        ("Patient", ["Assistant", "Book", "My appointments", "Queue status", "Notifications", "Profile"]),
+        (
+            "Patient",
+            [
+                "Assistant",
+                "Book",
+                "My appointments",
+                "Queue status",
+                "Hospital information",
+                "Notifications",
+                "Profile",
+            ],
+        ),
         ("Front desk", ["Front desk", "Calendar", "Doctor status", "Coordination"]),
         ("OPD admin", ["Dashboard", "Analytics", "Registration form", "Priority rules", "Coordination"]),
         ("Doctor", ["My queue"]),
@@ -496,6 +525,15 @@ def test_no_serious_accessibility_violations(page: Page, role, links):
         expect(page.get_by_role("heading", level=1)).to_be_visible()
         page.wait_for_load_state("networkidle")
         assert _axe_violations(page) == [], link
+
+
+def test_library_pages_have_no_serious_accessibility_violations(page: Page):
+    page.goto("/library")
+    expect(page.locator(".library-item").first).to_be_visible()
+    assert _axe_violations(page) == []
+    page.goto("/library/policies/join-queue-online")
+    expect(page.get_by_role("heading", level=1)).to_be_visible()
+    assert _axe_violations(page) == []
 
 
 def test_kiosk_has_no_serious_accessibility_violations(page: Page):

@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Bell,
+  BookOpen,
   CalendarDays,
   CalendarPlus,
   CalendarRange,
@@ -18,7 +19,7 @@ import {
   Stethoscope,
   UserRound,
 } from "lucide-react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { initials } from "../format";
 import { LANGS } from "../i18n";
 import { useNotifications } from "../notifications";
@@ -30,6 +31,7 @@ const NAV = {
     { to: "/book", label: "navBook", icon: CalendarPlus },
     { to: "/appointments", label: "navAppointments", icon: CalendarDays },
     { to: "/queue", label: "navQueue", icon: ListOrdered },
+    { to: "/library", label: "navLibrary", icon: BookOpen },
   ],
   staff: [
     { to: "/desk", label: "navDesk", icon: ClipboardList },
@@ -99,6 +101,17 @@ function Preferences({ languages = true }) {
   );
 }
 
+/** The information library for everyone whose navigation does not list it (staff, doctors, admins). */
+function LibraryLink() {
+  const { user, t } = useSession();
+  if (user.role === "patient" || user.role === "caregiver") return null;
+  return (
+    <NavLink to="/library" className="icon-link" aria-label={t("navLibrary")} title={t("navLibrary")}>
+      <BookOpen size={20} aria-hidden="true" />
+    </NavLink>
+  );
+}
+
 /** Bell with the unread count, and the profile link, for patients and caregivers. */
 function PatientTools() {
   const { user, t } = useSession();
@@ -131,6 +144,7 @@ function PatientTools() {
 export default function Layout() {
   const { user, signOut, t } = useSession();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const banner = (
     <div className="banner" role="note">
       <Info size={15} aria-hidden="true" />
@@ -144,7 +158,14 @@ export default function Layout() {
         {banner}
         <header className="topbar start-top">
           <Brand />
-          <Preferences languages={false} />
+          <span className="row" style={{ gap: "0.75rem" }}>
+            <NavLink to="/library" className="start-link">
+              <BookOpen size={18} aria-hidden="true" />
+              {t("navLibrary")}
+            </NavLink>
+            {/* The start page has its own language picker; the library pages need one here. */}
+            <Preferences languages={pathname !== "/"} />
+          </span>
         </header>
         <Outlet />
       </>
@@ -190,6 +211,7 @@ export default function Layout() {
             </span>
             <Preferences />
             <span className="tools">
+              <LibraryLink />
               <PatientTools />
             </span>
             <button

@@ -75,6 +75,12 @@ function AssistantText({ text }) {
   );
 }
 
+/** "knowledge/en/policies/waiting-list.md" -> "/library/policies/waiting-list". */
+function libraryPath(citation) {
+  const slug = citation.source_path.split("/").pop().replace(/\.md$/, "");
+  return `/library/${citation.collection}/${slug}`;
+}
+
 function Sources({ citations }) {
   const { t } = useSession();
   const [shown, setShown] = useState(null);
@@ -104,6 +110,10 @@ function Sources({ citations }) {
           <span>
             {detail.collection} · {detail.language} · {t("verified")} {detail.last_verified} · {detail.source_path}
           </span>
+          {/* Opens in a new tab so the conversation stays as it is. */}
+          <a href={libraryPath(detail)} target="_blank" rel="noopener noreferrer" className="small">
+            {t("readFullDocument")}
+          </a>
         </div>
       )}
     </div>

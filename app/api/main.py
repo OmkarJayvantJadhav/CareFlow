@@ -14,6 +14,7 @@ from sqlalchemy import func, select, text
 from app.agent.llm import build_llm
 from app.api.admin_routes import router as admin_router
 from app.api.care_routes import router as care_router
+from app.api.library_routes import router as library_router
 from app.api.queue_routes import router as queue_router
 from app.api.queue_routes import ws_router
 from app.api.registration_routes import router as registration_router
@@ -147,6 +148,7 @@ def health() -> JSONResponse:
 app.include_router(router)
 app.include_router(admin_router)
 app.include_router(care_router)
+app.include_router(library_router)
 app.include_router(registration_router)
 app.include_router(queue_router)
 app.include_router(ws_router)

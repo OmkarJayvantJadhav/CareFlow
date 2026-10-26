@@ -11,6 +11,8 @@ import DoctorQueue from "./pages/DoctorQueue";
 import DoctorStatus from "./pages/DoctorStatus";
 import FrontDesk from "./pages/FrontDesk";
 import Kiosk from "./pages/Kiosk";
+import Library from "./pages/Library";
+import LibraryDoc from "./pages/LibraryDoc";
 import Notifications from "./pages/Notifications";
 import PriorityRules from "./pages/PriorityRules";
 import Profile from "./pages/Profile";
@@ -50,6 +52,9 @@ export default function App() {
       />
       <Route element={<Layout />}>
         <Route path="/" element={<Start />} />
+        {/* Hospital information: open to everyone, signed in or not. */}
+        <Route path="/library" element={<Library />} />
+        <Route path="/library/:collection/:slug" element={<LibraryDoc />} />
         <Route
           path="/chat"
           element={

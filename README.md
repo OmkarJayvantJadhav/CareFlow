@@ -15,7 +15,7 @@ time — while doctors and the front desk run, balance and coordinate every queu
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-402%20Python%20·%2032%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-406%20Python%20·%2034%20browser-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
 > ⚠️ **Demo with a fictional hospital (Indravani General Hospital). Not for medical use.**
@@ -101,7 +101,8 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | --- | --- |
 | **Assistant chat** | Book, reschedule, cancel or join a waiting list, check in, join a doctor's queue online or leave it — in plain language; a confirmation card (with a countdown) before anything changes; "Talk to a person" at any time. |
 | **Book without chatting** | Choose a department, doctor, language, dates and time of day; times are ranked and each says why — *Soonest*, *Speaks your language*, *Doctor you have seen*, *Quieter day*. |
-| **Cited answers** | Policies, insurance, test preparation and facilities answered from the hospital's documents, with source chips; "I couldn't find that" when the documents don't say. |
+| **Cited answers** | Policies, insurance, test preparation and facilities answered from the hospital's documents, with source chips that open the full document; "I couldn't find that" when the documents don't say. |
+| **Hospital information** | Every document the assistant answers from — 121 topics in English, हिन्दी and मराठी — readable and searchable by anyone, without signing in. |
 | **My appointments** | Upcoming and past visits, receipt, reschedule, cancel and rebook — every change confirmed in a dialog; actions close automatically inside the policy windows. |
 | **Receipts** | A printable receipt with a signed reference code and QR code. |
 | **Online check-in** | From an hour before the slot until 15 minutes after it starts; the token appears at once. |
@@ -322,10 +323,10 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 402 tests
+pytest                                     # 406 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e                    # 32 browser tests, including accessibility and 360 px
+pytest -m e2e tests/e2e                    # 34 browser tests, including accessibility and 360 px
 ```
 
 GitHub Actions runs all of these and a Docker build on every push; Render redeploys from `develop`.
