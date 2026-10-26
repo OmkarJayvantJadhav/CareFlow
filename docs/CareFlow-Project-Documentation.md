@@ -346,7 +346,7 @@ phases 6 and 7.
 | FR-51 | Admins shall set priority weights per patient category; open queues are reordered at once. |
 | FR-52 | Staff and doctors shall move a waiting patient to another doctor or department; the patient keeps their check-in time and gets a new token. |
 | FR-53 | Patients without a booking shall join a doctor's queue online within the hospital's window and cap, and may leave it. |
-| FR-54 | The system shall record patients who left without being seen. |
+| FR-54 | The system shall record patients who left without being seen, and close days that are over if the desk did not (no-shows recorded, rebooking offered; D-127). |
 | FR-55 | A coordination board shall show every doctor's queue in a department with expected finish times and balancing suggestions, applied only one by one with confirmation. |
 | FR-56 | The assistant shall check in, join a queue online and leave a queue, each after confirmation. |
 | FR-57 | Anyone shall read and search every information document without signing in. |
@@ -578,7 +578,7 @@ flowchart TB
     R --> DB
     Q --> DB
     Q -->|live updates| API
-    W["Background threads<br/>reminders, slot top-up, message delivery"] --> DB
+    W["Background threads<br/>reminders, slot top-up, end of day, message delivery"] --> DB
     W --> X["SMS / e-mail providers<br/>Twilio, webhook gateway, SMTP"]
     SIM["Simulator (demo and evaluation)<br/>fictional hospital, synthetic days"] --> DB
     EV["Evaluation suite"] --> DB
@@ -598,7 +598,7 @@ flowchart TB
 | Queue engine | Merge rule, events, priority rules and requests, moves, virtual queue, coordination, balancing, live push | Python | `app/queue/` |
 | Wait-time model | Estimate and range per waiting patient | LightGBM (quantile models) | `app/ml/` |
 | Analytics | Text-to-SQL on reporting views, read-only role, SQL validator; utilization | sqlglot | `app/analytics/` |
-| Background threads | Reminders (every 10 min), slot top-up (every 6 h), message delivery (every 20 s) | Threads in the server process | `app/api/main.py` |
+| Background threads | Reminders (every 10 min), slot top-up (every 6 h), closing days that are over (every hour), message delivery (every 20 s) | Threads in the server process | `app/api/main.py` |
 | Messaging | Outbox, SMS and e-mail providers | `httpx`, `smtplib` | `app/tools/messaging.py`, `channels.py` |
 | Management commands | Start-up preparation, first admin, password reset, data key | Python | `app/manage.py` |
 | Database | All records, documents, embeddings, events, audit | PostgreSQL 16 + pgvector | `app/db/`, `alembic/` |
@@ -938,7 +938,7 @@ Conventional tests prove the deterministic code; the Evaluation Plan (section 14
 
 | Level | What is tested | Tool | When | Count (26 Oct 2026) |
 | --- | --- | --- | --- | ---: |
-| Unit and integration | Tools, rules, queue engine, merge rule, SQL validator, API endpoints, migrations, encryption, messaging | pytest against a real PostgreSQL | Every push (CI) | 457 |
+| Unit and integration | Tools, rules, queue engine, merge rule, SQL validator, API endpoints, migrations, encryption, messaging | pytest against a real PostgreSQL | Every push (CI) | 459 |
 | Concurrency | Two bookings for one slot at the same moment | pytest with parallel sessions | Every push | (included) |
 | Agent | Fixed scenarios with a scripted model (tool calls, cards, refusals) | pytest | Every push | (included) |
 | Browser | Every screen and main flow for every role, live queue, accessibility (axe-core), 360 px large text | Playwright, with a fixed clock and a rule-based stand-in model | Every push | 44 |
@@ -994,7 +994,7 @@ Cases added with phases 6 and 7, by test file:
 | --- | --- | --- |
 | FR-35–FR-41 | `test_care_features.py` | Ranking and reasons; leave displaces and notifies; reminders once each, consent respected; receipts verify; utilization |
 | FR-42–FR-48 | `test_registration.py`, `test_queue.py` | Check-in window; code check-in rejects a forged code; duplicates and consent; custom questions; caregiver requests |
-| FR-49–FR-56 | `test_queue_management*.py`, `test_balance.py`, `test_agent_queue.py` | Doctor sees only own queue; priority only by the doctor; moves keep check-in time; online queue window and cap; balancing; assistant queue actions with cards |
+| FR-49–FR-56 | `test_queue_management*.py`, `test_balance.py`, `test_agent_queue.py`, `test_close_past_days.py` | Doctor sees only own queue; priority only by the doctor; moves keep check-in time; online queue window and cap; balancing; assistant queue actions with cards |
 | FR-57 | `test_library.py` | Every document readable and searchable without sign-in |
 | FR-58–FR-61, FR-69 | `test_account_management.py`, `test_accounts.py` | Production mode; temporary password gate; sessions end on change; last admin protected; first admin from the environment |
 | FR-62–FR-64 | `test_hospital_setup.py` | Timetable change from tomorrow keeps bookings; last day moves later visits; department search words |
@@ -1176,7 +1176,7 @@ Hugging Face Spaces, planned in version 1.0, needs a paid plan for Docker apps, 
 `alembic upgrade head` → `python -m app.manage prepare` (demo seed if empty, hospital profile, first admin)
 → `python -m app.rag.ingest --if-needed` (loads new or changed document templates, never overwriting an
 admin's changes, and re-embeds what changed) → `uvicorn` with one process. The server then loads the hospital's rules and starts the
-reminder, slot top-up and message-delivery threads.
+reminder, slot top-up, end-of-day and message-delivery threads.
 
 ### Configuration
 

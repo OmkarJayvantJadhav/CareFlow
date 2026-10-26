@@ -17,7 +17,7 @@ coordinate every queue, and the hospital's admins keep its people, timetables, r
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-457%20Python%20·%2044%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-459%20Python%20·%2044%20browser-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
 > ⚠️ **The live demo uses a fictional hospital (Indravani General Hospital) and synthetic data. Not for medical use.**
@@ -221,7 +221,8 @@ flowchart LR
   and documents are service functions like the booking rules: role-checked and audited. Rules and
   documents live in the database and apply at once; a document edit is re-indexed in about a second.
 - **Background work** — threads in the server send reminders (every 10 minutes), keep 21 days of slots
-  open (every 6 hours) and deliver the SMS and e-mail outbox (every 20 seconds).
+  open (every 6 hours), close days that are over if the desk did not (every hour: no-shows recorded,
+  rebooking offered) and deliver the SMS and e-mail outbox (every 20 seconds).
 - **Privacy** — phone numbers and e-mail addresses are encrypted with AES-GCM and masked on every screen,
   log, trace, audit row and model prompt; secrets live only in the environment.
 - **Analytics** — reporting views without names or phone numbers, a SELECT-only database role, a SQL
@@ -388,7 +389,7 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 457 tests
+pytest                                     # 459 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
 pytest -m e2e tests/e2e                    # 44 browser tests, including accessibility and 360 px
@@ -439,7 +440,7 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 | `MAX_REGISTRATIONS_PER_IP_PER_HOUR`, `MAX_FAILED_LOGINS_PER_15_MIN` | 10, 10 | Limits per client address (and username for sign-in) |
 | `SMS_PROVIDER`, `EMAIL_PROVIDER` | `none` | Send messages by SMS (`log`, `twilio`, `webhook`) or e-mail (`log`, `smtp`); an admin must also turn sending on. Keys: `TWILIO_*`, `SMS_WEBHOOK_URL`/`_SECRET`, `SMTP_*` ([DEPLOY](docs/DEPLOY.md#messages-by-sms-and-e-mail)) |
 | `TRACE_DIR` | `traces` | JSON-lines traces of every turn (masked) |
-| `WARM_UP_RETRIEVER` | `true` | Load retrieval at start-up; also starts the slot top-up and reminder threads (the message sender always runs) |
+| `WARM_UP_RETRIEVER` | `true` | Load retrieval at start-up; also starts the slot top-up, reminder and end-of-day threads (the message sender always runs) |
 | `QUEUE_MERGE_RULE` | `slot_order` | `slot_order` (booked keep slot order, walk-ins fill gaps) or `alternate` |
 | `DEMO_MODE`, `SIMULATOR_SEED` | `true`, `42` | `true`: the fictional hospital, demo roles, demo reset and banner; `false`: a hospital's own deployment. Seed for the synthetic data |
 
@@ -569,7 +570,7 @@ docs/         specification, decisions, deployment guide, screenshots
 | Document | Contents |
 | --- | --- |
 | [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md) | The specification (version 2.0): problem, requirements (FR-01–FR-74), architecture, database, API, screens, tests, roadmap, security, operations, risks and evaluation |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-126), with the reason |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-127), with the reason |
 | [`docs/DEPLOY.md`](docs/DEPLOY.md) | Free deployment on Render and Neon, monitoring and runbook |
 | [`eval/README.md`](eval/README.md) | How the evaluation works and how to run it |
 | [`eval/results/README.md`](eval/results/README.md) | The generated results table with sample sizes |

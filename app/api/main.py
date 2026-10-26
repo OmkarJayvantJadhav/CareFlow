@@ -63,6 +63,23 @@ def _keep_slots_open(stop: threading.Event) -> None:
         stop.wait(6 * 3600)
 
 
+def _close_past_days(stop: threading.Event) -> None:
+    """Days that are over get their queues closed and no-shows recorded, if the desk did not (D-127).
+    Checked at start-up and then every hour, so it happens soon after midnight."""
+    from app.queue.engine import close_past_days
+
+    while not stop.is_set():
+        try:
+            with session_factory()() as db:
+                result = close_past_days(db, now_ist())
+                db.commit()
+                if any(result.values()):
+                    log.info("closed past days: %s", result)
+        except Exception:  # noqa: BLE001 - try again next time
+            log.exception("closing past days failed")
+        stop.wait(3600)
+
+
 def _send_reminders(stop: threading.Event) -> None:
     """Appointment reminders (the day before and two hours before), checked every 10 minutes."""
     from app.tools.reminders import send_due_reminders
@@ -114,6 +131,7 @@ async def lifespan(_: FastAPI):
         threading.Thread(target=_warm_up, name="retriever-warm-up", daemon=True).start()
         threading.Thread(target=_keep_slots_open, args=(stop,), name="slot-top-up", daemon=True).start()
         threading.Thread(target=_send_reminders, args=(stop,), name="reminders", daemon=True).start()
+        threading.Thread(target=_close_past_days, args=(stop,), name="close-past-days", daemon=True).start()
     threading.Thread(target=_deliver_messages, args=(stop,), name="message-delivery", daemon=True).start()
     yield
     stop.set()

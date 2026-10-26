@@ -413,7 +413,7 @@ def test_front_desk_checks_in_and_registers_a_walk_in(page: Page):
     walk_in.get_by_role("button", name="Register").click()
     expect(queue.get_by_text("Ramesh Kale")).to_have_count(0)  # birth year and phone are required first
     walk_in.get_by_label("Birth year").fill("1979")
-    walk_in.get_by_label("Phone (stored masked)").fill("9876543210")
+    walk_in.get_by_label(re.compile("^Mobile number")).fill("9876543210")
     walk_in.get_by_role("button", name="Register").click()
     expect(queue.get_by_text("Ramesh Kale")).to_be_visible()
     queue.get_by_role("button", name="Call next").click()
@@ -470,7 +470,7 @@ def test_walk_in_finds_the_existing_record(page: Page):
     walk_in = page.get_by_role("region", name="Register walk-in")
     walk_in.get_by_label("Patient name").fill("asha  patil")
     walk_in.get_by_label("Birth year").fill("1992")
-    walk_in.get_by_label("Phone (stored masked)").fill("9000000000")
+    walk_in.get_by_label(re.compile("^Mobile number")).fill("9000000000")
     walk_in.get_by_role("button", name="Register").click()
     matches = page.get_by_role("region", name="This patient may already be registered")
     expect(matches).to_contain_text("Asha Patil")

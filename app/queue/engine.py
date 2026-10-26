@@ -31,7 +31,7 @@ from app.safety.pii import normalize_mobile, set_phone
 from app.safety.privacy import mask_payload
 from app.timeutil import at, resolve_now, to_ist
 from app.tools import policy
-from app.tools.audit import write_tool
+from app.tools.audit import record_audit, write_tool
 from app.tools.calendar import leave_days
 from app.tools.errors import ToolError
 from app.tools.notify import notify
@@ -997,6 +997,12 @@ def close_session(db: Session, actor: Actor, session_id: int, now: datetime | No
     ).first()
     if active is not None:
         raise ToolError("INVALID_STATE", "Patients are still waiting; the session cannot be closed yet.")
+    no_shows, left_unseen = _finish_day(db, session, now, offer_rebooking=True)
+    return {"session_id": session.id, "status": "closed", "no_shows": no_shows, "left_unseen": left_unseen}
+
+
+def _finish_day(db: Session, session: QueueSession, now: datetime, offer_rebooking: bool) -> tuple[int, int]:
+    """Close a session: missed turns become "left", bookings that never arrived become no-shows."""
     # Patients who missed their turn and never came back left without being seen (feature 47).
     left: list[Appointment] = []
     left_unseen = 0
@@ -1021,21 +1027,82 @@ def close_session(db: Session, actor: Actor, session_id: int, now: datetime | No
         appt.updated_at = now
         no_shows.append(appt)
     # Missed-appointment recovery: everyone who missed their visit is offered a new one.
-    for appt in no_shows + left:
-        notify(
-            db,
-            appt.patient_id,
-            f"We missed you at your appointment with {session.doctor.name} on {session.date:%d %b}. "
-            "Book a new time in CareFlow: My appointments → Rebook.",
-            now,
-            kind="rebook",
-            appointment_id=appt.id,
-        )
+    for appt in no_shows + left if offer_rebooking else ():
+        _offer_rebooking(db, appt, session.doctor.name, session.date, now)
     session.status = "closed"
     session.closed_at = now
     _event(db, session, "session_closed", now, no_shows=len(no_shows), left_unseen=left_unseen)
     db.flush()
-    return {"session_id": session.id, "status": "closed", "no_shows": len(no_shows), "left_unseen": left_unseen}
+    return len(no_shows), left_unseen
+
+
+def _offer_rebooking(db: Session, appt: Appointment, doctor_name: str, day: date, now: datetime) -> None:
+    notify(
+        db,
+        appt.patient_id,
+        f"We missed you at your appointment with {doctor_name} on {day:%d %b}. "
+        "Book a new time in CareFlow: My appointments → Rebook.",
+        now,
+        kind="rebook",
+        appointment_id=appt.id,
+    )
+
+
+# Patients are offered a new time for a visit missed at most this many days ago; older ones are only recorded.
+REBOOK_OFFER_DAYS = 2
+
+
+def close_past_days(db: Session, now: datetime | None = None) -> dict:
+    """End-of-day housekeeping for days that are over, when the desk did not close a queue (D-127).
+
+    The same rules as closing a session by hand: a patient still waiting or called left without being seen,
+    a consultation still open is taken as finished, and a booking that never checked in is a no-show. That
+    includes doctors whose queue was never opened that day. Patients are offered a new time only for visits
+    in the last two days, so the first run after a long pause does not message people about old visits."""
+    now = resolve_now(now)
+    today = now.date()
+    recent = today - timedelta(days=REBOOK_OFFER_DAYS)
+    sessions = no_shows = left_unseen = 0
+    stale = db.scalars(
+        select(QueueSession)
+        .where(QueueSession.date < today, QueueSession.status != "closed")
+        .order_by(QueueSession.id)
+        .with_for_update(skip_locked=True)
+    ).all()
+    for session in stale:
+        offer = session.date >= recent
+        for entry in db.scalars(
+            select(QueueEntry).where(
+                QueueEntry.session_id == session.id, QueueEntry.status.in_((*WAITING_ENTRY_STATUSES, "in_consultation"))
+            )
+        ):
+            if entry.status == "in_consultation":
+                entry.status = "done"
+                if entry.appointment is not None:
+                    entry.appointment.status, entry.appointment.updated_at = "completed", now
+            else:
+                _leave(entry, now)
+                left_unseen += 1
+                if offer and entry.appointment is not None:
+                    _offer_rebooking(db, entry.appointment, session.doctor.name, session.date, now)
+        missed, left = _finish_day(db, session, now, offer_rebooking=offer)
+        sessions, no_shows, left_unseen = sessions + 1, no_shows + missed, left_unseen + left
+    # Bookings with a doctor whose queue was never opened that day.
+    for appt in db.scalars(
+        select(Appointment)
+        .where(Appointment.appt_date < today, Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES))
+        .order_by(Appointment.id)
+        .with_for_update(skip_locked=True)
+    ):
+        appt.status, appt.updated_at = "no_show", now
+        no_shows += 1
+        if appt.appt_date >= recent:
+            _offer_rebooking(db, appt, appt.doctor.name, appt.appt_date, now)
+    db.flush()
+    result = {"sessions_closed": sessions, "no_shows": no_shows, "left_unseen": left_unseen}
+    if sessions or no_shows or left_unseen:
+        record_audit(db, Actor(user_id=None, role="system"), "close_past_days", {"before": today}, result, now)
+    return result
 
 
 # --------------------------------------------------------------------------- reads

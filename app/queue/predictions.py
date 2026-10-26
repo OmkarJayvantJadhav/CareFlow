@@ -2,8 +2,8 @@
 
 After every queue event the queue is rebuilt with the same feature code used for
 training, and a new ``wait_prediction`` row is appended for every waiting
-patient. When at most three people are ahead, a (mocked) "your turn is near"
-message is sent once.
+patient. When at most three people are ahead, a "your turn is near" message is sent
+once (in the app, and by SMS or e-mail when the hospital sends them).
 """
 
 import contextvars

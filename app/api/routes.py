@@ -97,7 +97,7 @@ class PasswordLoginRequest(BaseModel):
 def register(body: RegisterRequest, request: Request, db: Session = Depends(get_db)) -> dict:
     """Create a patient account (a patient record and its login) or a caregiver account, and sign in.
 
-    The phone number is stored masked only (NFR-08), as for every patient.
+    The phone number is stored encrypted, with a masked form for screens (D-111), as for every patient.
     """
     settings = get_settings()
     if not settings.allow_registration:
