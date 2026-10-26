@@ -3080,3 +3080,32 @@ button.patient-result[aria-pressed="true"] {
   border-top: 1px solid var(--border);
   padding-top: 1rem;
 }
+
+/* ------------------------------------------------------------------ documents (admin) */
+
+textarea.doc-body {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.placeholders summary {
+  cursor: pointer;
+  font-weight: 600;
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
+}
+
+.placeholders code {
+  overflow-wrap: anywhere;
+}
+
+.doc-actions {
+  align-items: center;
+}
+
+.card-intro {
+  margin: 0 0 1rem;
+}

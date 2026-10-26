@@ -18,7 +18,7 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.db.models import KbChunk, KbDocument
-from app.rag.embeddings import Embedder, choose_embedder
+from app.rag.embeddings import Embedder, embedder_for_index
 from app.rag.rerank import Reranker, choose_reranker
 from app.rag.text import content_tokens
 
@@ -213,8 +213,13 @@ def get_retriever(db: Session) -> Retriever:
         if _retriever is None or _retriever.index.signature != signature:
             settings = get_settings()
             index = KbIndex.load(db)
-            embedder = choose_embedder(
-                settings.embedding_backend, settings.embedding_model, settings.model_cache_dir, index.texts or ["∅"]
+            stored = set(db.scalars(select(KbChunk.embedding_model).distinct()))
+            embedder = embedder_for_index(
+                settings.embedding_backend,
+                settings.embedding_model,
+                settings.model_cache_dir,
+                index.texts or ["∅"],
+                stored,
             )
             reranker = choose_reranker(
                 settings.reranker_backend, settings.reranker_model, settings.model_cache_dir, index.idf

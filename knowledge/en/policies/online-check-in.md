@@ -9,7 +9,7 @@ doc_key: policies/online-check-in
 
 ## When you can check in
 
-You can check in yourself from 60 minutes before your appointment time until 15 minutes after it starts. After that, please check in at the reception desk; you are then seen in order of arrival. A caregiver with a verified link can check in for the patient.
+You can check in yourself from {{check_in_opens_minutes}} minutes before your appointment time until {{late_grace_minutes}} minutes after it starts. After that, please check in at the reception desk; you are then seen in order of arrival. A caregiver with a verified link can check in for the patient.
 
 ## How to check in
 

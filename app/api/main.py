@@ -15,6 +15,7 @@ from app.agent.llm import build_llm
 from app.api.accounts_routes import router as accounts_router
 from app.api.admin_routes import router as admin_router
 from app.api.care_routes import router as care_router
+from app.api.documents_routes import router as documents_router
 from app.api.library_routes import router as library_router
 from app.api.patients_routes import router as patients_router
 from app.api.queue_routes import router as queue_router
@@ -78,8 +79,20 @@ def _send_reminders(stop: threading.Event) -> None:
 
 
 @asynccontextmanager
+def _load_policy() -> None:
+    """The hospital's own booking and queue rules (phase 7D); the defaults if the database cannot be read."""
+    from app.tools.policy_settings import load_policy
+
+    try:
+        with session_factory()() as db:
+            load_policy(db)
+    except Exception:  # noqa: BLE001 - serve with the default rules rather than not at all
+        log.exception("could not load the policy settings; using the defaults")
+
+
 async def lifespan(_: FastAPI):
     stop = threading.Event()
+    _load_policy()
     if get_settings().warm_up_retriever:
         threading.Thread(target=_warm_up, name="retriever-warm-up", daemon=True).start()
         threading.Thread(target=_keep_slots_open, args=(stop,), name="slot-top-up", daemon=True).start()
@@ -156,6 +169,7 @@ app.include_router(registration_router)
 app.include_router(queue_router)
 app.include_router(setup_router)
 app.include_router(patients_router)
+app.include_router(documents_router)
 app.include_router(ws_router)
 
 # The built React app (ui/dist) is served from the same origin, so one container serves everything.

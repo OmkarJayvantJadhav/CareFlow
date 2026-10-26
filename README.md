@@ -15,7 +15,7 @@ time — while doctors and the front desk run, balance and coordinate every queu
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-446%20Python%20·%2042%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-450%20Python%20·%2043%20browser-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
 > ⚠️ **The live demo uses a fictional hospital (Indravani General Hospital) and synthetic data. Not for medical use.**
@@ -84,6 +84,10 @@ principles:
   <tr>
     <td><img src="docs/screenshots/patients.png" alt="A patient's record at the front desk with the full number shown on request"><br><sub><b>Patient records</b> — correct details, see visits, show the number when calling</sub></td>
     <td><p align="center"><img src="docs/screenshots/phone-password-gate.png" alt="Choosing one's own password on a phone" width="46%"></p><sub><b>First sign-in</b> — a temporary password must be replaced</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/documents.png" alt="Editing an information document with rule placeholders"><br><sub><b>Documents</b> — edit what the library shows and the assistant cites</sub></td>
+    <td><img src="docs/screenshots/rules.png" alt="The hospital's booking and queue rules"><br><sub><b>Rules</b> — the hospital's own cut-offs and windows</sub></td>
   </tr>
   <tr>
     <td><img src="docs/screenshots/hospital-setup.png" alt="Hospital setup: a changed timetable keeps its bookings and lists those outside it"><br><sub><b>Hospital setup</b> — a changed timetable keeps every booking and lists those to call</sub></td>
@@ -159,7 +163,8 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | **Analytics in plain language** | Questions answered with one validated, read-only SQL query (shown, with CSV export); requests to change data are refused before any model call. |
 | **Registration form** | Add extra registration questions in three languages — asked at sign-up and at the desk, checked by the server. |
 | **Evaluation results** | The latest results shipped with the build, each with its sample size. |
-| **Hospital setup** | The hospital's name in three languages, address, reception hours and emergency directions; add, edit and remove departments and doctors and their OPD timetables. Changes apply from tomorrow and never cancel a booking; a departing doctor gets a last day and later patients are told and rebook free. |
+| **Hospital setup** | The hospital's name in three languages, address, reception hours and emergency directions; the booking and queue rules (cut-offs, windows, online queue cap); add, edit and remove departments and doctors and their OPD timetables. Changes apply from tomorrow and never cancel a booking; a departing doctor gets a last day and later patients are told and rebook free. |
+| **Information documents** | Edit, add, translate, hide or restore the documents the library shows and the assistant answers from; rule numbers are placeholders that always match the rules in force. Saved changes are searchable at once. |
 | **Accounts** | Create front-desk, doctor, admin and caregiver accounts with a one-time temporary password; switch accounts off and on; reset forgotten passwords. Switching off or resetting ends that person's sessions at once. |
 | **Demo reset** | Back to the seed data in one click (people's own accounts and consent are kept; demo deployment only). |
 
@@ -308,8 +313,9 @@ account gets a temporary password shown once, which must be replaced at its firs
 caregivers sign up on the start page or are registered at the desk. With a shell you can also run
 `python -m app.manage create-admin --username U --name "…"` or `reset-password --username U`.
 
-> Still to come: the hospital information library (and so the assistant's cited answers) still describes the
-> demo hospital until documents can be edited in the app.
+> The information documents start as the demo hospital's (policies with your own rule numbers, but also its
+> departments, doctors, facilities and fictional insurers). Review them under **Documents**: edit what applies,
+> hide what does not, and add your own.
 
 <details>
 <summary><b>Try it from the command line</b></summary>
@@ -361,10 +367,10 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 446 tests
+pytest                                     # 450 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e                    # 42 browser tests, including accessibility and 360 px
+pytest -m e2e tests/e2e                    # 43 browser tests, including accessibility and 360 px
 ```
 
 GitHub Actions runs all of these and a Docker build on every push; Render redeploys from `develop`.
@@ -427,6 +433,7 @@ waiting-list rules are also stated, with the same numbers, in the hospital's doc
 | Rule | Value |
 | --- | --- |
 | ✅ Confirmation | Every change needs an explicit yes to a card (5-minute expiry) or a dialog |
+| ⚙️ The numbers below | The defaults; each hospital sets its own on the setup page (D-118) |
 | 📅 Booking window | From 15 minutes to 30 days ahead |
 | 🔁 Rescheduling | Until 12 hours before (any time if the doctor became unavailable) |
 | ❌ Cancellation | Until 4 hours before |
@@ -506,8 +513,10 @@ docs/         specification, decisions, deployment guide, screenshots
 - **Measured on synthetic data.** The demo and the evaluation use the simulated hospital, whose parameters are
   assumptions ([`docs/DECISIONS.md`](docs/DECISIONS.md), D-21); the wait-time model learned from simulated days
   whose queues are short.
-- **Real use is being built in phases** (D-99): accounts, production mode, hospital setup and patient records
-  (encryption, correction, export, erasure) are done; editable documents and real SMS or email come next.
+- **Real use is being built in phases** (D-99): accounts, production mode, hospital setup, patient records
+  (encryption, correction, export, erasure) and editable documents and rules are done; real SMS or email
+  comes next. After documents are edited, new words are found by keyword search at once and by the dense
+  embeddings after the next deployment (D-121).
   Department names are shown as entered, in one language.
 - **Chat and real patient data** (D-117): chat messages (numbers masked), patient names and appointment details
   go to the configured LLM provider. A hospital must decide whether that is acceptable, use a provider it has an

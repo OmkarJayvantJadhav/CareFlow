@@ -13,7 +13,7 @@ If a doctor has no free slot on the dates you want, CareFlow can add you to that
 
 ## When a slot opens
 
-When someone cancels or moves an appointment, the slot is offered first to the patient who joined the list earliest for that date. You get a message, and the slot is held for you for up to 2 hours. If you do not book it in time, it is offered to the next patient.
+When someone cancels or moves an appointment, the slot is offered first to the patient who joined the list earliest for that date. You get a message, and the slot is held for you for up to {{waitlist_hold_hours}} hours. If you do not book it in time, it is offered to the next patient.
 
 ## Leaving the list
 

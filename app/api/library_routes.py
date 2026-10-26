@@ -1,18 +1,23 @@
 """The hospital's information library: every knowledge-base document, readable by anyone without signing in.
 
-These are the same approved Markdown documents the assistant searches and cites (``knowledge/``), served
-section by section in English, Hindi or Marathi, with a plain-text search.
+These are the same documents the assistant searches and cites (the knowledge base in the database, as admins
+keep it; app.rag.kb), with the policy numbers in force, served section by section in English, Hindi or
+Marathi, with a plain-text search.
 """
 
 import re
-from functools import lru_cache
+import threading
 from pathlib import Path
 from typing import Literal
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
 
-from app.rag.chunking import Document, load_documents
-from app.rag.ingest import DEFAULT_ROOT
+from app.api.deps import get_db
+from app.db.models import KbDocument
+from app.rag.chunking import Document, parse_document, render
+from app.tools import policy
 from app.tools.errors import ToolError
 
 router = APIRouter(prefix="/api/v1/library", tags=["library"])
@@ -28,10 +33,21 @@ def _slug(doc: Document) -> str:
     return Path(doc.source_path).stem
 
 
-@lru_cache(maxsize=1)
-def _library(root: Path = DEFAULT_ROOT) -> dict[tuple[str, str, str], Document]:
-    """(language, collection, slug) -> document. The files only change with a new deployment."""
-    return {(d.language, d.collection, _slug(d)): d for d in load_documents(root)}
+_cache_lock = threading.Lock()
+_cache: dict = {"key": None, "docs": {}}
+
+
+def _library(db: Session) -> dict[tuple[str, str, str], Document]:
+    """(language, collection, slug) -> document, rebuilt when a document or a policy number changes."""
+    visible = KbDocument.hidden_at.is_(None)
+    key = (*db.execute(select(func.count(KbDocument.id), func.max(KbDocument.updated_at)).where(visible)).one(),
+           tuple(sorted(policy.current().items())))  # fmt: skip
+    with _cache_lock:
+        if _cache["key"] != key:
+            rows = db.execute(select(KbDocument.source_path, KbDocument.template).where(visible)).all()
+            docs = [parse_document(render(raw), source) for source, raw in rows if raw]
+            _cache.update(key=key, docs={(d.language, d.collection, _slug(d)): d for d in docs})
+        return _cache["docs"]
 
 
 def _plain(text: str) -> str:
@@ -76,11 +92,12 @@ def library(
     language: Language = "en",
     collection: str | None = Query(None, max_length=40),
     q: str | None = Query(None, max_length=100),
+    db: Session = Depends(get_db),
 ) -> dict:
     """Documents in one language, optionally one collection, optionally matching every word of ``q``."""
     if collection is not None and collection not in COLLECTIONS:
         raise ToolError("VALIDATION_ERROR", f"Unknown collection {collection!r}.")
-    docs = [d for (lang, _, _), d in _library().items() if lang == language]
+    docs = [d for (lang, _, _), d in _library(db).items() if lang == language]
     counts = {c: sum(1 for d in docs if d.collection == c) for c in COLLECTIONS}
     if collection:
         docs = [d for d in docs if d.collection == collection]
@@ -106,11 +123,12 @@ def library(
 
 
 @router.get("/{collection}/{slug}")
-def document(collection: str, slug: str, language: Language = "en") -> dict:
-    doc = _library().get((language, collection, slug))
+def document(collection: str, slug: str, language: Language = "en", db: Session = Depends(get_db)) -> dict:
+    library = _library(db)
+    doc = library.get((language, collection, slug))
     if doc is None:
         raise ToolError("NOT_FOUND", "This document does not exist.")
-    languages = [lang for lang in ("en", "hi", "mr") if (lang, collection, slug) in _library()]
+    languages = [lang for lang in ("en", "hi", "mr") if (lang, collection, slug) in library]
     return {
         **_view(doc),
         "language": language,

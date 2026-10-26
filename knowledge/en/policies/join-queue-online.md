@@ -13,7 +13,7 @@ If you have no appointment with a doctor today, you can join that doctor's queue
 
 ## When it is open
 
-Online joining opens 60 minutes before the department's OPD starts and closes 30 minutes before the OPD ends. To keep the queue fair, each doctor accepts at most 10 online patients who have not yet reached the hospital; if the online places are full, please come to the reception.
+Online joining opens {{virtual_join_opens_minutes}} minutes before the department's OPD starts and closes {{virtual_join_closes_minutes}} minutes before the OPD ends. To keep the queue fair, each doctor accepts at most {{virtual_queue_cap}} online patients who have not yet reached the hospital; if the online places are full, please come to the reception.
 
 ## On the day
 

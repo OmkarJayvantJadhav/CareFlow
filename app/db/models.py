@@ -386,7 +386,10 @@ class WaitPrediction(Base):
 
 class KbDocument(Base):
     __tablename__ = "kb_document"
-    __table_args__ = (CheckConstraint(_in("language", LANGUAGES), name="ck_kb_document_language"),)
+    __table_args__ = (
+        CheckConstraint(_in("language", LANGUAGES), name="ck_kb_document_language"),
+        CheckConstraint(_in("origin", ("template", "edited", "added")), name="ck_kb_document_origin"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     collection: Mapped[str] = mapped_column(String(40), index=True)
@@ -396,7 +399,17 @@ class KbDocument(Base):
     source_path: Mapped[str] = mapped_column(String(300), unique=True)
     # Translations of one document share a doc_key, e.g. "test_preparation/lipid-profile".
     doc_key: Mapped[str] = mapped_column(String(200), index=True)
+    # Hash of the document as indexed (placeholders filled); its chunks match it.
     content_hash: Mapped[str] = mapped_column(String(64))
+    # Phase 7D: the Markdown as written, with policy placeholders ({{cancel_hours}}). "template": as shipped in
+    # knowledge/; "edited": a template an admin changed (template updates no longer touch it); "added": by an
+    # admin. A hidden template stays hidden when the templates are loaded again.
+    template: Mapped[str | None] = mapped_column(Text)
+    origin: Mapped[str] = mapped_column(String(10), default="template", server_default="template")
+    hidden_at: Mapped[datetime | None] = mapped_column(TZ)
+    edited_at: Mapped[datetime | None] = mapped_column(TZ)
+    edited_by: Mapped[str | None] = mapped_column(String(60))  # a username, not a link: demo resets keep documents
+    updated_at: Mapped[datetime] = mapped_column(TZ, server_default=func.now())
 
     chunks: Mapped[list["KbChunk"]] = relationship(back_populates="document", order_by="KbChunk.chunk_index")
 
@@ -629,6 +642,17 @@ class HandoffTicket(Base):
     reason: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(12), default="open")
     created_at: Mapped[datetime] = mapped_column(TZ, server_default=func.now())
+
+
+class PolicySetting(Base):
+    """A booking or queue rule set by the hospital (phase 7D); defaults in app.tools.policy."""
+
+    __tablename__ = "policy_setting"
+
+    key: Mapped[str] = mapped_column(String(40), primary_key=True)
+    value: Mapped[int] = mapped_column(Integer)
+    updated_at: Mapped[datetime] = mapped_column(TZ)
+    updated_by: Mapped[str | None] = mapped_column(String(60))  # a username: settings outlive a demo reset
 
 
 class HospitalProfile(Base):

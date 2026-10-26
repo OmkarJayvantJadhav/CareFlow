@@ -9,7 +9,7 @@ doc_key: policies/cancellation-policy
 
 ## Cancelling an appointment
 
-Appointments can be cancelled free of charge up to 4 hours before the appointment time, through CareFlow or at the reception. Within 4 hours, the appointment can no longer be cancelled online; please contact the reception desk.
+Appointments can be cancelled free of charge up to {{cancel_hours}} hours before the appointment time, through CareFlow or at the reception. Within {{cancel_hours}} hours, the appointment can no longer be cancelled online; please contact the reception desk.
 
 ## Fees and refunds
 

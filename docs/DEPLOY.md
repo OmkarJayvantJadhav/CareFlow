@@ -79,8 +79,10 @@ free plans). Decide whether that is acceptable for your patients. If not, use a 
 data-processing agreement with, or a local model (`LLM_PRIMARY=ollama:<model>`, `OLLAMA_BASE_URL`). Booking,
 queues and every other screen work without it.
 
-Not yet possible in the app (coming in the next phases): editing the hospital information documents, which
-still describe the demo hospital. The demo reset and the demo roles are switched off in this mode.
+Then **Hospital setup → Booking and queue rules** for your cut-offs and windows, and **Documents**: the
+information documents start as the demo hospital's. Edit the ones that apply (policy numbers follow your
+rules automatically), hide the ones that do not (the demo's departments, doctors, facilities and insurers),
+and add your own. Changes are live at once. The demo reset and the demo roles are switched off in this mode.
 
 ## 4. Monitoring
 
@@ -101,6 +103,7 @@ still describe the demo hospital. The demo reset and the demo roles are switched
 | A patient asks for their data to be deleted | Admin → **Patients** → find them → **Erase this patient's details**, with the reason. Patients with an account can also do it themselves from their profile |
 | A patient asks what you hold about them | They download it from their profile (**Download my data**); otherwise staff read it out from **Patients** |
 | A doctor leaves the hospital | Admin → **Hospital setup** → the doctor's **Last day**; later patients are told and rebook free with a colleague. Switch off their account under **Accounts** |
+| A policy or opening hour changes | Admin → **Documents**: edit the document and save; for a rule number, change it under **Hospital setup → Booking and queue rules** and every document that states it follows |
 | A timetable changes | Admin → **Hospital setup** → edit the department's OPD hours or the doctor's days or appointment length; it applies from tomorrow and lists bookings that no longer fit, which are kept |
 | Database suspended (free limit hit) | Wait for the monthly reset, or create a new Neon project and update `DATABASE_URL` |
 | A deploy broke the demo | Render → the service → **Events** → roll back to the previous deploy |

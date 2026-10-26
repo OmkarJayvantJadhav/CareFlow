@@ -13,7 +13,7 @@ You can book by chatting with CareFlow at any time of day in English, Hindi or M
 
 ## Booking rules
 
-- Appointments can be booked from 15 minutes to 30 days ahead.
+- Appointments can be booked from {{booking_lead_minutes}} minutes to {{booking_horizon_days}} days ahead.
 - A patient can have only one appointment with the same doctor on the same day.
 - CareFlow always shows the doctor, date and time and asks you to confirm before booking. Nothing is booked until you confirm.
 - A confirmation card is valid for 5 minutes; after that, CareFlow checks the slot again.

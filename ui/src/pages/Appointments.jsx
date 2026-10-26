@@ -32,7 +32,7 @@ const STATUS_TONE = { booked: "ok", rescheduled: "brand", displaced: "warn", can
 /** S3: upcoming and past appointments, with receipts, rescheduling, cancelling and rebooking;
 every change is confirmed in a dialog first (the same rule as the chat's confirmation cards). */
 export default function Appointments() {
-  const { user, lang, t } = useSession();
+  const { user, lang, rules, t } = useSession();
   const navigate = useNavigate();
   const [histories, setHistories] = useState(null);
   const [error, setError] = useState(null);
@@ -173,7 +173,11 @@ export default function Appointments() {
                   {t("cancel")}
                 </button>
               </div>
-              {(!a.can_reschedule || !a.can_cancel) && <p className="hint span-row">{t("changesClosed")}</p>}
+              {(!a.can_reschedule || !a.can_cancel) && (
+                <p className="hint span-row">
+                  {t("changesClosed", { reschedule: rules.reschedule_hours, cancel: rules.cancel_hours })}
+                </p>
+              )}
             </article>
           );
         })}
@@ -259,7 +263,9 @@ export default function Appointments() {
             <p>
               <strong>{checkingIn.doctor_name}</strong> ({checkingIn.department}) · {checkingIn.time}
             </p>
-            <p className="muted">{t("checkInNote")}</p>
+            <p className="muted">
+              {t("checkInNote", { opens: rules.check_in_opens_minutes, closes: rules.late_grace_minutes })}
+            </p>
           </>
         )}
       </ConfirmDialog>

@@ -97,13 +97,35 @@ def parse_document(raw: str, source_path: str) -> Document:
     )
 
 
+PLACEHOLDER = re.compile(r"\{\{(\w+)\}\}")
+
+
+def render(raw: str) -> str:
+    """Fill the policy placeholders (``{{cancel_hours}}``) with the numbers in force."""
+    from app.tools import policy
+
+    values = policy.current()
+    return PLACEHOLDER.sub(lambda m: str(values[m.group(1)]) if m.group(1) in values else m.group(0), raw)
+
+
+def unknown_placeholders(raw: str) -> list[str]:
+    from app.tools import policy
+
+    return sorted({m for m in PLACEHOLDER.findall(raw) if m not in policy.current()})
+
+
+def read_templates(root: Path) -> list[tuple[str, str]]:
+    """(source path, Markdown with placeholders) for every document file under ``root``."""
+    return [
+        (path.relative_to(root.parent).as_posix(), path.read_text(encoding="utf-8"))
+        for path in sorted(root.rglob("*.md"))
+        if path.name.lower() != "readme.md"
+    ]
+
+
 def load_documents(root: Path) -> list[Document]:
-    docs = []
-    for path in sorted(root.rglob("*.md")):
-        if path.name.lower() == "readme.md":
-            continue
-        docs.append(parse_document(path.read_text(encoding="utf-8"), path.relative_to(root.parent).as_posix()))
-    return docs
+    """The documents under ``root`` as readers see them: placeholders filled with the numbers in force."""
+    return [parse_document(render(raw), source) for source, raw in read_templates(root)]
 
 
 def _split_long(text: str, limit: int) -> list[str]:

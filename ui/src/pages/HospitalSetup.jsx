@@ -4,6 +4,7 @@ import { api } from "../api";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
+import PolicyRules from "../components/PolicyRules";
 import { longDate, weekdayName } from "../format";
 import { LANGS } from "../i18n";
 import { useSession } from "../session";
@@ -420,6 +421,7 @@ export default function HospitalSetup() {
       {data && (
         <div className="stack">
           <ProfileForm profile={data.profile} onSaved={() => setOutcome(null)} />
+          <PolicyRules />
 
           <section aria-labelledby="depts-h" className="stack">
             <div className="section-head">

@@ -102,6 +102,43 @@ class LsaEmbedder:
         return self._project([text])[0]
 
 
+# The last LSA embedder fitted or loaded in this process (one at a time: each holds tens of megabytes).
+_lsa_memo: dict[str, LsaEmbedder] = {}
+
+
+def _remember(embedder: LsaEmbedder) -> None:
+    _lsa_memo.clear()
+    _lsa_memo[embedder.name] = embedder
+
+
+def _lsa_path(name: str, cache_dir: str) -> str:
+    import sklearn
+
+    return os.path.join(cache_dir, f"{name.replace(':', '-')}-sklearn{sklearn.__version__}.pkl")
+
+
+def lsa_by_name(name: str, cache_dir: str | None) -> LsaEmbedder | None:
+    """An LSA embedder already fitted, by its name: from this process or from ``cache_dir``. Never fits, so it
+    is safe inside the 512 MB server (phase 7D: edited documents are embedded with the deployed embedder)."""
+    if name in _lsa_memo:
+        return _lsa_memo[name]
+    if not cache_dir:
+        return None
+    path = _lsa_path(name, cache_dir)
+    try:
+        with open(path, "rb") as f:
+            cached = pickle.load(f)
+    except FileNotFoundError:
+        return None
+    except Exception as err:  # noqa: BLE001 - a damaged cache file is refitted
+        log.warning("ignoring the cached LSA embedder %s (%s)", path, err)
+        return None
+    if not isinstance(cached, LsaEmbedder) or cached.name != name:
+        return None
+    _remember(cached)
+    return cached
+
+
 def load_or_fit_lsa(corpus: Sequence[str], cache_dir: str | None) -> LsaEmbedder:
     """The LSA embedder for this corpus, fitted once and kept in ``cache_dir`` when one is set.
 
@@ -109,22 +146,15 @@ def load_or_fit_lsa(corpus: Sequence[str], cache_dir: str | None) -> LsaEmbedder
     server starts; the server then loads the fitted embedder (the fit is deterministic, so the vectors
     are the same either way) and stays within a 512 MB free-tier instance.
     """
-    if not cache_dir:
-        return LsaEmbedder(corpus)
-    import sklearn
-
     name = LsaEmbedder.name_for(corpus)
-    path = os.path.join(cache_dir, f"{name.replace(':', '-')}-sklearn{sklearn.__version__}.pkl")
-    try:
-        with open(path, "rb") as f:
-            cached = pickle.load(f)
-        if isinstance(cached, LsaEmbedder) and cached.name == name:
-            return cached
-    except FileNotFoundError:
-        pass
-    except Exception as err:  # noqa: BLE001 - a damaged cache file is refitted
-        log.warning("ignoring the cached LSA embedder %s (%s)", path, err)
+    known = lsa_by_name(name, cache_dir)
+    if known is not None:
+        return known
     embedder = LsaEmbedder(corpus)
+    _remember(embedder)
+    if not cache_dir:
+        return embedder
+    path = _lsa_path(name, cache_dir)
     try:
         os.makedirs(cache_dir, exist_ok=True)
         tmp = f"{path}.{os.getpid()}.tmp"
@@ -161,3 +191,17 @@ def choose_embedder(backend: str, model_name: str, cache_dir: str | None, corpus
         if backend == "fastembed":
             raise RuntimeError(f"embedding model {model_name} could not be loaded")
     return load_or_fit_lsa(corpus, cache_dir)
+
+
+def embedder_for_index(
+    backend: str, model_name: str, cache_dir: str | None, corpus: Sequence[str], stored_models: set[str]
+) -> Embedder:
+    """The embedder that matches the stored chunks when it can be had without fitting; otherwise as
+    ``choose_embedder``. Used by the server, which must not fit the LSA embedder (D-67)."""
+    if backend == "local" or (backend == "auto" and load_neural_embedder(model_name, cache_dir) is None):
+        if len(stored_models) == 1:
+            (name,) = stored_models
+            known = lsa_by_name(name, cache_dir) if name.startswith(LsaEmbedder.version) else None
+            if known is not None:
+                return known
+    return choose_embedder(backend, model_name, cache_dir, corpus)

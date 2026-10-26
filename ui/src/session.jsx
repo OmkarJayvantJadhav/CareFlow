@@ -22,6 +22,20 @@ function save(key, value) {
 
 const SessionContext = createContext(null);
 
+// The defaults in app/tools/policy.py, until /config answers.
+const DEFAULT_RULES = {
+  booking_lead_minutes: 15,
+  booking_horizon_days: 30,
+  reschedule_hours: 12,
+  cancel_hours: 4,
+  waitlist_hold_hours: 2,
+  late_grace_minutes: 15,
+  check_in_opens_minutes: 60,
+  virtual_join_opens_minutes: 60,
+  virtual_join_closes_minutes: 30,
+  virtual_queue_cap: 10,
+};
+
 export function SessionProvider({ children }) {
   const [user, setUser] = useState(() => {
     const stored = load("careflow.user");
@@ -88,6 +102,8 @@ export function SessionProvider({ children }) {
       /** The hospital's name in the interface language; empty until an admin has entered it. */
       hospitalName: config?.hospital?.name?.[lang] ?? "",
       emergencyNote: config?.hospital?.emergency_note?.[lang] ?? "",
+      /** The booking and queue rules in force (minutes, hours, days), set by the hospital's admins. */
+      rules: config?.policy ?? DEFAULT_RULES,
       reloadConfig: loadConfig,
       lang,
       largeText,

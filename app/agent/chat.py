@@ -201,10 +201,12 @@ def _execute_card(
         "join_virtual_queue": "done_join_queue",
         "leave_queue": "done_leave_queue",
     }[tool]
-    cancel_hours = int(policy.CANCEL_CUTOFF.total_seconds() // 3600)
+    rules = policy.current()
     # The token is only known once the change is made.
     values = {**pending["summary"], "token": result.get("token", pending["summary"].get("token", ""))}
-    reply = message(done_key, lang, cancel_hours=cancel_hours, **values)
+    reply = message(
+        done_key, lang, cancel_hours=rules["cancel_hours"], hold_hours=rules["waitlist_hold_hours"], **values
+    )
     return reply, {"tool": tool, "ok": True, "label": "Applying the change"}, {"status": "done", **result}
 
 

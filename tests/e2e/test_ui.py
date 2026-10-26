@@ -661,6 +661,7 @@ def _axe_violations(page: Page) -> list[dict]:
                 "Analytics",
                 "Hospital setup",
                 "Patients",
+                "Documents",
                 "Accounts",
                 "Registration form",
                 "Priority rules",
@@ -722,6 +723,8 @@ def _overflow(page: Page) -> int:
                 "/admin",
                 "/analytics",
                 "/hospital-setup",
+                "/patients",
+                "/documents",
                 "/accounts",
                 "/registration-form",
                 "/priority-rules",
@@ -756,6 +759,45 @@ def test_patient_screens_fit_a_360_px_phone_in_large_text(phone: Page):
         ".map(e => (e.closest('label') || e).getBoundingClientRect().height).filter(h => h < 44).length"
     )
     assert targets == 0, f"{targets} tap targets are smaller than 44 px"
+
+
+# --------------------------------------------------------------------------- documents and rules (put back afterwards)
+
+
+def test_admin_edits_a_document_and_a_rule_and_the_library_follows(page: Page):
+    sign_in(page, "OPD admin")
+    page.get_by_role("link", name="Documents", exact=True).click()
+    page.get_by_label("Title contains").fill("cancellation")
+    page.get_by_role("button", name="Search", exact=True).click()
+    page.get_by_role("button", name=re.compile("^Cancellation policy")).click()
+    editor = page.get_by_role("form", name="Edit document")
+    text = editor.get_by_label("Text")
+    expect(text).to_have_value(re.compile(r"\{\{cancel_hours\}\}"))
+    text.fill(text.input_value() + "\n## Bicycle parking\n\nBicycles can be parked free of charge next to Gate 3.\n")
+    editor.get_by_role("button", name="Save changes").click()
+    expect(page.get_by_role("status").filter(has_text='Saved "Cancellation policy"')).to_be_visible(timeout=60000)
+    page.goto("/library/policies/cancellation-policy")
+    expect(page.get_by_role("heading", name="Bicycle parking")).to_be_visible()
+    page.goto("/documents")
+    page.get_by_label("Title contains").fill("cancellation")
+    page.get_by_role("button", name="Search", exact=True).click()
+    page.get_by_role("button", name=re.compile("^Cancellation policy")).click()
+    page.get_by_role("button", name="Undo my changes").click()
+    page.get_by_role("dialog", name="Undo my changes").get_by_role("button", name="Undo my changes").click()
+    expect(page.get_by_role("status").filter(has_text="back to the version shipped")).to_be_visible(timeout=60000)
+
+    page.get_by_role("link", name="Hospital setup", exact=True).click()
+    rules = page.get_by_role("form", name="Booking and queue rules")
+    rules.get_by_label("Cancel online until this many hours before").fill("6")
+    rules.get_by_role("button", name="Save changes").click()
+    expect(rules.get_by_role("status")).to_contain_text("Documents updated", timeout=60000)
+    page.goto("/library/policies/cancellation-policy")
+    expect(page.get_by_text(re.compile("up to 6 hours before the appointment"))).to_be_visible()
+    page.goto("/hospital-setup")
+    rules = page.get_by_role("form", name="Booking and queue rules")
+    rules.get_by_label("Cancel online until this many hours before").fill("4")
+    rules.get_by_role("button", name="Save changes").click()
+    expect(rules.get_by_role("status")).to_contain_text("Documents updated", timeout=60000)
 
 
 # --------------------------------------------------------------------------- hospital setup (adds a department), then reset

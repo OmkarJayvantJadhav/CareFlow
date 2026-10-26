@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import Auth, get_auth, get_db, run_and_commit
 from app.config import get_settings
-from app.tools import accounts
+from app.tools import accounts, policy
 from app.tools.hospital import public_profile
 
 router = APIRouter(prefix="/api/v1")
@@ -21,6 +21,7 @@ def public_config(db: Session = Depends(get_db)) -> dict:
         "demo_mode": settings.demo_mode,
         "allow_registration": settings.allow_registration,
         "hospital": public_profile(db),
+        "policy": policy.current(),  # the rules in force, for texts that state them
     }
 
 

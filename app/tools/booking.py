@@ -163,7 +163,9 @@ def _check_bookable(db: Session, slot: Slot, patient_id: int, now: datetime) -> 
     if slot.start_at < now + policy.BOOKING_LEAD:
         raise ToolError("VALIDATION_ERROR", "That time has already passed or is too soon to book.")
     if slot.start_at > now + policy.BOOKING_HORIZON:
-        raise ToolError("VALIDATION_ERROR", "Appointments can be booked at most 30 days ahead.")
+        raise ToolError(
+            "VALIDATION_ERROR", f"Appointments can be booked at most {policy.BOOKING_HORIZON.days} days ahead."
+        )
     held_for_other = slot.held_until is not None and slot.held_until > now and slot.held_for_patient_id != patient_id
     if slot.status != "free" or held_for_other:
         raise ToolError(

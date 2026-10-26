@@ -9,7 +9,7 @@ doc_key: policies/late-arrival-and-missed-turn
 
 ## Arriving late
 
-Please arrive 15 minutes before your appointment. If you check in more than 15 minutes after your appointment time, you keep your appointment but are seen in order of arrival, together with walk-in patients.
+Please arrive 15 minutes before your appointment. If you check in more than {{late_grace_minutes}} minutes after your appointment time, you keep your appointment but are seen in order of arrival, together with walk-in patients.
 
 ## Missing your turn
 

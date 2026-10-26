@@ -107,9 +107,9 @@ M: dict[str, dict[str, str]] = {
         "mr": "झाले. {doctor} यांच्याकडील {date} {time} ची अपॉइंटमेंट रद्द केली आहे.",
     },
     "done_waiting_list": {
-        "en": "Done. {patient} is on {doctor}'s waiting list for {dates}. If a slot opens, you will get a message and it will be held for you for up to 2 hours.",
-        "hi": "हो गया। {patient} {dates} के लिए {doctor} की प्रतीक्षा सूची में हैं। स्लॉट खाली होने पर आपको संदेश मिलेगा और वह 2 घंटे तक आपके लिए रोका जाएगा।",
-        "mr": "झाले. {patient} {dates} साठी {doctor} यांच्या प्रतीक्षा यादीत आहेत. स्लॉट मोकळा झाल्यावर तुम्हाला संदेश येईल आणि तो 2 तासांपर्यंत तुमच्यासाठी राखून ठेवला जाईल.",
+        "en": "Done. {patient} is on {doctor}'s waiting list for {dates}. If a slot opens, you will get a message and it will be held for you for up to {hold_hours} hours.",
+        "hi": "हो गया। {patient} {dates} के लिए {doctor} की प्रतीक्षा सूची में हैं। स्लॉट खाली होने पर आपको संदेश मिलेगा और वह {hold_hours} घंटे तक आपके लिए रोका जाएगा।",
+        "mr": "झाले. {patient} {dates} साठी {doctor} यांच्या प्रतीक्षा यादीत आहेत. स्लॉट मोकळा झाल्यावर तुम्हाला संदेश येईल आणि तो {hold_hours} तासांपर्यंत तुमच्यासाठी राखून ठेवला जाईल.",
     },
     "nothing_changed": {
         "en": "Okay, I haven't changed anything. What would you like to do instead?",

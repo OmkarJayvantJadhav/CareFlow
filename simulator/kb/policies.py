@@ -1,20 +1,21 @@
-"""Hospital policy documents. Every number that is also a business rule is taken
-from app/tools/policy.py so the documents and the code cannot disagree."""
+"""Hospital policy documents. Every number that is also a business rule is a placeholder for the value in
+app/tools/policy.py, so the documents and the code cannot disagree."""
 
-from app.tools import policy
 from simulator.kb.common import KbDoc, T, bullets
 
-RESCHEDULE_H = int(policy.RESCHEDULE_CUTOFF.total_seconds() // 3600)
-CANCEL_H = int(policy.CANCEL_CUTOFF.total_seconds() // 3600)
-HORIZON_D = policy.BOOKING_HORIZON.days
-LEAD_M = int(policy.BOOKING_LEAD.total_seconds() // 60)
-HOLD_H = int(policy.WAITLIST_OFFER_HOLD.total_seconds() // 3600)
-GRACE_M = int(policy.LATE_GRACE.total_seconds() // 60)
-CHECK_IN_OPENS_M = int(policy.SELF_CHECK_IN_OPENS.total_seconds() // 60)
-CHECK_IN_CLOSES_M = int(policy.SELF_CHECK_IN_CLOSES.total_seconds() // 60)
-JOIN_OPENS_M = int(policy.VIRTUAL_JOIN_OPENS.total_seconds() // 60)
-JOIN_CLOSES_M = int(policy.VIRTUAL_JOIN_CLOSES.total_seconds() // 60)
-ONLINE_CAP = policy.VIRTUAL_QUEUE_CAP
+# Placeholders filled with the numbers in force (app.tools.policy.placeholders) wherever a document is shown or
+# indexed, so an admin who changes a rule changes every document that states it.
+RESCHEDULE_H = "{{reschedule_hours}}"
+CANCEL_H = "{{cancel_hours}}"
+HORIZON_D = "{{booking_horizon_days}}"
+LEAD_M = "{{booking_lead_minutes}}"
+HOLD_H = "{{waitlist_hold_hours}}"
+GRACE_M = "{{late_grace_minutes}}"
+CHECK_IN_OPENS_M = "{{check_in_opens_minutes}}"
+CHECK_IN_CLOSES_M = "{{late_grace_minutes}}"  # self check-in closes when the late grace runs out
+JOIN_OPENS_M = "{{virtual_join_opens_minutes}}"
+JOIN_CLOSES_M = "{{virtual_join_closes_minutes}}"
+ONLINE_CAP = "{{virtual_queue_cap}}"
 
 
 def doc(slug: str, title: T, *sections: tuple[T, T]) -> KbDoc:

@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from app.db.models import MERGE_RULES
-from app.tools.policy import LATE_GRACE
+from app.tools import policy
 
 
 @dataclass(frozen=True)
@@ -49,7 +49,7 @@ class QueueItem:
             and not self.transferred
             and self.scheduled_at is not None
             and self.requeued_at is None
-            and self.checked_in_at <= self.scheduled_at + LATE_GRACE
+            and self.checked_in_at <= self.scheduled_at + policy.LATE_GRACE
         )
 
 
