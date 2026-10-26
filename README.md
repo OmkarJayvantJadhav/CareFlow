@@ -15,12 +15,12 @@ time — while doctors and the front desk run, balance and coordinate every queu
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-428%20Python%20·%2040%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-446%20Python%20·%2042%20browser-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
 > ⚠️ **The live demo uses a fictional hospital (Indravani General Hospital) and synthetic data. Not for medical use.**
 > A hospital runs its own copy with `DEMO_MODE=false`: no demo roles or reset, and accounts managed by its admins
-> ([production setup](#running-it-for-a-real-hospital)). Phone numbers are stored masked.
+> ([production setup](#running-it-for-a-real-hospital)). Phone numbers are encrypted at rest and shown masked.
 
 </div>
 
@@ -82,6 +82,10 @@ principles:
     <td><img src="docs/screenshots/start-hospital.png" alt="Start page of a hospital's own deployment, without demo roles"><br><sub><b>A hospital's own deployment</b> — sign-in and sign-up, no demo</sub></td>
   </tr>
   <tr>
+    <td><img src="docs/screenshots/patients.png" alt="A patient's record at the front desk with the full number shown on request"><br><sub><b>Patient records</b> — correct details, see visits, show the number when calling</sub></td>
+    <td><p align="center"><img src="docs/screenshots/phone-password-gate.png" alt="Choosing one's own password on a phone" width="46%"></p><sub><b>First sign-in</b> — a temporary password must be replaced</sub></td>
+  </tr>
+  <tr>
     <td><img src="docs/screenshots/hospital-setup.png" alt="Hospital setup: a changed timetable keeps its bookings and lists those outside it"><br><sub><b>Hospital setup</b> — a changed timetable keeps every booking and lists those to call</sub></td>
     <td><p align="center"><img src="docs/screenshots/phone-add-doctor.png" alt="Adding a doctor on a phone in large text" width="46%"></p><sub><b>Phone</b> — every admin screen also works at 360 px in large text</sub></td>
   </tr>
@@ -118,7 +122,7 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | **Join a queue online** | No appointment? Join a doctor's queue today from your phone (from an hour before OPD opens), come in when your turn is near, or leave the queue if plans change. |
 | **Live queue** | Your token, people ahead and "about 35 min (25–50)", updated over a WebSocket in under 2 seconds; a message if the doctor is delayed by an emergency, and your new token if you are moved to another doctor. |
 | **Reminders** | The day before and two hours before, in your language, in a notification list with an unread badge. |
-| **Profile and privacy** | Edit your details (phone stored masked), change your password, switch reminders and reuse of your details on or off, and approve or remove caregivers. |
+| **Profile and privacy** | Edit your details, change your password, switch reminders and reuse of your details on or off, approve or remove caregivers, download all your data, or delete your account. |
 | **Accounts** | Create an account with a password — for yourself, or as a caregiver for a family member — or try the demo roles without one. |
 
 ### 🧾 For the front desk
@@ -133,6 +137,7 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | **Priority requests** | Ask the patient's doctor to raise a priority, with a reason; the queue changes only when the doctor approves. |
 | **Move patients** | Reassign a waiting patient to another doctor in the department or transfer them to another department; they keep their check-in time and get a new token. When a doctor becomes unavailable, their waiting patients can go to colleagues. |
 | **Coordination** | Every doctor's queue in a department side by side, with expected finish times, overtime warnings and balancing suggestions confirmed one by one. |
+| **Patient records** | Find a patient by name, full mobile number or record number; correct their details with them; see their visits; show the full number when calling (each look is recorded). |
 | **Doctor calendar** | Block or reopen slots, record leave (booked patients are told and can rebook free), expected visit length per doctor. |
 | **Doctor status** | Breaks, delays, emergencies and "unavailable today" — estimates shift, positions never jump, waiting patients are told. |
 
@@ -356,10 +361,10 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 428 tests
+pytest                                     # 446 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e                    # 40 browser tests, including accessibility and 360 px
+pytest -m e2e tests/e2e                    # 42 browser tests, including accessibility and 360 px
 ```
 
 GitHub Actions runs all of these and a Docker build on every push; Render redeploys from `develop`.
@@ -380,6 +385,7 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 | `python -m app.manage prepare` | At start-up: demo seed (demo mode only) and the first admin from `INITIAL_ADMIN_*` |
 | `python -m app.manage create-admin --username U [--name N]` | A new admin with a temporary password, printed once |
 | `python -m app.manage reset-password --username U` | A temporary password for any account, printed once |
+| `python -m app.manage new-data-key` | A random `DATA_KEY` for encrypting phone numbers |
 
 </details>
 
@@ -400,6 +406,7 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 | `MAX_MESSAGES_PER_SESSION`, `MAX_MESSAGES_PER_IP_PER_HOUR` | 20, 60 | Chat quota guards |
 | `PROMPT_TOKEN_BUDGET`, `RAG_TOP_K` | 3000, 4 | Token budget per agent step; passages given to the model |
 | `AUTH_SECRET` | demo value | Signs sign-in tokens and receipt codes — set a long random value when deployed |
+| `DATA_KEY` | derived from `AUTH_SECRET` | Encrypts patients' phone numbers (`python -m app.manage new-data-key`); keep it when changing `AUTH_SECRET` |
 | `ALLOW_REGISTRATION` | `true` | Let visitors create patient and caregiver accounts |
 | `INITIAL_ADMIN_USERNAME`, `INITIAL_ADMIN_PASSWORD`, `INITIAL_ADMIN_NAME` | — | The first admin, created at start-up only if no admin can sign in yet |
 | `MAX_REGISTRATIONS_PER_IP_PER_HOUR`, `MAX_FAILED_LOGINS_PER_15_MIN` | 10, 10 | Limits per client address (and username for sign-in) |
@@ -499,9 +506,12 @@ docs/         specification, decisions, deployment guide, screenshots
 - **Measured on synthetic data.** The demo and the evaluation use the simulated hospital, whose parameters are
   assumptions ([`docs/DECISIONS.md`](docs/DECISIONS.md), D-21); the wait-time model learned from simulated days
   whose queues are short.
-- **Real use is being built in phases** (D-99): accounts, production mode and hospital setup are done; staff
-  editing of patient records, editable documents and real SMS or email come next. Department names are shown
-  as entered, in one language.
+- **Real use is being built in phases** (D-99): accounts, production mode, hospital setup and patient records
+  (encryption, correction, export, erasure) are done; editable documents and real SMS or email come next.
+  Department names are shown as entered, in one language.
+- **Chat and real patient data** (D-117): chat messages (numbers masked), patient names and appointment details
+  go to the configured LLM provider. A hospital must decide whether that is acceptable, use a provider it has an
+  agreement with, or run a local model with Ollama.
 - **Evaluation is incomplete** (see [Measured results](#measured-results)); retrieval was measured with the local
   models, which handle Marathi inflections less well than the neural ones.
 - **Notifications are simulated** — stored and shown in the app, never sent by SMS.

@@ -17,12 +17,21 @@ from tests.conftest import NOW, TODAY
 REPLAY_DAY = date(2026, 10, 14)  # a Wednesday: 9 doctors in OPD
 
 
+PATIENTS_WITHOUT_CIPHERTEXT = (
+    "(SELECT id, name, birth_year, phone_masked, phone_hash, preferred_language, pregnant, disability, erased_at"
+    " FROM patient)"
+)
+
+
 def snapshot(db) -> dict[str, str]:
-    """A fingerprint of every operational table's full contents."""
+    """A fingerprint of every operational table's full contents. An encrypted phone number differs on every
+    write (a fresh nonce), so patients are compared by everything else; the keyed phone hash is deterministic
+    and stands for the number."""
     out = {}
     for table in OPERATIONAL_TABLES:
+        source = table if table != "patient" else PATIENTS_WITHOUT_CIPHERTEXT
         out[table] = db.execute(
-            text(f"SELECT md5(coalesce(string_agg(t::text, '|' ORDER BY t::text), '')) FROM {table} t")
+            text(f"SELECT md5(coalesce(string_agg(t::text, '|' ORDER BY t::text), '')) FROM {source} t")
         ).scalar_one()
     return out
 

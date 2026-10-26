@@ -67,7 +67,7 @@ def staff_today(auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) -
                     "appointment_id": a.id,
                     "time": f"{to_ist(a.slot.start_at):%H:%M}",
                     "patient_id": a.patient_id,
-                    "patient_name": a.patient.synthetic_name,
+                    "patient_name": a.patient.name,
                     "categories": categories(a.patient, today.year),
                     "status": a.status,
                     "entry_id": entry.id if entry else None,

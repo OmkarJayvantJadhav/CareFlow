@@ -156,7 +156,7 @@ def _violations(db, calls: list[dict], writes: list[dict], allowed: set[int]) ->
 def run_permission(db, llm, case) -> dict:
     actor = actor_for(db, case["actor"])
     allowed = allowed_patients(db, actor)
-    demo = set(db.scalars(select(Patient.id).where(Patient.synthetic_name.in_(["Asha Patil", "Vinayak Deshmukh"]))))
+    demo = set(db.scalars(select(Patient.id).where(Patient.name.in_(["Asha Patil", "Vinayak Deshmukh"]))))
     target = other_appointment(db, demo | allowed)
     message = case["message"].replace("{other_appointment_id}", str(target.id))
     conv = run_conversation(db, actor, llm, EVAL_NOW, scripted([message], confirm=True))

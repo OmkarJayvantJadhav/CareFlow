@@ -3,6 +3,7 @@
     python -m app.manage prepare                  # at start-up: demo data (demo mode only), then the first admin
     python -m app.manage create-admin --username U --name "Full Name"
     python -m app.manage reset-password --username U
+    python -m app.manage new-data-key            # a DATA_KEY for encrypting patients' phone numbers
 
 ``prepare`` creates the first admin from INITIAL_ADMIN_USERNAME / INITIAL_ADMIN_PASSWORD (and optionally
 INITIAL_ADMIN_NAME) when no active admin has a password yet, so a host without shell access (Render's free
@@ -11,7 +12,9 @@ The other commands print a temporary password once.
 """
 
 import argparse
+import base64
 import os
+import secrets
 import sys
 
 from sqlalchemy import select
@@ -119,9 +122,13 @@ def main(argv: list[str] | None = None) -> int:
     create.add_argument("--name")
     reset = sub.add_parser("reset-password")
     reset.add_argument("--username", required=True)
+    sub.add_parser("new-data-key")
     args = parser.parse_args(argv)
     if args.command == "prepare":
         prepare()
+        return 0
+    if args.command == "new-data-key":
+        print(base64.b64encode(secrets.token_bytes(32)).decode())
         return 0
     with session_scope() as db:
         password = _temporary(db, args.username, getattr(args, "name", None), args.command == "create-admin")

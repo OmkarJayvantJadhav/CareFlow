@@ -54,6 +54,7 @@ Use a separate Neon project (never the demo's database) and a separate Render se
 | --- | --- |
 | `DEMO_MODE` | `false` |
 | `AUTH_SECRET` | a long random value (Render can generate one) |
+| `DATA_KEY` | another long random value (`python -m app.manage new-data-key`); it encrypts patients' phone numbers. Keep it safe and do not change it: numbers stored with an old key can no longer be read |
 | `INITIAL_ADMIN_USERNAME` | the first administrator's username, e.g. `admin.sharma` |
 | `INITIAL_ADMIN_PASSWORD` | a temporary password of at least 8 characters |
 | `INITIAL_ADMIN_NAME` | their name as shown in the app |
@@ -71,6 +72,12 @@ is; then each department with its OPD hours, and each doctor with their language
 length. Slots open from the next day. Then **Accounts**: the front-desk, doctor and other admin accounts. Each gets a
 temporary password, shown once, to hand over in person or by phone; it must be replaced at the first sign-in.
 A forgotten password is reset there in the same way. Switching an account off ends its sessions immediately.
+
+**Patient data and the assistant.** In chat, messages (with phone numbers masked), the names of the patients
+being helped and their appointment details are sent to the LLM provider you configure (Groq and Gemini on the
+free plans). Decide whether that is acceptable for your patients. If not, use a provider you have a
+data-processing agreement with, or a local model (`LLM_PRIMARY=ollama:<model>`, `OLLAMA_BASE_URL`). Booking,
+queues and every other screen work without it.
 
 Not yet possible in the app (coming in the next phases): editing the hospital information documents, which
 still describe the demo hospital. The demo reset and the demo roles are switched off in this mode.
@@ -91,6 +98,8 @@ still describe the demo hospital. The demo reset and the demo roles are switched
 | Visitors left messy data (demo only) | Admin → Dashboard → **Reset demo data** |
 | An admin forgot their password (hospital deployment) | Another admin resets it under **Accounts**. If no admin can sign in, run `DATABASE_URL='<the Neon string>' python -m app.manage reset-password --username U` from a checkout of this repository on any computer; it prints a temporary password once |
 | Someone left or a device was lost | Admin → **Accounts** → switch the account off (its sessions end at once) or reset its password |
+| A patient asks for their data to be deleted | Admin → **Patients** → find them → **Erase this patient's details**, with the reason. Patients with an account can also do it themselves from their profile |
+| A patient asks what you hold about them | They download it from their profile (**Download my data**); otherwise staff read it out from **Patients** |
 | A doctor leaves the hospital | Admin → **Hospital setup** → the doctor's **Last day**; later patients are told and rebook free with a colleague. Switch off their account under **Accounts** |
 | A timetable changes | Admin → **Hospital setup** → edit the department's OPD hours or the doctor's days or appointment length; it applies from tomorrow and lists bookings that no longer fit, which are kept |
 | Database suspended (free limit hit) | Wait for the monthly reset, or create a new Neon project and update `DATABASE_URL` |

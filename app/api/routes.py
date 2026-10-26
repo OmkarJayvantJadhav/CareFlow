@@ -1,6 +1,5 @@
 """REST endpoints (docs §7). They call the same service functions as the agent tools."""
 
-import re
 from datetime import date, datetime
 from typing import Literal
 
@@ -18,7 +17,7 @@ from app.api.deps import Auth, SlidingWindowLimiter, client_key, get_auth, get_d
 from app.api.passwords import DUMMY_HASH, check_new_password, hash_password, verify_password
 from app.config import get_settings
 from app.db.models import AppUser, Patient, QueueEntry
-from app.safety.privacy import mask_phone_number
+from app.safety.pii import normalize_mobile, set_phone
 from app.timeutil import iso, now_ist
 from app.tools import booking, policy, registration, waiting_list
 from app.tools.accounts import USERNAME_RE
@@ -118,11 +117,7 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
         this_year = now_ist().year
         if body.birth_year is None or not 1900 <= body.birth_year <= this_year:
             raise ToolError("VALIDATION_ERROR", f"Birth year must be between 1900 and {this_year}.")
-        digits = re.sub(r"\D", "", body.phone or "")
-        if len(digits) == 12 and digits.startswith("91"):
-            digits = digits[2:]
-        if not re.fullmatch(r"[6-9]\d{9}", digits):
-            raise ToolError("VALIDATION_ERROR", "Enter a 10-digit Indian mobile number.")
+        digits = normalize_mobile(body.phone)
     check_new_password(body.password)
     register_limiter.check(
         client_key(request), settings.max_registrations_per_ip_per_hour, "Too many new accounts; please try later."
@@ -133,12 +128,8 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
     answers = {}
     if patient_account:
         answers = registration.clean_answers(db, body.answers)
-        patient = Patient(
-            synthetic_name=name,
-            birth_year=body.birth_year,
-            phone_masked=mask_phone_number(digits),
-            preferred_language=body.language,
-        )
+        patient = Patient(name=name, birth_year=body.birth_year, preferred_language=body.language)
+        set_phone(patient, digits)
         db.add(patient)
         db.flush()
     user = AppUser(

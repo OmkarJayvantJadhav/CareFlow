@@ -44,8 +44,8 @@ def lookup_code(code: str, auth: Auth = Depends(get_auth), db: Session = Depends
     start = to_ist(appt.slot.start_at)
     return {
         "appointment_id": appt.id,
-        "patient_name": appt.patient.synthetic_name,
-        "first_name": appt.patient.synthetic_name.split()[0],
+        "patient_name": appt.patient.name,
+        "first_name": appt.patient.name.split()[0],
         "categories": registration.categories(appt.patient, now.year),
         "doctor_name": appt.doctor.name,
         "department": appt.doctor.department.name,

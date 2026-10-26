@@ -92,7 +92,7 @@ class World:
         return self.db.scalars(select(Doctor).where(Doctor.name == name)).one()
 
     def patient(self, name: str) -> Patient:
-        return self.db.scalars(select(Patient).where(Patient.synthetic_name == name)).first()
+        return self.db.scalars(select(Patient).where(Patient.name == name)).first()
 
     def slots(self, doctor: Doctor, day: date) -> list[Slot]:
         ensure_slots(self.db, day, day)

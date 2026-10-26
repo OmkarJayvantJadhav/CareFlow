@@ -87,6 +87,12 @@ def test_patient_changes_password_and_stays_signed_in(page: Page):
     form.get_by_role("button", name="Create account").click()
     page.get_by_role("link", name="Profile").click()
     change = page.get_by_role("form", name="Change password")
+    change.get_by_label("Current password", exact=True).fill("not-my-password")
+    change.get_by_label("New password", exact=True).fill("winter-chai-8")
+    change.get_by_label("New password, again", exact=True).fill("winter-chai-8")
+    change.get_by_role("button", name="Change password").click()
+    expect(change.get_by_role("alert")).to_be_visible()  # a wrong password is said, and the session stays
+    expect(page.get_by_role("navigation", name="Main")).to_be_visible()
     change.get_by_label("Current password", exact=True).fill("monsoon-tea-7")
     change.get_by_label("New password", exact=True).fill("winter-chai-8")
     change.get_by_label("New password, again", exact=True).fill("winter-chai-9")
@@ -144,6 +150,75 @@ def test_admin_creates_a_staff_account_that_chooses_its_own_password(page: Page)
     page.get_by_role("button", name=re.compile("^Sign out")).click()
     log_in(page, username, "harbour-lamp-31")
     expect(page.get_by_role("form", name="Log in").get_by_role("alert")).to_contain_text("switched off")
+
+
+def create_account(page: Page, name: str, username: str, phone: str, password: str = "monsoon-tea-7") -> None:
+    page.goto("/")
+    page.get_by_role("button", name="Create account").click()
+    form = page.get_by_role("form", name="Create account")
+    form.get_by_label("Full name").fill(name)
+    form.get_by_label("Username").fill(username)
+    form.get_by_label("Password", exact=True).fill(password)
+    form.get_by_label("Birth year").fill("1985")
+    form.get_by_label("Mobile number").fill(phone)
+    form.get_by_role("button", name="Create account").click()
+    expect(page.get_by_role("navigation", name="Main")).to_be_visible()
+
+
+def test_staff_correct_a_record_and_an_admin_erases_it_on_request(page: Page):
+    username = f"leela-{uuid.uuid4().hex[:6]}"
+    create_account(page, "Leela Kulkarni", username, "98220 12399")
+    page.get_by_role("button", name="Sign out (Leela Kulkarni)").click()
+
+    sign_in(page, "Front desk")
+    page.get_by_role("link", name="Patients", exact=True).click()
+    page.get_by_label("Name, mobile number or record number").fill("98220 12399")
+    page.get_by_role("button", name="Search", exact=True).click()
+    page.get_by_role("button", name=re.compile(f"^Leela Kulkarni.*@{username}")).click()
+    record = page.get_by_role("article", name="Leela Kulkarni")
+    expect(record).to_contain_text("+91 98XXXXXX99")
+    record.get_by_role("button", name="Show number").click()
+    expect(record.get_by_role("link", name="+91 98220 12399")).to_be_visible()
+    edit = page.get_by_role("form", name="Edit patient details")
+    edit.get_by_label("Full name").fill("Leela A. Kulkarni")
+    edit.get_by_role("button", name="Save changes").click()
+    expect(edit.get_by_role("status")).to_contain_text("Saved.")
+    expect(page.get_by_role("article", name="Leela A. Kulkarni")).to_be_visible()
+    expect(page.get_by_role("button", name="Erase this patient's details")).to_have_count(0)  # admins only
+    page.get_by_role("button", name=re.compile("^Sign out")).click()
+
+    sign_in(page, "OPD admin")
+    page.get_by_role("link", name="Patients", exact=True).click()
+    page.get_by_label("Name, mobile number or record number").fill("leela a. kulkarni")
+    page.get_by_role("button", name="Search", exact=True).click()
+    page.get_by_role("button", name=re.compile(f"^Leela A. Kulkarni.*@{username}")).click()
+    page.get_by_role("button", name="Erase this patient's details").click()
+    dialog = page.get_by_role("dialog", name="Erase personal details")
+    dialog.get_by_label(re.compile("^Reason")).fill("Written request at the desk")
+    dialog.get_by_role("button", name="Erase for good").click()
+    expect(page.get_by_role("status").filter(has_text="personal details were erased")).to_be_visible()
+    page.get_by_role("button", name=re.compile("^Sign out")).click()
+    log_in(page, username, "monsoon-tea-7")
+    expect(page.get_by_role("form", name="Log in").get_by_role("alert")).to_contain_text("Wrong username or password.")
+
+
+def test_patients_download_their_data_and_delete_their_account(page: Page):
+    create_account(page, "Ravi Shinde", f"ravi-{uuid.uuid4().hex[:6]}", "98220 12398")
+    page.get_by_role("link", name="Profile").click()
+    with page.expect_download() as download:
+        page.get_by_role("button", name="Download my data").click()
+    assert download.value.suggested_filename == "careflow-my-data.json"
+    page.get_by_role("button", name="Delete my account").click()
+    dialog = page.get_by_role("dialog", name="Delete my account")
+    dialog.get_by_label("Password", exact=True).fill("not-my-password")
+    dialog.get_by_role("button", name="Delete for good").click()
+    expect(dialog.get_by_role("alert")).to_contain_text("That password is not right.")
+    dialog.get_by_label("Password", exact=True).fill("monsoon-tea-7")
+    dialog.get_by_role("button", name="Delete for good").click()
+    expect(
+        page.get_by_role("status").filter(has_text="Your account and personal details have been deleted.")
+    ).to_be_visible()
+    expect(page.get_by_role("form", name="Log in")).to_be_visible()
 
 
 def test_book_from_recommendations_then_receipt_reschedule_and_cancel(page: Page):
@@ -578,13 +653,14 @@ def _axe_violations(page: Page) -> list[dict]:
                 "Profile",
             ],
         ),
-        ("Front desk", ["Front desk", "Calendar", "Doctor status", "Coordination", "My account"]),
+        ("Front desk", ["Front desk", "Calendar", "Doctor status", "Coordination", "Patients", "My account"]),
         (
             "OPD admin",
             [
                 "Dashboard",
                 "Analytics",
                 "Hospital setup",
+                "Patients",
                 "Accounts",
                 "Registration form",
                 "Priority rules",
@@ -638,7 +714,7 @@ def _overflow(page: Page) -> int:
 @pytest.mark.parametrize(
     "role, paths",
     [
-        ("Front desk", ["/desk", "/calendar", "/doctors", "/coordination", "/account"]),
+        ("Front desk", ["/desk", "/calendar", "/doctors", "/coordination", "/patients", "/account"]),
         ("Doctor", ["/my-queue", "/account"]),
         (
             "OPD admin",

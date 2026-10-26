@@ -86,7 +86,7 @@ def test_the_analytics_role_cannot_read_patient_columns(booked):
         conn.execute(text("SET ROLE careflow_analytics"))
         assert conn.execute(text("SELECT count(*) FROM reporting.appointments")).scalar() == 1
         with pytest.raises(Exception, match="permission denied"):
-            conn.execute(text("SELECT synthetic_name FROM public.patient"))
+            conn.execute(text("SELECT name FROM public.patient"))
         conn.rollback()
 
 

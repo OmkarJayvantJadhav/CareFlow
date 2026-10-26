@@ -51,7 +51,7 @@ def receipt(db: Session, actor: Actor, appointment_id: int) -> dict:
         "reference": reference_code(appt.id),
         "appointment_id": appt.id,
         "status": appt.status,
-        "patient_name": appt.patient.synthetic_name,
+        "patient_name": appt.patient.name,
         "patient_phone": appt.patient.phone_masked,
         "patient_birth_year": appt.patient.birth_year,
         "doctor_name": doctor.name,

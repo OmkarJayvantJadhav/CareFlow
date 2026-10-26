@@ -37,7 +37,8 @@ export async function api(path, options = {}) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const error = (data && data.error) || {};
-    if (response.status === 401 && onUnauthorized) onUnauthorized();
+    // The session has ended (not a wrong password typed into a form, which is also a 401).
+    if (response.status === 401 && error.code !== "INVALID_CREDENTIALS" && onUnauthorized) onUnauthorized();
     throw new ApiError(error.code || `HTTP_${response.status}`, error.message || response.statusText, response.status);
   }
   return data;

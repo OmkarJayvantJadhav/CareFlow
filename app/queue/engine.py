@@ -27,7 +27,8 @@ from app.db.models import (
 )
 from app.queue.merge import QueueItem, effective_priority, merge_order
 from app.queue.predictions import latest_estimate, refresh_predictions
-from app.safety.privacy import mask_payload, mask_phone_number
+from app.safety.pii import normalize_mobile, set_phone
+from app.safety.privacy import mask_payload
 from app.timeutil import at, resolve_now, to_ist
 from app.tools import policy
 from app.tools.audit import write_tool
@@ -325,21 +326,19 @@ def register_walk_in(
         clean = registration.clean_answers(db, answers)
         if not name or not birth_year or not phone:
             raise ToolError("VALIDATION_ERROR", "A new walk-in needs a name, birth year and phone number.")
-        try:
-            masked = mask_phone_number(phone)
-        except ValueError:
-            raise ToolError("VALIDATION_ERROR", "The phone number must be a 10-digit mobile number.") from None
+        digits = normalize_mobile(phone)
         if not 1900 <= birth_year <= now.year:
             raise ToolError("VALIDATION_ERROR", "The birth year is not valid.")
         if language not in ("en", "hi", "mr"):
             raise ToolError("VALIDATION_ERROR", "Language must be en, hi or mr.")
-        patient = Patient(synthetic_name=name, birth_year=birth_year, phone_masked=masked, preferred_language=language)
+        patient = Patient(name=name, birth_year=birth_year, preferred_language=language)
+        set_phone(patient, digits)
         db.add(patient)
         db.flush()
         registration.save_answers(db, patient.id, clean)
     else:
         patient = db.get(Patient, patient_id)
-        if patient is None:
+        if patient is None or patient.erased_at is not None:
             raise ToolError("NOT_FOUND", f"Patient {patient_id} does not exist.")
         registration.require_reuse_consent(db, patient.id)
     if _in_queue(db, session, patient.id):
@@ -1111,4 +1110,4 @@ def active_entries_for(db: Session, actor: Actor, now: datetime | None = None) -
         )
         .order_by(QueueEntry.id)
     ).all()
-    return [{**get_queue_status(db, actor, e.id, now), "patient_name": e.patient.synthetic_name} for e in entries]
+    return [{**get_queue_status(db, actor, e.id, now), "patient_name": e.patient.name} for e in entries]

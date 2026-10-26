@@ -89,7 +89,7 @@ def _slot(db, doctor: Doctor, day: date, hhmm: str) -> Slot:
 
 
 def _patient_id(db, name: str) -> int:
-    return db.scalars(select(Patient.id).where(Patient.synthetic_name == name).order_by(Patient.id)).first()
+    return db.scalars(select(Patient.id).where(Patient.name == name).order_by(Patient.id)).first()
 
 
 def _clock(day: date, hhmm: str) -> datetime:
@@ -210,7 +210,7 @@ def describe(db, tool: str, args: dict) -> dict:
         info |= {"doctor": entry.session.doctor.name}
     else:
         patient_id = args.get("patient_id")
-    info["patient"] = db.get(Patient, patient_id).synthetic_name if patient_id else None
+    info["patient"] = db.get(Patient, patient_id).name if patient_id else None
     return info
 
 

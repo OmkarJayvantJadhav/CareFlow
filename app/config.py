@@ -42,6 +42,9 @@ class Settings(BaseSettings):
     # Demo bearer tokens are signed with this secret; set it in production.
     auth_secret: str = "careflow-demo-secret-change-me"
     token_ttl_hours: int = 12
+    # Encrypts patients' phone numbers (base64 of 32 random bytes). Without it a key is derived from
+    # AUTH_SECRET, so changing AUTH_SECRET would make stored numbers unreadable; set both in production.
+    data_key: str = ""
     # Anyone may create a patient account; both limits are per client address.
     allow_registration: bool = True
     max_registrations_per_ip_per_hour: int = 10

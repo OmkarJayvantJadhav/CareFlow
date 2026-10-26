@@ -16,6 +16,7 @@ from app.api.accounts_routes import router as accounts_router
 from app.api.admin_routes import router as admin_router
 from app.api.care_routes import router as care_router
 from app.api.library_routes import router as library_router
+from app.api.patients_routes import router as patients_router
 from app.api.queue_routes import router as queue_router
 from app.api.queue_routes import ws_router
 from app.api.registration_routes import router as registration_router
@@ -154,6 +155,7 @@ app.include_router(library_router)
 app.include_router(registration_router)
 app.include_router(queue_router)
 app.include_router(setup_router)
+app.include_router(patients_router)
 app.include_router(ws_router)
 
 # The built React app (ui/dist) is served from the same origin, so one container serves everything.

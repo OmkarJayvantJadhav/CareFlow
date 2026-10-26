@@ -2,6 +2,7 @@ import { CircleCheck, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
+import OwnData from "../components/OwnData";
 import { CaregiverAccess, PatientPrivacy } from "../components/Privacy";
 import Loading from "../components/Loading";
 import { initials, longDate } from "../format";
@@ -27,6 +28,7 @@ function CaregiverProfile() {
       </div>
       <CaregiverAccess />
       <PasswordCard />
+      <OwnData />
     </main>
   );
 }
@@ -163,6 +165,7 @@ function PatientProfile() {
 
           <PasswordCard />
           <PatientPrivacy />
+          <OwnData />
         </>
       )}
     </main>

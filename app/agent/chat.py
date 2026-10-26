@@ -87,7 +87,7 @@ def actor_patients(db: Session, actor: Actor) -> dict[int, str]:
         ids = sorted(linked_patient_ids(db, actor))
     else:
         ids = []
-    return {pid: db.get(Patient, pid).synthetic_name for pid in ids}
+    return {pid: db.get(Patient, pid).name for pid in ids}
 
 
 def displaced_notes(db: Session, patients: dict[int, str], now: datetime) -> list[str]:

@@ -23,7 +23,7 @@ from app.db.models import (
     PatientFieldValue,
     Slot,
 )
-from app.safety.privacy import mask_phone_number
+from app.safety.pii import set_phone
 from app.timeutil import at
 from app.tools.booking import book_appointment
 from app.tools.permissions import Actor
@@ -44,12 +44,10 @@ def random_patient(rng: np.random.Generator) -> Patient:
     first = hospital.FIRST_NAMES[rng.integers(len(hospital.FIRST_NAMES))]
     last = hospital.LAST_NAMES[rng.integers(len(hospital.LAST_NAMES))]
     langs, weights = zip(*LANGUAGE_WEIGHTS.items(), strict=True)
-    return Patient(
-        synthetic_name=f"{first} {last}",
-        birth_year=int(rng.integers(1940, 2024)),
-        phone_masked=mask_phone_number(random_phone(rng)),
-        preferred_language=str(rng.choice(langs, p=weights)),
-    )
+    patient = Patient(name=f"{first} {last}", birth_year=int(rng.integers(1940, 2024)))
+    set_phone(patient, random_phone(rng))
+    patient.preferred_language = str(rng.choice(langs, p=weights))
+    return patient
 
 
 DEMO_ACCOUNTS_CREATED = at(date(2026, 1, 1), time(0, 0))
@@ -72,12 +70,8 @@ def seed_reference(db: Session, rng: np.random.Generator) -> None:
 
     demo_patients = {}
     for key, (name, birth_year, language, phone) in hospital.DEMO_PATIENTS.items():
-        patient = Patient(
-            synthetic_name=name,
-            birth_year=birth_year,
-            phone_masked=mask_phone_number(phone),
-            preferred_language=language,
-        )
+        patient = Patient(name=name, birth_year=birth_year, preferred_language=language)
+        set_phone(patient, phone)
         db.add(patient)
         demo_patients[key] = patient
     db.flush()
@@ -141,7 +135,8 @@ def simulated_patient_ids(db: Session) -> list[int]:
     """Synthetic patients the simulator may book for; demo accounts are left to the visitor."""
     demo_ids = set(db.scalars(select(AppUser.patient_id).where(AppUser.patient_id.is_not(None))))
     demo_ids |= set(db.scalars(select(CaregiverLink.patient_id)))
-    return [p for p in db.scalars(select(Patient.id).order_by(Patient.id)) if p not in demo_ids]
+    live = select(Patient.id).where(Patient.erased_at.is_(None)).order_by(Patient.id)
+    return [p for p in db.scalars(live) if p not in demo_ids]
 
 
 def seed_upcoming_bookings(db: Session, rng: np.random.Generator, today: date, days_ahead: int) -> int:
@@ -251,10 +246,14 @@ def _own_accounts(db: Session) -> list[dict]:
             "created_at": user.created_at,
             "caregiver": True,
         }
-        for user in db.scalars(select(AppUser).where(AppUser.self_registered, AppUser.role == "caregiver"))
+        for user in db.scalars(
+            select(AppUser).where(AppUser.self_registered, AppUser.role == "caregiver", AppUser.active)
+        )
     ]
     rows = db.execute(
-        select(AppUser, Patient).join(Patient, Patient.id == AppUser.patient_id).where(AppUser.self_registered)
+        select(AppUser, Patient)
+        .join(Patient, Patient.id == AppUser.patient_id)
+        .where(AppUser.self_registered, Patient.erased_at.is_(None))
     ).all()
     return [
         {
@@ -262,9 +261,11 @@ def _own_accounts(db: Session) -> list[dict]:
             "display_name": user.display_name,
             "password_hash": user.password_hash,
             "created_at": user.created_at,
-            "name": patient.synthetic_name,
+            "name": patient.name,
             "birth_year": patient.birth_year,
             "phone_masked": patient.phone_masked,
+            "phone_encrypted": patient.phone_encrypted,
+            "phone_hash": patient.phone_hash,
             "language": patient.preferred_language,
             "pregnant": patient.pregnant,
             "disability": patient.disability,
@@ -300,9 +301,11 @@ def _restore_accounts(db: Session, accounts: list[dict]) -> None:
             )
             continue
         patient = Patient(
-            synthetic_name=a["name"],
+            name=a["name"],
             birth_year=a["birth_year"],
             phone_masked=a["phone_masked"],
+            phone_encrypted=a["phone_encrypted"],
+            phone_hash=a["phone_hash"],
             preferred_language=a["language"],
             pregnant=a["pregnant"],
             disability=a["disability"],

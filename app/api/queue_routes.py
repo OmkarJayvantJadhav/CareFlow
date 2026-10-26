@@ -84,7 +84,7 @@ def _detail(db: Session, session_id: int) -> dict:
     requests = {r["entry_id"]: r for r in engine.pending_priority_requests(db, session_id)}
     for entry in snapshot["entries"]:
         e = db.get(QueueEntry, entry["entry_id"])
-        entry["patient_name"] = e.patient.synthetic_name
+        entry["patient_name"] = e.patient.name
         entry["categories"] = categories(e.patient, now.year)  # feature 30
         entry["effective_priority"] = effective_priority(
             e.priority, entry["categories"], weights, engine.category_due(e, start)

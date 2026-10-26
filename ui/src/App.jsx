@@ -18,6 +18,7 @@ import Library from "./pages/Library";
 import LibraryDoc from "./pages/LibraryDoc";
 import Notifications from "./pages/Notifications";
 import PriorityRules from "./pages/PriorityRules";
+import Patients from "./pages/Patients";
 import Profile from "./pages/Profile";
 import QueueStatus from "./pages/QueueStatus";
 import Receipt from "./pages/Receipt";
@@ -177,6 +178,14 @@ export default function App() {
           element={
             <Guard roles={["staff", "admin"]}>
               <Coordination />
+            </Guard>
+          }
+        />
+        <Route
+          path="/patients"
+          element={
+            <Guard roles={["staff", "admin"]}>
+              <Patients />
             </Guard>
           }
         />

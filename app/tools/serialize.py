@@ -31,7 +31,7 @@ def appointment_dict(a: Appointment) -> dict:
     return {
         "appointment_id": a.id,
         "patient_id": a.patient_id,
-        "patient_name": a.patient.synthetic_name,
+        "patient_name": a.patient.name,
         "doctor_id": a.doctor_id,
         "doctor_name": a.doctor.name,
         "department": a.doctor.department.name,

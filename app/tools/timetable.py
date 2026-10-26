@@ -164,7 +164,7 @@ def off_timetable(db: Session, doctor_ids: list[int], first: date) -> list[dict]
                 {
                     "appointment_id": appt.id,
                     "doctor_name": appt.doctor.name,
-                    "patient_name": appt.patient.synthetic_name,
+                    "patient_name": appt.patient.name,
                     "date": start.date().isoformat(),
                     "time": start.strftime("%H:%M"),
                 }

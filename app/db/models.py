@@ -155,14 +155,22 @@ class Patient(Base):
     __tablename__ = "patient"
     __table_args__ = (
         CheckConstraint(_in("preferred_language", LANGUAGES), name="ck_patient_language"),
-        # The phone number is stored masked only (docs §6, NFR-08).
-        CheckConstraint("phone_masked ~ '^\\+91 [0-9]{2}X{6}[0-9]{2}$'", name="ck_patient_phone_masked"),
+        # The masked form is what screens, logs and the LLM see (NFR-08); an erased record keeps none.
+        CheckConstraint(
+            "phone_masked ~ '^\\+91 [0-9]{2}X{6}[0-9]{2}$' OR (erased_at IS NOT NULL AND phone_masked = '')",
+            name="ck_patient_phone_masked",
+        ),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    synthetic_name: Mapped[str] = mapped_column(String(120))
+    name: Mapped[str] = mapped_column(String(120))
     birth_year: Mapped[int] = mapped_column(SmallInteger)
     phone_masked: Mapped[str] = mapped_column(String(20))
+    # The full number, AES-GCM encrypted (app.safety.pii), and a keyed hash to find it; phase 7C.
+    phone_encrypted: Mapped[str | None] = mapped_column(Text)
+    phone_hash: Mapped[str | None] = mapped_column(String(64), index=True)
+    # Set when the patient's personal details were erased on request; the visit history stays, anonymous.
+    erased_at: Mapped[datetime | None] = mapped_column(TZ)
     preferred_language: Mapped[str] = mapped_column(String(8), default="en")
     # Patient categories set by staff (feature 30); senior and child are worked out from the birth year.
     pregnant: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))

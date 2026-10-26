@@ -15,10 +15,11 @@ const KNOWN = new Set([
 ]);
 
 /** Plain-language error with a next step; never a bare code (docs §8). */
-export function useErrorText() {
+export function useErrorText(messages = {}) {
   const { t, lang } = useSession();
   return (error) => {
     if (error instanceof ApiError) {
+      if (messages[error.code]) return t(messages[error.code]);
       if (error.code === "NETWORK") return t("error_network");
       if (KNOWN.has(error.code)) return t(`error_${error.code}`);
       // Rule messages from the server ("This slot was just taken…") are plain English sentences.
@@ -29,9 +30,10 @@ export function useErrorText() {
   };
 }
 
-export default function ErrorMessage({ error, onRetry }) {
+/** `messages` words a code for this form, e.g. {INVALID_CREDENTIALS: "wrongPassword"} where only a password is asked. */
+export default function ErrorMessage({ error, onRetry, messages }) {
   const { t } = useSession();
-  const text = useErrorText()(error);
+  const text = useErrorText(messages)(error);
   return (
     <div className="error" role="alert">
       <AlertCircle size={18} aria-hidden="true" />

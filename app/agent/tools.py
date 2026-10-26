@@ -390,7 +390,7 @@ def _current_appointment(db: Session, appointment_id: int) -> dict:
     if appt is None:
         raise ToolError("NOT_FOUND", f"Appointment {appointment_id} does not exist.")
     return {
-        "patient_name": appt.patient.synthetic_name,
+        "patient_name": appt.patient.name,
         "doctor_name": appt.doctor.name,
         "department": appt.doctor.department.name,
         "date": appt.appt_date.isoformat(),
@@ -446,7 +446,7 @@ def run_join_waiting_list(ctx: ToolContext, args: WaitingListArgs) -> dict:
     doctor = ctx.db.get(Doctor, args.doctor_id)
     patient = ctx.db.get(Patient, args.patient_id)
     summary = {
-        "patient": patient.synthetic_name,
+        "patient": patient.name,
         "doctor": doctor.name,
         "department": doctor.department.name,
         "dates": ", ".join(display_date(date.fromisoformat(d), ctx.language) for d in dates),
@@ -466,7 +466,7 @@ def run_join_virtual_queue(ctx: ToolContext, args: JoinQueueArgs) -> dict:
         ctx, lambda: queue_engine.join_virtual_queue(ctx.db, ctx.actor, args.doctor_id, args.patient_id, now=ctx.now)
     )
     summary = {
-        "patient": ctx.db.get(Patient, args.patient_id).synthetic_name,
+        "patient": ctx.db.get(Patient, args.patient_id).name,
         "doctor": preview["doctor_name"],
         "department": preview["department"],
         "floor": str(preview["floor"]),
@@ -481,7 +481,7 @@ def _entry_summary(db: Session, entry_id: int) -> dict:
         raise ToolError("NOT_FOUND", f"Queue entry {entry_id} does not exist.")
     doctor = entry.session.doctor
     return {
-        "patient": entry.patient.synthetic_name,
+        "patient": entry.patient.name,
         "doctor": doctor.name,
         "department": doctor.department.name,
         "token": entry.token,

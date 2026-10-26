@@ -68,7 +68,7 @@ def test_logging_filter_keeps_args_for_access_log_formatters():
 
 
 def test_database_refuses_unmasked_phone(world):
-    world.db.add(Patient(synthetic_name="X", birth_year=1990, phone_masked="9876543210", preferred_language="en"))
+    world.db.add(Patient(name="X", birth_year=1990, phone_masked="9876543210", preferred_language="en"))
     with pytest.raises(IntegrityError):
         world.db.flush()
 
@@ -119,10 +119,14 @@ def test_tc18_no_unmasked_phone_in_logs_or_stored_records(world, caplog):
     assert "9123456780" not in caplog.text and "+91 91XXXXXX80" in caplog.text
     dumps = [
         str(row)
-        for table in ("audit_log", "notification", "patient", "queue_event")
+        for table in ("audit_log", "notification", "queue_event")
         for row in db.execute(text(f"SELECT * FROM {table}")).all()
     ]
+    dumps += [str(row) for row in db.execute(text("SELECT id, name, birth_year, phone_masked FROM patient")).all()]
     assert dumps and not any(UNMASKED.search(d) for d in dumps)
+    # The full number is held only encrypted (and as a keyed hash), never in the clear.
+    stored = db.execute(text("SELECT phone_encrypted, phone_hash FROM patient WHERE name = 'Meena'")).one()
+    assert "9123456780" not in str(stored) and stored.phone_encrypted.startswith("v1:")
     assert db.scalars(select(Notification)).first() is not None
 
 

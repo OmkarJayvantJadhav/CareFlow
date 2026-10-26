@@ -28,3 +28,6 @@ services:
         sync: false
       - key: AUTH_SECRET
         generateValue: true
+      # Encrypts patients' phone numbers; keep it when changing AUTH_SECRET.
+      - key: DATA_KEY
+        generateValue: true

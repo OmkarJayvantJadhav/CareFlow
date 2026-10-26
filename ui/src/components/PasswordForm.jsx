@@ -64,7 +64,7 @@ export default function PasswordForm({ idPrefix = "pw", currentLabel, onDone }) 
           {t("passwordsDiffer")}
         </p>
       )}
-      {error !== null && <ErrorMessage error={error} />}
+      {error !== null && <ErrorMessage error={error} messages={{ INVALID_CREDENTIALS: "wrongPassword" }} />}
       {done && (
         <p className="notice" role="status">
           <CircleCheck size={18} aria-hidden="true" />

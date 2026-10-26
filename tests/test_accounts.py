@@ -124,4 +124,4 @@ def test_demo_reset_keeps_own_accounts(api, world):
     again = api.post("/api/v1/auth/login", json={"username": "meena.rao", "password": NEW["password"]})
     assert again.status_code == 200
     patient = world.db.get(Patient, again.json()["user"]["patient_id"])
-    assert patient.synthetic_name == "Meena Rao" and patient.phone_masked == "+91 98XXXXXX10"
+    assert patient.name == "Meena Rao" and patient.phone_masked == "+91 98XXXXXX10"

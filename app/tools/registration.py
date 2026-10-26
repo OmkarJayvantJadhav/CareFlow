@@ -18,6 +18,7 @@ from app.db.models import (
     PatientFieldValue,
     RegistrationField,
 )
+from app.safety.pii import normalize_mobile, phone_index
 from app.safety.privacy import mask_phone_number
 from app.timeutil import iso, resolve_now
 from app.tools.audit import write_tool
@@ -117,30 +118,31 @@ def find_duplicates(
     db: Session, actor: Actor, name: str, birth_year: int, phone: str | None, now: datetime | None = None
 ) -> dict:
     """Existing patients who are probably the same person: the same birth year and either the same name
-    (ignoring case, spacing and punctuation) or the same masked phone number."""
+    (ignoring case, spacing and punctuation) or the same phone number (by its keyed hash; records stored
+    before numbers were encrypted only have the masked form, which is compared instead)."""
     require_role(actor, "staff", "admin")
     now = resolve_now(now)
-    masked = None
+    masked = index = None
     if phone:
-        try:
-            masked = mask_phone_number(phone)
-        except ValueError:
-            raise ToolError("VALIDATION_ERROR", "The phone number must be a 10-digit mobile number.") from None
+        digits = normalize_mobile(phone)
+        masked, index = mask_phone_number(digits), phone_index(digits)
     wanted = normalize_name(name)
     if not wanted:
         raise ToolError("VALIDATION_ERROR", "Give the patient's name.")
-    candidates = db.scalars(select(Patient).where(Patient.birth_year == birth_year).order_by(Patient.id))
+    candidates = db.scalars(
+        select(Patient).where(Patient.birth_year == birth_year, Patient.erased_at.is_(None)).order_by(Patient.id)
+    )
     matches = []
     for p in candidates:
-        same_name = normalize_name(p.synthetic_name) == wanted
-        same_phone = masked is not None and p.phone_masked == masked
+        same_name = normalize_name(p.name) == wanted
+        same_phone = index is not None and (p.phone_hash == index if p.phone_hash else p.phone_masked == masked)
         if not (same_name or same_phone):
             continue
         last = db.scalar(select(func.max(Appointment.appt_date)).where(Appointment.patient_id == p.id))
         matches.append(
             {
                 "patient_id": p.id,
-                "name": p.synthetic_name,
+                "name": p.name,
                 "birth_year": p.birth_year,
                 "phone_masked": p.phone_masked,
                 "reasons": [r for r, hit in (("same_name", same_name), ("same_phone", same_phone)) if hit],
@@ -301,7 +303,7 @@ def _request_dict(db: Session, r: CaregiverRequest) -> dict:
     return {
         "request_id": r.id,
         "caregiver_name": caregiver.display_name,
-        "patient_name": patient.synthetic_name,
+        "patient_name": patient.name,
         "status": r.status,
         "requested_at": iso(r.requested_at),
         "decided_at": iso(r.decided_at) if r.decided_at else None,
@@ -313,7 +315,9 @@ def request_caregiver_access(db: Session, actor: Actor, patient_username: str, n
     """A caregiver asks to act for a patient who has an account; nothing is shared until they approve."""
     require_role(actor, "caregiver")
     now = resolve_now(now)
-    user = db.scalars(select(AppUser).where(AppUser.username == patient_username.strip().lower())).first()
+    user = db.scalars(
+        select(AppUser).where(AppUser.username == patient_username.strip().lower(), AppUser.active)
+    ).first()
     # The same answer whether or not the account exists, so usernames cannot be probed.
     if user is None or user.role != "patient":
         raise ToolError("NOT_FOUND", "No patient account with that username accepts requests.")

@@ -114,7 +114,7 @@ def get_patient_appointments(db: Session, actor: Actor, patient_id: int, now: da
         is_active = a.status in ACTIVE_APPOINTMENT_STATUSES or a.status == "displaced"
         (upcoming if is_active and a.slot.start_at >= now else past).append(item)
     upcoming.reverse()
-    return {"patient_id": patient_id, "patient_name": patient.synthetic_name, "upcoming": upcoming, "past": past}
+    return {"patient_id": patient_id, "patient_name": patient.name, "upcoming": upcoming, "past": past}
 
 
 # --------------------------------------------------------------------------- helpers
@@ -292,7 +292,8 @@ def book_appointment(
     now = resolve_now(now)
     require_patient_access(db, actor, patient_id)
     _require_confirmed(confirmed)
-    if db.get(Patient, patient_id) is None:
+    patient = db.get(Patient, patient_id)
+    if patient is None or patient.erased_at is not None:
         raise ToolError("NOT_FOUND", f"Patient {patient_id} does not exist.")
     slot = _lock_slots(db, slot_id).get(slot_id)
     if slot is None:

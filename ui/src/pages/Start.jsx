@@ -11,7 +11,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { HOME } from "../App";
 import { LoginForm, RegisterForm } from "../components/AuthForms";
 import ErrorMessage from "../components/ErrorMessage";
@@ -36,6 +36,7 @@ const FEATURES = [
 export default function Start() {
   const { user, config, demo, hospitalName, lang, setLang, signIn, t } = useSession();
   const navigate = useNavigate();
+  const location = useLocation();
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
   const [mode, setMode] = useState("login");
@@ -78,6 +79,11 @@ export default function Start() {
 
       <section className="card roles-card" aria-labelledby="auth-h">
         <h2 id="auth-h">{t("signInTitle")}</h2>
+        {location.state?.accountDeleted && (
+          <p className="notice" role="status">
+            {t("accountDeleted")}
+          </p>
+        )}
         {signUp && (
           <div className="segmented auth-tabs" role="group" aria-label={t("signInTitle")}>
             <button type="button" aria-pressed={mode === "login"} onClick={() => setMode("login")}>

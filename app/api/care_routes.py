@@ -1,7 +1,6 @@
 """Phase 6A endpoints: patient profile and notifications, receipts, slot recommendations, doctor
 calendars and leave, and appointment utilization."""
 
-import re
 from datetime import date
 from typing import Literal
 
@@ -15,7 +14,7 @@ from app.api.auth import issue_token
 from app.api.deps import Auth, get_auth, get_db, run_and_commit
 from app.api.passwords import check_new_password, hash_password, verify_password
 from app.db.models import AppUser, Department, Notification, Patient
-from app.safety.privacy import mask_phone_number
+from app.safety.pii import set_phone
 from app.timeutil import iso, now_ist
 from app.tools import calendar, receipts, recommend
 from app.tools.errors import ToolError
@@ -33,7 +32,7 @@ def _own_patient(db: Session, auth: Auth) -> tuple[AppUser, Patient]:
 def _profile(user: AppUser, patient: Patient) -> dict:
     return {
         "username": user.username,
-        "name": patient.synthetic_name,
+        "name": patient.name,
         "birth_year": patient.birth_year,
         "phone_masked": patient.phone_masked,
         "language": patient.preferred_language,
@@ -69,19 +68,14 @@ def update_profile(body: ProfileUpdate, auth: Auth = Depends(get_auth), db: Sess
         name = " ".join(body.name.split())
         if len(name) < 2:
             raise ToolError("VALIDATION_ERROR", "Please give your name.")
-        patient.synthetic_name = name
+        patient.name = name
         user.display_name = name
     if body.birth_year is not None:
         if not 1900 <= body.birth_year <= now_ist().year:
             raise ToolError("VALIDATION_ERROR", f"Birth year must be between 1900 and {now_ist().year}.")
         patient.birth_year = body.birth_year
     if body.phone is not None:
-        digits = re.sub(r"\D", "", body.phone)
-        if len(digits) == 12 and digits.startswith("91"):
-            digits = digits[2:]
-        if not re.fullmatch(r"[6-9]\d{9}", digits):
-            raise ToolError("VALIDATION_ERROR", "Enter a 10-digit Indian mobile number.")
-        patient.phone_masked = mask_phone_number(digits)  # stored masked only (NFR-08)
+        set_phone(patient, body.phone)  # masked for display, encrypted at rest (D-111)
     if body.language is not None:
         patient.preferred_language = body.language
     db.commit()

@@ -13,7 +13,7 @@ const ROLE_LABEL = {
 
 /** Change one's own password; demo accounts have none. */
 export function PasswordCard() {
-  const { user, t } = useSession();
+  const { user, demo, t } = useSession();
   return (
     <section className="card" aria-labelledby="pw-h" style={{ marginTop: "1rem" }}>
       <div className="card-head">
@@ -22,7 +22,7 @@ export function PasswordCard() {
           {t("changePassword")}
         </h2>
       </div>
-      {user.has_password ? <PasswordForm /> : <p className="muted">{t("noPasswordYet")}</p>}
+      {user.has_password ? <PasswordForm /> : <p className="muted">{t(demo ? "demoNoPassword" : "noPasswordYet")}</p>}
     </section>
   );
 }
