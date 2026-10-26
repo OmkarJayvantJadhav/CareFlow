@@ -2,11 +2,13 @@
 
 # 🏥 CareFlow
 
-**An OPD assistant and live queue for a hospital — in English, हिन्दी and मराठी.**
+**An OPD system for a hospital — appointments, information, check-in, the live queue and messages to
+patients — in English, हिन्दी and मराठी.**
 
 Book, reschedule and cancel appointments by chat or in a few taps, get answers cited from the hospital's
 own documents, check in from your phone or a kiosk, join a queue online and watch your token move in real
-time — while doctors and the front desk run, balance and coordinate every queue.
+time, with reminders in the app, by SMS or by e-mail. Doctors and the front desk run, balance and
+coordinate every queue, and the hospital's admins keep its people, timetables, rules and documents.
 
 [![Live demo](https://img.shields.io/badge/live%20demo-careflow--zy87.onrender.com-0f766e?style=for-the-badge)](https://careflow-zy87.onrender.com)
 
@@ -15,12 +17,13 @@ time — while doctors and the front desk run, balance and coordinate every queu
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-450%20Python%20·%2043%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-457%20Python%20·%2044%20browser-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
 > ⚠️ **The live demo uses a fictional hospital (Indravani General Hospital) and synthetic data. Not for medical use.**
-> A hospital runs its own copy with `DEMO_MODE=false`: no demo roles or reset, and accounts managed by its admins
-> ([production setup](#running-it-for-a-real-hospital)). Phone numbers are encrypted at rest and shown masked.
+> A hospital runs its own copy with `DEMO_MODE=false`: its own accounts, departments, doctors, rules and documents,
+> no demo roles or reset ([production setup](#running-it-for-a-real-hospital)). Phone numbers and e-mail addresses
+> are encrypted at rest and shown masked.
 
 </div>
 
@@ -51,13 +54,14 @@ time — while doctors and the front desk run, balance and coordinate every queu
 ## Why CareFlow
 
 Outpatient departments lose hours to phone queues, double bookings and crowded waiting rooms. CareFlow puts
-the whole visit in one place — booking, information, check-in and the queue — and is built around three
-principles:
+the whole visit in one place — booking, information, check-in, the queue and messages — and is built
+around four principles:
 
 | | Principle | In practice |
 | :---: | --- | --- |
 | 🛡️ | **Rules live in code, not in the model** | The language model can only *propose* a booking. CareFlow checks it, shows a confirmation card and acts only on an explicit "yes". Policy windows, duplicates and permissions are enforced inside every tool. |
 | 🚑 | **Safety first** | Every message is checked for emergencies *before* the model sees it. An emergency gets fixed guidance (call 112 / 108) and nothing is written. Medicine names and doses never reach the user. |
+| 🏥 | **The hospital's own** | Nothing about the hospital is hardcoded: its admins manage the accounts, departments, doctors, timetables, booking and queue rules, information documents and which messages are sent. Patient contact details are encrypted, and patients can download or erase their data. |
 | 📏 | **Measured, not assumed** | An evaluation suite with held-out test sets measures safety, retrieval and the agent. Every number below comes from a real run and states its sample size. |
 
 ---
@@ -92,6 +96,10 @@ principles:
   <tr>
     <td><img src="docs/screenshots/hospital-setup.png" alt="Hospital setup: a changed timetable keeps its bookings and lists those outside it"><br><sub><b>Hospital setup</b> — a changed timetable keeps every booking and lists those to call</sub></td>
     <td><p align="center"><img src="docs/screenshots/phone-add-doctor.png" alt="Adding a doctor on a phone in large text" width="46%"></p><sub><b>Phone</b> — every admin screen also works at 360 px in large text</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/messaging.png" alt="The SMS and e-mail page: provider status, the sending switch and the kinds of message"><br><sub><b>SMS and e-mail</b> — off until an admin turns it on; choose which messages go out</sub></td>
+    <td><p align="center"><img src="docs/screenshots/phone-contact-choice.png" alt="A patient choosing SMS, e-mail or only in the app on a phone" width="46%"></p><sub><b>The patient's choice</b> — SMS, e-mail or only in the app</sub></td>
   </tr>
   <tr>
     <td><img src="docs/screenshots/kiosk.png" alt="Self check-in kiosk"><br><sub><b>Kiosk</b> — self check-in at reception, first name only</sub></td>
@@ -209,6 +217,13 @@ flowchart LR
   Priority comes from the doctor or from admin-set category rules; moves between doctors, the virtual
   queue and balancing suggestions (a transparent greedy rule) are in the same engine.
 - **Providers** — Groq (primary), Gemini (fallback) and Ollama (local) behind one interface.
+- **The hospital's data** (`app/tools/`) — accounts, hospital setup and timetables, patient records, rules
+  and documents are service functions like the booking rules: role-checked and audited. Rules and
+  documents live in the database and apply at once; a document edit is re-indexed in about a second.
+- **Background work** — threads in the server send reminders (every 10 minutes), keep 21 days of slots
+  open (every 6 hours) and deliver the SMS and e-mail outbox (every 20 seconds).
+- **Privacy** — phone numbers and e-mail addresses are encrypted with AES-GCM and masked on every screen,
+  log, trace, audit row and model prompt; secrets live only in the environment.
 - **Analytics** — reporting views without names or phone numbers, a SELECT-only database role, a SQL
   validator, a read-only transaction and a timeout.
 
@@ -223,6 +238,7 @@ flowchart LR
 | Prediction | LightGBM |
 | Language models | Groq, Gemini, Ollama |
 | Analytics guard | sqlglot |
+| Privacy and messages | `cryptography` (AES-GCM), scrypt passwords; Twilio, a signed webhook or SMTP for SMS and e-mail |
 | UI | React 18, Vite 5, JavaScript, hand-written CSS, lucide-react icons, qrcode |
 | Tests | pytest, Vitest, Playwright, axe-core, ruff, ESLint |
 | Deployment | Docker, Render (free web service), GitHub Actions |
@@ -372,10 +388,10 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 450 tests
+pytest                                     # 457 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e                    # 43 browser tests, including accessibility and 360 px
+pytest -m e2e tests/e2e                    # 44 browser tests, including accessibility and 360 px
 ```
 
 GitHub Actions runs all of these and a Docker build on every push; Render redeploys from `develop`.
@@ -458,11 +474,13 @@ waiting-list rules are also stated, with the same numbers, in the hospital's doc
 
 ```
 app/
-  api/        FastAPI app, routes, authentication, rate limits
+  api/        FastAPI app, routes, authentication, rate limits, background threads
   agent/      agent loop, tools, chat service, prompts, model providers, token budget, tracing
   rag/        chunking, embeddings, re-rankers, hybrid retriever, ingestion
   safety/     emergency check, language detection, medical-advice guard, injection filter, masking
   tools/      the business rules: booking, waiting list, calendar, recommendations, reminders,
+              accounts, hospital setup and timetables, patient records, documents, policy rules,
+              messaging and SMS / e-mail channels,
               receipts, registration and consent, permissions, audit
   queue/      merge rule, queue engine, priority rules, balancing, coordination, live predictions,
               WebSocket broadcaster
@@ -503,12 +521,18 @@ docs/         specification, decisions, deployment guide, screenshots
 | Phase 6A appointment features | `app/tools/{calendar,recommend,reminders,receipts}.py`, `app/api/care_routes.py` | `test_care_features.py`, e2e |
 | Phase 6B registration and check-in | `app/tools/registration.py`, `app/api/registration_routes.py` | `test_registration.py`, `test_queue.py`, e2e |
 | Phase 6C queue management | `app/queue/{engine,balance,coordination,rules}.py`, `app/api/queue_routes.py` | `test_queue_management*.py`, `test_balance.py`, `test_merge.py`, e2e |
+| FR-58–61, 69 production mode and accounts | `app/tools/accounts.py`, `app/api/accounts_routes.py`, `app/manage.py` | `test_account_management.py`, `test_accounts.py`, e2e |
+| FR-62–64 hospital setup and timetables | `app/tools/{hospital,timetable}.py`, `app/api/setup_routes.py` | `test_hospital_setup.py`, e2e |
+| FR-65–68 patient data | `app/safety/pii.py`, `app/tools/patients.py`, `app/api/patients_routes.py` | `test_patient_data.py`, `test_audit_privacy.py`, e2e |
+| FR-70/71 rules and documents | `app/tools/{policy,policy_settings,documents}.py`, `app/rag/kb.py` | `test_documents_admin.py`, e2e |
+| FR-72–74 SMS and e-mail | `app/tools/{messaging,channels,notify}.py`, `app/api/messaging_routes.py` | `test_messaging.py`, e2e |
 | NFR-06 MAE below both baselines | `app/ml/train.py` | `eval/results/ml_wait_time.json` |
 | NFR-07 roles in tools | every service function | `test_permissions.py`, s14, s15 |
 | NFR-08 masking | `app/safety/privacy.py`, traces | TC-18, s29 |
 | NFR-09–11 quotas, token budget, fallback | `app/api/routes.py`, `app/agent/budget.py`, `app/agent/llm.py` | `test_api.py`, `test_llm.py`, TC-19 |
 | NFR-12/13 phone, large text, accessibility | `ui/src/styles.css` | e2e (axe-core, 360 px) |
 | NFR-14 tracing | `app/agent/tracing.py` | s29 |
+| NFR-17 encryption at rest | `app/safety/pii.py` | `test_patient_data.py`, `test_messaging.py` |
 
 </details>
 
@@ -544,12 +568,12 @@ docs/         specification, decisions, deployment guide, screenshots
 
 | Document | Contents |
 | --- | --- |
-| [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md) | The full specification |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision taken where the specification was silent |
+| [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md) | The specification (version 2.0): problem, requirements (FR-01–FR-74), architecture, database, API, screens, tests, roadmap, security, operations, risks and evaluation |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-126), with the reason |
 | [`docs/DEPLOY.md`](docs/DEPLOY.md) | Free deployment on Render and Neon, monitoring and runbook |
 | [`eval/README.md`](eval/README.md) | How the evaluation works and how to run it |
 | [`eval/results/README.md`](eval/results/README.md) | The generated results table with sample sizes |
 
 <div align="center">
-<sub>Indravani General Hospital and everyone in it are fictional. CareFlow helps run an OPD; it is not a medical device and gives no medical advice.</sub>
+<sub>Indravani General Hospital and everyone in it (the demo) are fictional. CareFlow helps run an OPD; it is not a medical device and gives no medical advice.</sub>
 </div>

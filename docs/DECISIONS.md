@@ -1,8 +1,10 @@
 # Design decisions
 
-Where the specification (`docs/CareFlow-Project-Documentation.md`) is silent, ambiguous
-or contradictory, the simplest option consistent with it is chosen and recorded here.
-Each entry names the phase that introduced it.
+Every decision taken while building CareFlow, phase by phase, with the reason. Where the specification
+(`docs/CareFlow-Project-Documentation.md`) was silent, ambiguous or contradictory, the simplest option
+consistent with it was chosen and recorded here; later phases record changes of scope (from D-72 the
+further features, from D-99 real use by a hospital). Entries are never rewritten: a later decision that
+changes an earlier one says so ("revisits D-…"). Version 2.0 of the specification describes the result.
 
 ## Decided before development (PRD open questions)
 
