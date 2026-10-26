@@ -228,7 +228,8 @@ False alarms on look-alike non-emergencies: **8.3%** (held-out).
 
 | Measure | Result |
 | --- | --- |
-| Retrieval recall@5 (5-fold cross-validated) | **86.7%** |
+| Retrieval recall@5 (5-fold cross-validated) | **86.7%** · unchanged after the 6 queue documents (363 documents) |
+| Retrieval on 24 new queue questions | **19 / 20** answerable found in the top 5 · 0 / 4 unanswerable left without a source |
 | Agent booking scenarios (one run each) | **25 / 25** passed · median turn 0.91 s |
 | Queue actions by chat: check in, join online, leave (10 scenarios × 2 runs) | **19 / 20** runs passed · 0 wrong actions · 0 false emergencies |
 
@@ -244,9 +245,9 @@ False alarms on look-alike non-emergencies: **8.3%** (held-out).
 > comparison with the baseline (the runs were stopped to stay within free quotas). Retrieval numbers are
 > for the local retrieval models; the neural models could not be downloaded in the development environment.
 > The 25 booking runs used prompt `agent-v2`; the queue-action runs used `agent-v4`. Retrieval was measured
-> on the 357-document knowledge base, before the 6 queue documents were added. After queue requests were
-> added to the emergency gate's training data, the gate alone was re-checked on every safety set with the
-> same results (`eval/results/emergency_gate_v3.json`).
+> on the 357-document knowledge base and re-run on the current 363 (`eval/results/rag_kb363.json`). After
+> queue requests were added to the emergency gate's training data, the gate alone was re-checked on every
+> safety set with the same results (`eval/results/emergency_gate_v3.json`).
 
 ---
 

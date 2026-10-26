@@ -270,11 +270,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--llm", default="groq:openai/gpt-oss-120b")
     parser.add_argument("--judge", default="gemini:gemini-3.5-flash-lite")
     parser.add_argument("--limit", type=int, default=None, help="grade only the first N questions")
+    parser.add_argument("--questions", default=QUESTIONS, help="question file(s), comma-separated")
+    parser.add_argument("--out", default="rag.json")
     args = parser.parse_args(argv)
     prepare_world()
-    questions = load_jsonl(QUESTIONS)
+    questions = [q for path in args.questions.split(",") for q in load_jsonl(path)]
     results = {
-        "header": run_header(questions=len(questions), top_k=TOP_K),
+        "header": run_header(questions=len(questions), question_files=args.questions.split(","), top_k=TOP_K),
         "retrieval": retrieval_experiments(questions),
     }
     summary = {
@@ -287,7 +289,7 @@ def main(argv: list[str] | None = None) -> int:
         from eval.rag_answers import grade_answers
 
         results["answers"] = grade_answers(questions[: args.limit] if args.limit else questions, args.llm, args.judge)
-    path = write_result("rag.json", results)
+    path = write_result(args.out, results)
     print(json.dumps({"summary": summary, "models": results["retrieval"]["models"]}, indent=2))
     print(f"written to {path}", file=sys.stderr)
     return 0

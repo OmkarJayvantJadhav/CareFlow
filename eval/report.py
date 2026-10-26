@@ -146,6 +146,27 @@ def build() -> str:
             f"| Median turn latency | {q.get('median_turn_latency_s')} s |",
             "",
         ]
+    rag_now, rag_queue = load("rag_kb363.json"), load("rag_queue.json")
+    if rag_now or rag_queue:
+        lines = ["| Question set | Documents | recall@5 (production) | Cross-validated recall@5 | Unanswerable left without a source |",
+                 "| --- | --- | --- | --- | --- |"]  # fmt: skip
+        for label, d in (("Original questions", rag_now), ("New queue questions", rag_queue)):
+            if not d:
+                continue
+            prod = d["summary"]["structure"]["hybrid+rerank"]
+            cv = d["retrieval"]["threshold_cv"]["cross_validated"]
+            lines.append(f"| {label} ({d['header']['questions']}) | 363 | {pct(prod['recall_at_5'])} | "
+                         f"{pct(cv['recall_at_5'])} | {pct(prod['unanswerable_no_source'])} |")  # fmt: skip
+        parts += [
+            "## Retrieval after the queue documents (`rag_kb363.json`, `rag_queue.json`)",
+            "",
+            "Retrieval only (no LLM) on the 363-document knowledge base. The results table above is from",
+            "`rag.json` (357 documents). The 24 queue questions were written by the developer after the documents",
+            "(not by a separate author like the original set) and were not used to tune anything.",
+            "",
+            *lines,
+            "",
+        ]
     gate = load("emergency_gate_v3.json")
     if gate:
         g, cv = gate["sets"], gate["training_cv"]
