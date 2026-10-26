@@ -127,6 +127,45 @@ def build() -> str:
     ]
     if safety_lines:
         parts += ["## Safety sets (`safety.json`)", "", *safety_lines, ""]
+    queue = load("agent_queue_actions.json")
+    if queue:
+        q = queue["summary"]
+        parts += [
+            "## Assistant queue actions (`agent_queue_actions.json`)",
+            "",
+            "Check in, join a queue online and leave it by chat (10 scenarios, family `queue_action`). Run 1 found",
+            "one wrong answer (the assistant gave the online-joining time from the documents instead of today's",
+            "queue tool); the tool description was then changed and run 2 made. Both runs are counted.",
+            "",
+            "| Measure | Result |",
+            "| --- | --- |",
+            f"| pass^1 | {pct(q.get('pass_1'))} ({q.get('runs', 0)} runs) |",
+            f"| pass^2 (both runs passed) | {pct(q.get('pass_2'))} ({q.get('scenarios_with_2_runs', 0)} scenarios) |",
+            f"| Wrong-action rate | {pct(q.get('wrong_action_rate'))} |",
+            f"| False emergencies | {q.get('false_emergencies', 0)} |",
+            f"| Median turn latency | {q.get('median_turn_latency_s')} s |",
+            "",
+        ]
+    gate = load("emergency_gate_v3.json")
+    if gate:
+        g, cv = gate["sets"], gate["training_cv"]
+        rows = [f"| {name} | {v['cases']} | {v['flagged']} | "
+                f"{pct(v.get('gate_recall', v.get('false_alarm_rate')))} |" for name, v in g.items()]  # fmt: skip
+        parts += [
+            "## Emergency gate after the queue retrain (`emergency_gate_v3.json`)",
+            "",
+            "The gate alone (no LLM), after queue-management messages were added to its training data. The",
+            "safety table above was measured with the previous gate. Recall for emergency sets, false-alarm rate",
+            "for the negative sets.",
+            "",
+            "| Set | Cases | Flagged | Rate |",
+            "| --- | --- | --- | --- |",
+            *rows,
+            "",
+            f"Classifier, 5-fold cross-validation on its {cv['examples']} training examples at threshold "
+            f"{cv['threshold']}: recall {pct(cv['recall'])}, false alarms {pct(cv['false_alarm_rate'])}.",
+            "",
+        ]
     return "\n".join(parts)
 
 

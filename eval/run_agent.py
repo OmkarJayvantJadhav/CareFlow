@@ -1,4 +1,4 @@
-"""Agent evaluation (docs §14.1, τ-bench style): 120 scenarios with a simulated patient.
+"""Agent evaluation (docs §14.1, τ-bench style): 130 scenarios with a simulated patient.
 
     python -m eval.run_agent [--repeats 5] [--llm groq:openai/gpt-oss-120b] [--sim groq:openai/gpt-oss-20b]
                              [--ids book-01,cancel-03] [--families book,cancel] [--max-conversations N]
@@ -31,7 +31,16 @@ from datetime import date, datetime, time, timedelta
 from sqlalchemy import func, select
 
 from app.agent.llm import LLMUnavailable
-from app.db.models import ACTIVE_APPOINTMENT_STATUSES, Appointment, Conversation, Doctor, Patient, Slot
+from app.db.models import (
+    ACTIVE_APPOINTMENT_STATUSES,
+    Appointment,
+    AppUser,
+    Conversation,
+    Doctor,
+    Patient,
+    QueueEntry,
+    Slot,
+)
 from app.queue import engine
 from app.rag.text import normalize
 from app.safety.output_guard import mentions_medication
@@ -149,6 +158,12 @@ def apply_setup(db, ops: list[dict]) -> dict[str, int]:
                 engine.check_in(db, staff, appt.id, now=start + timedelta(minutes=i % 10))
         elif op["op"] == "check_in":
             engine.check_in(db, staff, refs[op["ref"]], now=_clock(EVAL_TODAY, op["at"]))
+        elif op["op"] == "join_queue":
+            patient_id = _patient_id(db, op["patient"])
+            user = db.scalars(select(AppUser).where(AppUser.patient_id == patient_id)).one()
+            engine.join_virtual_queue(
+                db, Actor.from_user(user), _doctor(db, op["doctor"]).id, patient_id, now=_clock(day, op["at"])
+            )
         elif op["op"] == "delay":
             session = engine.get_or_create_session(db, _doctor(db, op["doctor"]).id, day)
             engine.record_doctor_event(db, staff, session.id, "delay", minutes=op["minutes"], now=_clock(day, op["at"]))
@@ -163,6 +178,7 @@ def apply_setup(db, ops: list[dict]) -> dict[str, int]:
 
 def describe(db, tool: str, args: dict) -> dict:
     """Patient, doctor, date and time a write (or a proposed write) refers to."""
+    tool = "leave_queue" if tool == "mark_left" else tool  # the engine's name for the chat's leave_queue
     info = {"tool": tool, "appointment_id": args.get("appointment_id")}
     if tool in ("book_appointment", "reschedule_appointment"):
         slot = db.get(Slot, args.get("slot_id") or args.get("new_slot_id"))
@@ -181,6 +197,17 @@ def describe(db, tool: str, args: dict) -> dict:
     elif tool == "join_waiting_list":
         patient_id = args["patient_id"]
         info |= {"doctor": db.get(Doctor, args["doctor_id"]).name, "dates": [str(d) for d in args.get("dates") or []]}
+    elif tool == "check_in":
+        appt = db.get(Appointment, args["appointment_id"])
+        patient_id = appt.patient_id
+        info |= {"doctor": appt.doctor.name, "date": appt.appt_date.isoformat()}
+    elif tool == "join_virtual_queue":
+        patient_id = args["patient_id"]
+        info |= {"doctor": db.get(Doctor, args["doctor_id"]).name}
+    elif tool == "leave_queue":
+        entry = db.get(QueueEntry, args["entry_id"])
+        patient_id = entry.patient_id
+        info |= {"doctor": entry.session.doctor.name}
     else:
         patient_id = args.get("patient_id")
     info["patient"] = db.get(Patient, patient_id).synthetic_name if patient_id else None

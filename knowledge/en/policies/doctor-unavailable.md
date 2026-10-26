@@ -9,7 +9,7 @@ doc_key: policies/doctor-unavailable
 
 ## What we do
 
-If a doctor has to leave or cannot come, the hospital sends a message to every affected patient and closes that doctor's queue for the day.
+If a doctor has to leave or cannot come, the hospital sends a message to every affected patient and closes that doctor's queue for the day. Patients who are already waiting may be moved to another doctor of the same department who is working that day; they keep their place by check-in time and get a new token.
 
 ## Rebooking
 

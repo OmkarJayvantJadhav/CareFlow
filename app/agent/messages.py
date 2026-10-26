@@ -64,6 +64,36 @@ M: dict[str, dict[str, str]] = {
         "hi": "कृपया पुष्टि करें: {patient} को {dates} के लिए {doctor} की प्रतीक्षा सूची में जोड़ दूं?",
         "mr": "कृपया पुष्टी करा: {patient} यांना {dates} साठी {doctor} यांच्या प्रतीक्षा यादीत जोडू का?",
     },
+    "confirm_check_in": {
+        "en": "Please confirm: check {patient} in for the appointment with {doctor} ({department}) today at {time}?",
+        "hi": "कृपया पुष्टि करें: {patient} को आज {time} बजे {doctor} ({department}) की अपॉइंटमेंट के लिए चेक-इन करूं?",
+        "mr": "कृपया पुष्टी करा: {patient} यांना आज {time} वाजताच्या {doctor} ({department}) यांच्याकडील अपॉइंटमेंटसाठी चेक-इन करू का?",
+    },
+    "confirm_join_queue": {
+        "en": "Please confirm: add {patient} to {doctor}'s queue ({department}, floor {floor}) today? {people_ahead} people are ahead now.",
+        "hi": "कृपया पुष्टि करें: {patient} को आज {doctor} ({department}, मंज़िल {floor}) की कतार में जोड़ दूं? अभी आगे {people_ahead} लोग हैं।",
+        "mr": "कृपया पुष्टी करा: {patient} यांना आज {doctor} ({department}, मजला {floor}) यांच्या रांगेत जोडू का? सध्या पुढे {people_ahead} जण आहेत.",
+    },
+    "confirm_leave_queue": {
+        "en": "Please confirm: take {patient} (token {token}) out of {doctor}'s queue? The place cannot be kept.",
+        "hi": "कृपया पुष्टि करें: {patient} (टोकन {token}) को {doctor} की कतार से हटा दूं? यह जगह रोकी नहीं जा सकती।",
+        "mr": "कृपया पुष्टी करा: {patient} (टोकन {token}) यांना {doctor} यांच्या रांगेतून काढू का? ही जागा राखून ठेवता येणार नाही.",
+    },
+    "done_check_in": {
+        "en": "Done. {patient} is checked in with {doctor}. Your token is {token}; you can follow your place on the Queue status page.",
+        "hi": "हो गया। {patient} का {doctor} के लिए चेक-इन हो गया है। आपका टोकन {token} है; आप कतार स्थिति पेज पर अपनी जगह देख सकते हैं।",
+        "mr": "झाले. {patient} यांचे {doctor} यांच्यासाठी चेक-इन झाले आहे. तुमचा टोकन {token} आहे; रांग स्थिती पानावर तुमची जागा पाहता येईल.",
+    },
+    "done_join_queue": {
+        "en": "Done. {patient} is in {doctor}'s queue with token {token}. Please reach the OPD desk on floor {floor} before your turn; you can follow your place on the Queue status page.",
+        "hi": "हो गया। {patient} टोकन {token} के साथ {doctor} की कतार में हैं। कृपया अपनी बारी से पहले मंज़िल {floor} पर ओपीडी डेस्क पहुंचें; आप कतार स्थिति पेज पर अपनी जगह देख सकते हैं।",
+        "mr": "झाले. {patient} टोकन {token} सह {doctor} यांच्या रांगेत आहेत. कृपया तुमचा क्रमांक येण्यापूर्वी मजला {floor} वरील ओपीडी डेस्कवर पोहोचा; रांग स्थिती पानावर तुमची जागा पाहता येईल.",
+    },
+    "done_leave_queue": {
+        "en": "Done. {patient} has left {doctor}'s queue. You can book an appointment or join a queue again whenever you like.",
+        "hi": "हो गया। {patient} {doctor} की कतार से हट गए हैं। आप जब चाहें अपॉइंटमेंट बुक कर सकते हैं या फिर से कतार में जुड़ सकते हैं।",
+        "mr": "झाले. {patient} {doctor} यांच्या रांगेतून बाहेर पडले आहेत. तुम्हाला हवे तेव्हा अपॉइंटमेंट बुक करता येईल किंवा पुन्हा रांगेत सामील होता येईल.",
+    },
     "done_book": {
         "en": "Done. {patient} is booked with {doctor} ({department}) on {date} at {time}. Please arrive 15 minutes early. The appointment can be cancelled free of charge up to {cancel_hours} hours before.",
         "hi": "हो गया। {patient} की अपॉइंटमेंट {doctor} ({department}) के साथ {date} को {time} बजे बुक हो गई है। कृपया 15 मिनट पहले पहुंचें। अपॉइंटमेंट समय से {cancel_hours} घंटे पहले तक मुफ़्त में रद्द की जा सकती है।",

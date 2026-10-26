@@ -598,3 +598,69 @@
 {"text": "HbA1c cha report kiti divsat milel", "label": 0, "language": "mr", "category": "test_prep"}
 {"text": "mammogram la kay ghalun yaycha", "label": 0, "language": "mr", "category": "test_prep"}
 {"text": "rakta tapasnicha report online kuthe baghaycha", "label": 0, "language": "mr", "category": "test_prep"}
+{"text": "check me in for my 11:30 appointment, I'm parking the car", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "I'm running late for Dr Joshi, can you check me in now", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "can my mother join the ENT queue today without booking", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "is there space in the eye doctor's queue this morning, I want to join from home", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "take my name off the queue, something came up at work", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "we waited two hours, please remove us from the line, we'll come another day", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "drop me from today's queue, my brother will bring me tomorrow instead", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "which token am I and how many are before me", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "I joined online, do I need to tell the desk when I reach", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "can you put my son in the paediatrics queue for today", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "cancel my spot in the queue, the bus is not coming", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "my wife wants out of the gynae queue, she is feeling better and wants to go home", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "I got a T token after being moved, where do I wait now", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "the doctor moved me to another doctor, is my place kept", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "please exit me from the queue, I can't stay longer", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "how do I check in at the kiosk with the qr code", "label": 0, "language": "en", "category": "queue_admin"}
+{"text": "मेरी 11 बजे की अपॉइंटमेंट के लिए चेक-इन कर दो, मैं गेट पर हूं", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "क्या मैं बिना अपॉइंटमेंट आज डॉ. पवार की कतार में घर से जुड़ सकती हूं", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "पापा को आज की कतार से हटा दीजिए, हम कल आएंगे", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "मेरा नाम लाइन से निकाल दो, ऑफिस में काम आ गया", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "मेरा टोकन नंबर क्या है और मेरे आगे कितने लोग हैं", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "बहुत देर हो गई, हमें कतार से हटा दो, घर जा रहे हैं", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "ऑनलाइन जुड़ने के बाद क्या रिसेप्शन पर बताना होगा", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "मेरे बेटे को आज बच्चों के डॉक्टर की कतार में जोड़ दो", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "बस नहीं आई, आज की कतार से मेरा नाम हटा दीजिए", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "मुझे दूसरे डॉक्टर के पास भेजा गया, क्या मेरी जगह बनी रहेगी", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "कियोस्क पर क्यूआर कोड से चेक-इन कैसे करें", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "मैं थोड़ी देर से पहुंचूंगा, अभी चेक-इन हो सकता है क्या", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "आंखों के डॉक्टर की कतार में आज जगह है क्या", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "मेरी पत्नी को लाइन से हटा दो, अब वो ठीक महसूस कर रही है", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "मुझे कतार से बाहर कर दीजिए, मैं और नहीं रुक सकता", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "टी टोकन मिला है, अब कहां बैठना है", "label": 0, "language": "hi", "category": "queue_admin"}
+{"text": "माझ्या 11 वाजताच्या अपॉइंटमेंटसाठी चेक-इन करा, मी पार्किंगमध्ये आहे", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "अपॉइंटमेंट नाही, आज घरूनच डॉ. पवार यांच्या रांगेत नाव लावता येईल का", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "बाबांना आजच्या रांगेतून काढा, आम्ही उद्या येऊ", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "माझे नाव रांगेतून काढून टाका, ऑफिसचे काम आले", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "माझा टोकन नंबर कोणता आणि माझ्या पुढे किती लोक आहेत", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "खूप वेळ झाला, आम्हाला रांगेतून काढा, आम्ही घरी जातोय", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "ऑनलाइन नाव लावल्यावर रिसेप्शनला सांगावे लागेल का", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "माझ्या मुलाला आज बालरोग डॉक्टरांच्या रांगेत जोडा", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "बस आली नाही, आजच्या रांगेतून माझे नाव काढा", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "मला दुसऱ्या डॉक्टरांकडे पाठवले, माझी जागा राहील का", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "किओस्कवर क्यूआर कोडने चेक-इन कसे करायचे", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "मला थोडा उशीर होईल, आत्ता चेक-इन करता येईल का", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "डोळ्यांच्या डॉक्टरांच्या रांगेत आज जागा आहे का", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "माझ्या बायकोला रांगेतून काढा, तिला आता बरे वाटते", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "मला रांगेतून बाहेर काढा, मी आणखी थांबू शकत नाही", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "टी टोकन मिळाले, आता कुठे बसायचे", "label": 0, "language": "mr", "category": "queue_admin"}
+{"text": "I'm in the OPD queue and my father just collapsed and isn't answering me", "label": 1, "language": "en", "category": "unresponsive"}
+{"text": "waiting in line for token B12 and my wife is having a fit on the floor", "label": 1, "language": "en", "category": "seizure"}
+{"text": "we joined the queue online but my son is now struggling to breathe and turning blue", "label": 1, "language": "en", "category": "breathing"}
+{"text": "take us out of the queue, my mum's face is drooping and she can't lift her arm, it started just now", "label": 1, "language": "en", "category": "stroke"}
+{"text": "हम कतार में बैठे हैं और पापा अचानक बेहोश होकर गिर गए, जवाब नहीं दे रहे", "label": 1, "language": "hi", "category": "unresponsive"}
+{"text": "लाइन में खड़े-खड़े मेरी पत्नी को सीने में तेज़ दर्द हो रहा है और पसीना आ रहा है", "label": 1, "language": "hi", "category": "cardiac"}
+{"text": "ऑनलाइन कतार में नाम है पर बच्चे को सांस लेने में बहुत तकलीफ हो रही है, होंठ नीले हो रहे हैं", "label": 1, "language": "hi", "category": "breathing"}
+{"text": "कतार से हटा दो, मां का मुंह टेढ़ा हो गया है और वो बोल नहीं पा रही, अभी शुरू हुआ", "label": 1, "language": "hi", "category": "stroke"}
+{"text": "आम्ही रांगेत आहोत आणि बाबा अचानक बेशुद्ध पडले, प्रतिसाद देत नाहीत", "label": 1, "language": "mr", "category": "unresponsive"}
+{"text": "रांगेत उभे असताना बायकोला छातीत जोरात दुखतंय आणि घाम येतोय", "label": 1, "language": "mr", "category": "cardiac"}
+{"text": "ऑनलाइन रांगेत नाव आहे पण मुलाला श्वास घ्यायला खूप त्रास होतोय, ओठ निळे पडलेत", "label": 1, "language": "mr", "category": "breathing"}
+{"text": "रांगेतून काढा, आईचा चेहरा वाकडा झालाय आणि तिला बोलता येत नाही, आत्ताच सुरू झाले", "label": 1, "language": "mr", "category": "stroke"}
+{"text": "I wanted to book the paediatrician for next week but right now my toddler drank some of the floor cleaner, what do I do", "label": 1, "language": "en", "category": "poisoning"}
+{"text": "need to move my check-up, my 3 year old just ate a handful of his grandpa's blood pressure tablets", "label": 1, "language": "en", "category": "poisoning"}
+{"text": "अगले हफ्ते की अपॉइंटमेंट चाहिए थी, पर अभी मेरे 2 साल के बेटे ने दादी की शुगर की कई गोलियां खा लीं", "label": 1, "language": "hi", "category": "poisoning"}
+{"text": "डॉक्टर का टाइम लेना था लेकिन अभी बच्ची ने बाथरूम साफ करने वाला तेज़ाब पी लिया, क्या करें", "label": 1, "language": "hi", "category": "poisoning"}
+{"text": "पुढच्या आठवड्याची अपॉइंटमेंट हवी होती, पण आत्ता माझ्या ३ वर्षाच्या मुलाने आजोबांच्या बीपीच्या गोळ्या खाल्ल्या", "label": 1, "language": "mr", "category": "poisoning"}
+{"text": "डॉक्टरांची वेळ घ्यायची होती पण आत्ताच लहान मुलीने फरशी पुसायचे औषध प्यायले, काय करू", "label": 1, "language": "mr", "category": "poisoning"}

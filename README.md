@@ -15,7 +15,7 @@ time — while doctors and the front desk run, balance and coordinate every queu
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-395%20Python%20·%2031%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-402%20Python%20·%2032%20browser-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
 > ⚠️ **Demo with a fictional hospital (Indravani General Hospital). Not for medical use.**
@@ -99,7 +99,7 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 
 | Feature | What you get |
 | --- | --- |
-| **Assistant chat** | Book, reschedule, cancel or join a waiting list in plain language; a confirmation card (with a countdown) before anything changes; "Talk to a person" at any time. |
+| **Assistant chat** | Book, reschedule, cancel or join a waiting list, check in, join a doctor's queue online or leave it — in plain language; a confirmation card (with a countdown) before anything changes; "Talk to a person" at any time. |
 | **Book without chatting** | Choose a department, doctor, language, dates and time of day; times are ranked and each says why — *Soonest*, *Speaks your language*, *Doctor you have seen*, *Quieter day*. |
 | **Cited answers** | Policies, insurance, test preparation and facilities answered from the hospital's documents, with source chips; "I couldn't find that" when the documents don't say. |
 | **My appointments** | Upcoming and past visits, receipt, reschedule, cancel and rebook — every change confirmed in a dialog; actions close automatically inside the policy windows. |
@@ -178,7 +178,7 @@ flowchart LR
 - **Confirmation in code** — a write is first run in a savepoint that is rolled back, so the card shows
   what will really happen; it is executed only after "yes" or a tap on Confirm, and cards expire after
   5 minutes.
-- **Retrieval** (`app/rag/`) — 357 documents (119 topics × 3 languages), dense + BM25 search with rank
+- **Retrieval** (`app/rag/`) — 363 documents (121 topics × 3 languages), dense + BM25 search with rank
   fusion, a re-ranker and a relevance threshold. A reply that cites none of the retrieved sources is
   replaced, in code, by "I couldn't find that". Instructions hidden in documents are removed first.
 - **Queue and predictions** (`app/queue/`, `app/ml/`) — every event recalculates positions and gives
@@ -230,6 +230,7 @@ False alarms on look-alike non-emergencies: **8.3%** (held-out).
 | --- | --- |
 | Retrieval recall@5 (5-fold cross-validated) | **86.7%** |
 | Agent booking scenarios (one run each) | **25 / 25** passed · median turn 0.91 s |
+| Queue actions by chat: check in, join online, leave (10 scenarios × 2 runs) | **19 / 20** runs passed · 0 wrong actions · 0 false emergencies |
 
 **Wait-time prediction** (held-out test days)
 
@@ -239,9 +240,13 @@ False alarms on look-alike non-emergencies: **8.3%** (held-out).
 | P90 absolute error (min) | 84.88 | 84.07 | **44.20** |
 | Range coverage | — | — | **77.7%** (target 75–85%) |
 
-> **Not run yet:** the other 95 of the 120 agent scenarios, repeat runs, graded RAG answers and the
+> **Not run yet:** the other 95 of the first 120 agent scenarios, repeat runs, graded RAG answers and the
 > comparison with the baseline (the runs were stopped to stay within free quotas). Retrieval numbers are
 > for the local retrieval models; the neural models could not be downloaded in the development environment.
+> The 25 booking runs used prompt `agent-v2`; the queue-action runs used `agent-v4`. Retrieval was measured
+> on the 357-document knowledge base, before the 6 queue documents were added. After queue requests were
+> added to the emergency gate's training data, the gate alone was re-checked on every safety set with the
+> same results (`eval/results/emergency_gate_v3.json`).
 
 ---
 
@@ -316,10 +321,10 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 395 tests
+pytest                                     # 402 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e                    # 31 browser tests, including accessibility and 360 px
+pytest -m e2e tests/e2e                    # 32 browser tests, including accessibility and 360 px
 ```
 
 GitHub Actions runs all of these and a Docker build on every push; Render redeploys from `develop`.

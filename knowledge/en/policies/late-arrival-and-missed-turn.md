@@ -18,3 +18,7 @@ If you are called and are not there, your turn is marked as missed. When you com
 ## Not arriving at all
 
 If you do not come on the day, the appointment is recorded as a no-show. There is no fee, but please cancel in advance so someone else can use the slot.
+
+## Leaving before you are seen
+
+If you cannot wait any longer, leave the queue in CareFlow (Queue status, or ask the assistant) or tell the reception, so the people behind you move up. This is recorded as 'left without being seen', not as a no-show. If you missed your turn and do not come back before the OPD closes, it is recorded the same way. Either way you get a message and can book a new appointment free of charge.

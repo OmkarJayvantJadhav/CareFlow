@@ -79,6 +79,20 @@ class RuleLLM:
             if step == 2:
                 return call("book_appointment", patient_id=patient, slot_id=results[1]["slots"][0]["slot_id"])
             return say("Please confirm the booking on the card.")
+        if re.search(r"join .*queue", text):
+            patient = int(re.search(r"patient_id (\d+)", system).group(1))
+            if step == 0:
+                return call("list_queues_today", department="dermatology")
+            if step == 1:
+                doctor = results[0]["departments"][0]["doctors"][0]["doctor_id"]
+                return call("join_virtual_queue", patient_id=patient, doctor_id=doctor)
+            return say("Please confirm on the card.")
+        if re.search(r"out of the queue|leave the queue", text):
+            if step == 0:
+                return call("get_queue_status")
+            if step == 1:
+                return call("leave_queue", entry_id=results[0]["entries"][0]["entry_id"])
+            return say("Please confirm on the card.")
         if re.search(r"lipid|fast|लिपिड", text):
             if step == 0:
                 return call("search_knowledge", query="lipid profile fasting")

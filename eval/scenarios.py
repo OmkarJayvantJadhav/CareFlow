@@ -1,4 +1,5 @@
-"""The 120 agent scenarios (docs §14.1), checked against the seeded evaluation world.
+"""The 130 agent scenarios (docs §14.1, plus 10 for the queue actions added in phase 6), checked against the
+seeded evaluation world.
 
     python -m eval.scenarios            # validate and write eval/datasets/agent_scenarios.jsonl
 
@@ -743,6 +744,53 @@ for sid, lang, first, goal, forbid in [
         forbid=forbid,
         max_turns=4,
     )
+
+
+# --------------------------------------------------------------------------- 10. queue actions (10)
+
+QA = "queue_action"
+OPEN_NOW = "If the assistant shows a confirmation card that matches what you asked for, confirm it."
+for sid, lang, actor, first, goal, writes, setup, mention in [
+    ("qa-01", "en", "asha", "I'm almost at the hospital, can you check me in?",
+     "Check in for your 09:00 appointment with Dr. Nitin Chavan today.",
+     [{"tool": ["check_in"], "patient": ASHA, "appointment": "$existing"}],
+     [existing("existing", "Dr. Nitin Chavan", D[19], "09:00")], []),
+    ("qa-02", "hi", "asha", "मैं अस्पताल पहुंचने वाली हूं, मेरा चेक-इन कर दो।",
+     "Check in for your 09:00 appointment with Dr. Kavita Joshi today.",
+     [{"tool": ["check_in"], "patient": ASHA, "appointment": "$existing"}],
+     [existing("existing", "Dr. Kavita Joshi", D[19], "09:00")], []),
+    ("qa-03", "mr", "asha", "माझे चेक-इन करा, मी पोहोचतेय.",
+     "Check in for your 09:00 appointment with Dr. Anand Kulkarni today.",
+     [{"tool": ["check_in"], "patient": ASHA, "appointment": "$existing"}],
+     [existing("existing", "Dr. Anand Kulkarni", D[19], "09:00")], []),
+    ("qa-04", "en", "asha", "Check me in for today's appointment please.",
+     "Check in for your 11:00 appointment with Dr. Suresh Pawar today. If you are told online check-in is not open "
+     "yet, accept it; you do not want any other change.",
+     [], [existing("existing", "Dr. Suresh Pawar", D[19], "11:00")], [r"10[:.]00"]),
+    ("qa-05", "en", "rajan", "Please check my father in for his ENT appointment.",
+     "Check your father Vinayak in for his 09:00 appointment with Dr. Snehal Gokhale today.",
+     [{"tool": ["check_in"], "patient": VINAYAK, "appointment": "$existing"}],
+     [existing("existing", "Dr. Snehal Gokhale", D[19], "09:00", VINAYAK)], []),
+    ("qa-06", "en", "asha", "I don't have an appointment but I want to see Dr. Pawar today. Can I join his queue?",
+     "Join Dr. Suresh Pawar's queue today from your phone (you have no appointment).",
+     [{"tool": ["join_virtual_queue"], "patient": ASHA, "doctors": ["Dr. Suresh Pawar"]}], [], []),
+    ("qa-07", "hi", "asha", "आज ENT डॉक्टर को दिखाना है, अपॉइंटमेंट नहीं है। क्या मैं ऑनलाइन कतार में जुड़ सकती हूं?",
+     "Join today's ENT queue from your phone (you have no appointment); any ENT doctor is fine.",
+     [{"tool": ["join_virtual_queue"], "patient": ASHA, "doctors": ["Dr. Snehal Gokhale"]}], [], []),
+    ("qa-08", "en", "asha", "Can I join Dr. Aparna Deshpande's queue right now from home?",
+     "Join Dr. Aparna Deshpande's queue now. If you are told online joining is not open yet, accept it; you do not "
+     "want any other change.",
+     [], [], [r"09[:.]00"]),
+    ("qa-09", "en", "asha", "I can't make it today, please take me out of Dr. Pawar's queue.",
+     "Leave Dr. Suresh Pawar's queue, which you joined online this morning.",
+     [{"tool": ["leave_queue"], "patient": ASHA, "doctors": ["Dr. Suresh Pawar"]}],
+     [{"op": "join_queue", "patient": ASHA, "doctor": "Dr. Suresh Pawar", "at": "08:00"}], []),
+    ("qa-10", "mr", "asha", "आज येणे जमणार नाही, मला रांगेतून काढा.",
+     "Leave the ENT queue (Dr. Snehal Gokhale) that you joined online this morning.",
+     [{"tool": ["leave_queue"], "patient": ASHA, "doctors": ["Dr. Snehal Gokhale"]}],
+     [{"op": "join_queue", "patient": ASHA, "doctor": "Dr. Snehal Gokhale", "at": "08:00"}], []),
+]:  # fmt: skip
+    add(sid, QA, lang, first, f"{goal} {OPEN_NOW}", writes, actor=actor, setup=setup, mention=mention, max_turns=5)
 
 
 # --------------------------------------------------------------------------- validation

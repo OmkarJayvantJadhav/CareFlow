@@ -10,6 +10,11 @@ HORIZON_D = policy.BOOKING_HORIZON.days
 LEAD_M = int(policy.BOOKING_LEAD.total_seconds() // 60)
 HOLD_H = int(policy.WAITLIST_OFFER_HOLD.total_seconds() // 3600)
 GRACE_M = int(policy.LATE_GRACE.total_seconds() // 60)
+CHECK_IN_OPENS_M = int(policy.SELF_CHECK_IN_OPENS.total_seconds() // 60)
+CHECK_IN_CLOSES_M = int(policy.SELF_CHECK_IN_CLOSES.total_seconds() // 60)
+JOIN_OPENS_M = int(policy.VIRTUAL_JOIN_OPENS.total_seconds() // 60)
+JOIN_CLOSES_M = int(policy.VIRTUAL_JOIN_CLOSES.total_seconds() // 60)
+ONLINE_CAP = policy.VIRTUAL_QUEUE_CAP
 
 
 def doc(slug: str, title: T, *sections: tuple[T, T]) -> KbDoc:
@@ -176,6 +181,14 @@ def build() -> list[KbDoc]:
                     "तुम्ही त्या दिवशी आला नाही तर अपॉइंटमेंट 'नो-शो' म्हणून नोंदवली जाते. याचे कोणतेही शुल्क नाही, पण कृपया आधीच रद्द करा म्हणजे दुसरा कोणी तो स्लॉट वापरू शकेल.",
                 ),
             ),
+            (
+                T("Leaving before you are seen", "दिखाए बिना चले जाना", "न दाखवता निघून जाणे"),
+                T(
+                    "If you cannot wait any longer, leave the queue in CareFlow (Queue status, or ask the assistant) or tell the reception, so the people behind you move up. This is recorded as 'left without being seen', not as a no-show. If you missed your turn and do not come back before the OPD closes, it is recorded the same way. Either way you get a message and can book a new appointment free of charge.",
+                    "अगर आप और इंतज़ार नहीं कर सकते, तो CareFlow में कतार छोड़ें (कतार स्थिति पेज पर, या सहायक से कहें) या रिसेप्शन को बताएं, ताकि आपके पीछे वाले आगे बढ़ सकें। इसे 'बिना दिखाए चले गए' दर्ज किया जाता है, 'नो-शो' नहीं। अगर आपकी बारी छूट गई और आप ओपीडी बंद होने से पहले नहीं लौटे, तो भी ऐसे ही दर्ज होता है। दोनों हालात में आपको संदेश मिलता है और आप बिना शुल्क नई अपॉइंटमेंट बुक कर सकते हैं।",
+                    "तुम्हाला आणखी थांबता येत नसेल तर CareFlow मध्ये रांग सोडा (रांग स्थिती पानावर, किंवा सहाय्यकाला सांगा) किंवा रिसेप्शनला कळवा, म्हणजे तुमच्या मागचे लोक पुढे जातील. हे 'न दाखवता गेले' म्हणून नोंदवले जाते, 'नो-शो' म्हणून नाही. तुमचा क्रमांक चुकला आणि ओपीडी बंद होण्यापूर्वी तुम्ही परत आला नाही, तरीही असेच नोंदवले जाते. दोन्ही वेळी तुम्हाला संदेश येतो आणि विनाशुल्क नवीन अपॉइंटमेंट बुक करता येते.",
+                ),
+            ),
         ),
         doc(
             "opd-queue-and-tokens",
@@ -183,25 +196,41 @@ def build() -> list[KbDoc]:
             (
                 T("Tokens", "टोकन", "टोकन"),
                 T(
-                    "When you check in, you get a token: tokens starting with B are for booked appointments and tokens starting with W are for walk-in patients.",
-                    "चेक-इन करने पर आपको टोकन मिलता है: B से शुरू होने वाले टोकन बुक की गई अपॉइंटमेंट के लिए और W से शुरू होने वाले बिना अपॉइंटमेंट आए मरीज़ों के लिए होते हैं।",
-                    "चेक-इन केल्यावर तुम्हाला टोकन मिळते: B ने सुरू होणारी टोकन बुक केलेल्या अपॉइंटमेंटसाठी आणि W ने सुरू होणारी अपॉइंटमेंटशिवाय आलेल्या रुग्णांसाठी असतात.",
+                    "When you check in, you get a token: tokens starting with B are for booked appointments, W for walk-in patients registered at the reception, V for patients who joined the queue online, and T for patients moved from another doctor's queue.",
+                    "चेक-इन करने पर आपको टोकन मिलता है: B से शुरू होने वाले टोकन बुक की गई अपॉइंटमेंट के लिए, W रिसेप्शन पर पंजीकृत बिना अपॉइंटमेंट आए मरीज़ों के लिए, V ऑनलाइन कतार में जुड़े मरीज़ों के लिए, और T किसी दूसरे डॉक्टर की कतार से भेजे गए मरीज़ों के लिए होते हैं।",
+                    "चेक-इन केल्यावर तुम्हाला टोकन मिळते: B ने सुरू होणारी टोकन बुक केलेल्या अपॉइंटमेंटसाठी, W रिसेप्शनवर नोंदणी केलेल्या अपॉइंटमेंटशिवाय आलेल्या रुग्णांसाठी, V ऑनलाइन रांगेत सामील झालेल्या रुग्णांसाठी, आणि T दुसऱ्या डॉक्टरांच्या रांगेतून हलवलेल्या रुग्णांसाठी असतात.",
                 ),
             ),
             (
                 T("Order of patients", "मरीज़ों का क्रम", "रुग्णांचा क्रम"),
                 T(
-                    "Patients with a booking are seen in the order of their appointment times. Walk-in patients are seen in the gaps between booked appointments, in the order they arrived. Staff may move a patient forward for an urgent medical reason; every such change is recorded.",
-                    "अपॉइंटमेंट वाले मरीज़ों को उनके अपॉइंटमेंट समय के क्रम में देखा जाता है। बिना अपॉइंटमेंट आए मरीज़ों को बुक की गई अपॉइंटमेंट के बीच के खाली समय में, पहुंचने के क्रम में देखा जाता है। किसी ज़रूरी चिकित्सा कारण से स्टाफ़ किसी मरीज़ को आगे कर सकता है; ऐसा हर बदलाव दर्ज होता है।",
-                    "अपॉइंटमेंट असलेल्या रुग्णांना त्यांच्या अपॉइंटमेंटच्या वेळेच्या क्रमाने पाहिले जाते. अपॉइंटमेंटशिवाय आलेल्या रुग्णांना बुक केलेल्या अपॉइंटमेंटमधील मोकळ्या वेळेत, आल्याच्या क्रमाने पाहिले जाते. तातडीच्या वैद्यकीय कारणासाठी कर्मचारी एखाद्या रुग्णाला पुढे घेऊ शकतात; असा प्रत्येक बदल नोंदवला जातो.",
+                    "Patients with a booking are seen in the order of their appointment times. Walk-in patients and patients who joined online are seen in the gaps between booked appointments, in the order they arrived or joined.",
+                    "अपॉइंटमेंट वाले मरीज़ों को उनके अपॉइंटमेंट समय के क्रम में देखा जाता है। बिना अपॉइंटमेंट आए और ऑनलाइन जुड़े मरीज़ों को बुक की गई अपॉइंटमेंट के बीच के खाली समय में, पहुंचने या जुड़ने के क्रम में देखा जाता है।",
+                    "अपॉइंटमेंट असलेल्या रुग्णांना त्यांच्या अपॉइंटमेंटच्या वेळेच्या क्रमाने पाहिले जाते. अपॉइंटमेंटशिवाय आलेल्या आणि ऑनलाइन सामील झालेल्या रुग्णांना बुक केलेल्या अपॉइंटमेंटमधील मोकळ्या वेळेत, आल्याच्या किंवा सामील झाल्याच्या क्रमाने पाहिले जाते.",
+                ),
+            ),
+            (
+                T("Priority", "प्राथमिकता", "प्राधान्य"),
+                T(
+                    "Only your doctor can move a patient forward for a medical reason; the reception can ask the doctor, but cannot decide it. The hospital may also give priority to senior citizens, children, pregnant women and people with a disability. For a patient with an appointment, this priority counts from the appointment time, so coming early does not move you ahead. Every change is recorded.",
+                    "सिर्फ़ आपके डॉक्टर ही किसी चिकित्सा कारण से मरीज़ को आगे कर सकते हैं; रिसेप्शन डॉक्टर से अनुरोध कर सकता है, पर खुद निर्णय नहीं ले सकता। अस्पताल वरिष्ठ नागरिकों, बच्चों, गर्भवती महिलाओं और दिव्यांग लोगों को भी प्राथमिकता दे सकता है। अपॉइंटमेंट वाले मरीज़ के लिए यह प्राथमिकता अपॉइंटमेंट के समय से गिनी जाती है, इसलिए जल्दी आने से आप आगे नहीं होते। हर बदलाव दर्ज होता है।",
+                    "फक्त तुमचे डॉक्टरच वैद्यकीय कारणासाठी रुग्णाला पुढे घेऊ शकतात; रिसेप्शन डॉक्टरांना विनंती करू शकते, पण स्वतः निर्णय घेऊ शकत नाही. रुग्णालय ज्येष्ठ नागरिक, मुले, गर्भवती महिला आणि दिव्यांग व्यक्तींनाही प्राधान्य देऊ शकते. अपॉइंटमेंट असलेल्या रुग्णासाठी हे प्राधान्य अपॉइंटमेंटच्या वेळेपासून मोजले जाते, त्यामुळे लवकर आल्याने तुम्ही पुढे जात नाही. प्रत्येक बदल नोंदवला जातो.",
+                ),
+            ),
+            (
+                T("Moving to another doctor", "दूसरे डॉक्टर के पास भेजा जाना", "दुसऱ्या डॉक्टरांकडे हलवले जाणे"),
+                T(
+                    "To shorten waits, the reception may move you to another doctor of the same department, and a doctor may send you to another department. You keep the time you checked in, so you do not go to the back of the line, and you get a message with your new token.",
+                    "इंतज़ार कम करने के लिए रिसेप्शन आपको उसी विभाग के दूसरे डॉक्टर के पास भेज सकता है, और डॉक्टर आपको दूसरे विभाग में भेज सकते हैं। आपका चेक-इन समय बना रहता है, इसलिए आप कतार में पीछे नहीं जाते, और आपको नए टोकन के साथ संदेश मिलता है।",
+                    "प्रतीक्षा कमी करण्यासाठी रिसेप्शन तुम्हाला त्याच विभागातील दुसऱ्या डॉक्टरांकडे हलवू शकते, आणि डॉक्टर तुम्हाला दुसऱ्या विभागात पाठवू शकतात. तुमची चेक-इन वेळ कायम राहते, त्यामुळे तुम्ही रांगेत मागे जात नाही, आणि तुम्हाला नवीन टोकनसह संदेश येतो.",
                 ),
             ),
             (
                 T("Waiting time estimates", "इंतज़ार के समय का अनुमान", "प्रतीक्षा वेळेचा अंदाज"),
                 T(
-                    "CareFlow shows an estimated waiting time as a range, for example 'about 35 minutes (25–50)'. The estimate changes when the doctor takes a break, is delayed or handles an emergency.",
-                    "CareFlow इंतज़ार का अनुमानित समय एक दायरे में दिखाता है, जैसे 'लगभग 35 मिनट (25–50)'। डॉक्टर के ब्रेक लेने, देर होने या इमरजेंसी देखने पर अनुमान बदल जाता है।",
-                    "CareFlow अंदाजे प्रतीक्षा वेळ एका मर्यादेत दाखवतो, उदाहरणार्थ 'सुमारे 35 मिनिटे (25–50)'. डॉक्टरांनी विश्रांती घेतल्यास, उशीर झाल्यास किंवा आपत्कालीन रुग्ण पाहिल्यास अंदाज बदलतो.",
+                    "CareFlow shows an estimated waiting time as a range, for example 'about 35 minutes (25–50)'. The estimate changes when the doctor takes a break, is delayed or handles an emergency. If the doctor is delayed or called to an emergency, everyone waiting gets a message with the expected delay and keeps their place.",
+                    "CareFlow इंतज़ार का अनुमानित समय एक दायरे में दिखाता है, जैसे 'लगभग 35 मिनट (25–50)'। डॉक्टर के ब्रेक लेने, देर होने या इमरजेंसी देखने पर अनुमान बदल जाता है। अगर डॉक्टर को देर हो या उन्हें किसी इमरजेंसी में बुलाया जाए, तो इंतज़ार कर रहे हर व्यक्ति को अनुमानित देरी के साथ संदेश मिलता है और उसकी जगह बनी रहती है।",
+                    "CareFlow अंदाजे प्रतीक्षा वेळ एका मर्यादेत दाखवतो, उदाहरणार्थ 'सुमारे 35 मिनिटे (25–50)'. डॉक्टरांनी विश्रांती घेतल्यास, उशीर झाल्यास किंवा आपत्कालीन रुग्ण पाहिल्यास अंदाज बदलतो. डॉक्टरांना उशीर झाल्यास किंवा आपत्कालीन रुग्णासाठी बोलावल्यास, प्रतीक्षेतील प्रत्येकाला अपेक्षित उशिरासह संदेश येतो आणि त्यांची जागा कायम राहते.",
                 ),
             ),
         ),
@@ -211,9 +240,9 @@ def build() -> list[KbDoc]:
             (
                 T("What we do", "हम क्या करते हैं", "आम्ही काय करतो"),
                 T(
-                    "If a doctor has to leave or cannot come, the hospital sends a message to every affected patient and closes that doctor's queue for the day.",
-                    "अगर किसी डॉक्टर को जाना पड़े या वे न आ सकें, तो अस्पताल हर प्रभावित मरीज़ को संदेश भेजता है और उस दिन के लिए उस डॉक्टर की कतार बंद कर देता है।",
-                    "एखाद्या डॉक्टरांना जावे लागले किंवा ते येऊ शकले नाहीत तर रुग्णालय प्रत्येक बाधित रुग्णाला संदेश पाठवते आणि त्या दिवसासाठी त्या डॉक्टरांची रांग बंद करते.",
+                    "If a doctor has to leave or cannot come, the hospital sends a message to every affected patient and closes that doctor's queue for the day. Patients who are already waiting may be moved to another doctor of the same department who is working that day; they keep their place by check-in time and get a new token.",
+                    "अगर किसी डॉक्टर को जाना पड़े या वे न आ सकें, तो अस्पताल हर प्रभावित मरीज़ को संदेश भेजता है और उस दिन के लिए उस डॉक्टर की कतार बंद कर देता है। जो मरीज़ पहले से इंतज़ार कर रहे हैं, उन्हें उसी दिन काम कर रहे उसी विभाग के दूसरे डॉक्टर के पास भेजा जा सकता है; चेक-इन समय के अनुसार उनकी जगह बनी रहती है और उन्हें नया टोकन मिलता है।",
+                    "एखाद्या डॉक्टरांना जावे लागले किंवा ते येऊ शकले नाहीत तर रुग्णालय प्रत्येक बाधित रुग्णाला संदेश पाठवते आणि त्या दिवसासाठी त्या डॉक्टरांची रांग बंद करते. आधीच प्रतीक्षेत असलेल्या रुग्णांना त्या दिवशी काम करणाऱ्या त्याच विभागातील दुसऱ्या डॉक्टरांकडे हलवले जाऊ शकते; चेक-इन वेळेनुसार त्यांची जागा कायम राहते आणि त्यांना नवीन टोकन मिळते.",
                 ),
             ),
             (
@@ -493,6 +522,84 @@ def build() -> list[KbDoc]:
                     "You can come to the OPD without an appointment on the doctor's OPD days. Register at the reception with your name, birth year and mobile number to get a W token. Walk-in patients are seen in the gaps between booked appointments, so the wait can be longer than with a booking.",
                     "आप डॉक्टर के ओपीडी दिनों में बिना अपॉइंटमेंट ओपीडी आ सकते हैं। W टोकन पाने के लिए रिसेप्शन पर अपना नाम, जन्म वर्ष और मोबाइल नंबर देकर पंजीकरण कराएं। बिना अपॉइंटमेंट वाले मरीज़ों को बुक की गई अपॉइंटमेंट के बीच के खाली समय में देखा जाता है, इसलिए इंतज़ार ज़्यादा हो सकता है।",
                     "डॉक्टरांच्या ओपीडी दिवशी तुम्ही अपॉइंटमेंटशिवाय ओपीडीत येऊ शकता. W टोकन मिळवण्यासाठी रिसेप्शनवर तुमचे नाव, जन्मवर्ष आणि मोबाइल नंबर देऊन नोंदणी करा. अपॉइंटमेंटशिवाय आलेल्या रुग्णांना बुक केलेल्या अपॉइंटमेंटमधील मोकळ्या वेळेत पाहिले जाते, त्यामुळे प्रतीक्षा जास्त असू शकते.",
+                ),
+            ),
+            (
+                T("Joining from your phone", "फ़ोन से जुड़ना", "फोनवरून सामील होणे"),
+                T(
+                    "If you have a CareFlow account, you can also join a doctor's queue from your phone before you leave home and come in when your turn is near. See 'Joining a queue online'.",
+                    "अगर आपका CareFlow खाता है, तो आप घर से निकलने से पहले अपने फ़ोन से डॉक्टर की कतार में जुड़ सकते हैं और बारी पास आने पर आ सकते हैं। 'ऑनलाइन कतार में जुड़ना' देखें।",
+                    "तुमचे CareFlow खाते असल्यास, घरातून निघण्यापूर्वी तुमच्या फोनवरून डॉक्टरांच्या रांगेत सामील होऊन क्रमांक जवळ आल्यावर येऊ शकता. 'ऑनलाइन रांगेत सामील होणे' पहा.",
+                ),
+            ),
+        ),
+        doc(
+            "online-check-in",
+            T("Checking in for your appointment", "अपॉइंटमेंट के लिए चेक-इन", "अपॉइंटमेंटसाठी चेक-इन"),
+            (
+                T("When you can check in", "आप कब चेक-इन कर सकते हैं", "तुम्ही केव्हा चेक-इन करू शकता"),
+                T(
+                    f"You can check in yourself from {CHECK_IN_OPENS_M} minutes before your appointment time until {CHECK_IN_CLOSES_M} minutes after it starts. After that, please check in at the reception desk; you are then seen in order of arrival. A caregiver with a verified link can check in for the patient.",
+                    f"आप अपॉइंटमेंट के समय से {CHECK_IN_OPENS_M} मिनट पहले से लेकर उसके शुरू होने के {CHECK_IN_CLOSES_M} मिनट बाद तक खुद चेक-इन कर सकते हैं। उसके बाद कृपया रिसेप्शन डेस्क पर चेक-इन करें; तब आपको पहुंचने के क्रम में देखा जाता है। सत्यापित लिंक वाला देखभालकर्ता मरीज़ के लिए चेक-इन कर सकता है।",
+                    f"तुम्ही अपॉइंटमेंटच्या वेळेच्या {CHECK_IN_OPENS_M} मिनिटे आधीपासून ती सुरू झाल्यानंतर {CHECK_IN_CLOSES_M} मिनिटांपर्यंत स्वतः चेक-इन करू शकता. त्यानंतर कृपया रिसेप्शन डेस्कवर चेक-इन करा; तेव्हा तुम्हाला आल्याच्या क्रमाने पाहिले जाते. पडताळलेली लिंक असलेला काळजीवाहक रुग्णासाठी चेक-इन करू शकतो.",
+                ),
+            ),
+            (
+                T("How to check in", "चेक-इन कैसे करें", "चेक-इन कसे करावे"),
+                bullets(
+                    [
+                        T(
+                            "Ask the CareFlow assistant to check you in, or use 'Check in now' under My appointments.",
+                            "CareFlow सहायक से चेक-इन करने को कहें, या 'मेरी अपॉइंटमेंट' में 'अभी चेक-इन करें' का उपयोग करें।",
+                            "CareFlow सहाय्यकाला चेक-इन करण्यास सांगा, किंवा 'माझ्या अपॉइंटमेंट' मध्ये 'आता चेक-इन करा' वापरा.",
+                        ),
+                        T(
+                            "Scan the QR code on your receipt at the self check-in kiosk at the reception.",
+                            "रिसेप्शन पर सेल्फ़ चेक-इन कियोस्क पर अपनी रसीद का QR कोड स्कैन करें।",
+                            "रिसेप्शनवरील सेल्फ चेक-इन किओस्कवर तुमच्या पावतीवरील QR कोड स्कॅन करा.",
+                        ),
+                        T(
+                            "Or show your receipt code at the reception desk.",
+                            "या रिसेप्शन डेस्क पर अपनी रसीद का कोड दिखाएं।",
+                            "किंवा रिसेप्शन डेस्कवर तुमच्या पावतीचा कोड दाखवा.",
+                        ),
+                    ]
+                ),
+            ),
+            (
+                T("After checking in", "चेक-इन के बाद", "चेक-इन केल्यानंतर"),
+                T(
+                    "You get a token straight away and can follow your place and estimated wait on the Queue status page.",
+                    "आपको तुरंत टोकन मिलता है और आप कतार स्थिति पेज पर अपनी जगह और अनुमानित इंतज़ार देख सकते हैं।",
+                    "तुम्हाला लगेच टोकन मिळते आणि रांग स्थिती पानावर तुमची जागा आणि अंदाजे प्रतीक्षा पाहता येते.",
+                ),
+            ),
+        ),
+        doc(
+            "join-queue-online",
+            T("Joining a queue online", "ऑनलाइन कतार में जुड़ना", "ऑनलाइन रांगेत सामील होणे"),
+            (
+                T("Who can join", "कौन जुड़ सकता है", "कोण सामील होऊ शकते"),
+                T(
+                    "If you have no appointment with a doctor today, you can join that doctor's queue from your phone, in CareFlow (Queue status, or ask the assistant). If you have an appointment with the doctor today, check in for it instead. You can be in one queue at a time.",
+                    "अगर आज किसी डॉक्टर के साथ आपकी अपॉइंटमेंट नहीं है, तो आप CareFlow में (कतार स्थिति पेज पर, या सहायक से कहकर) अपने फ़ोन से उस डॉक्टर की कतार में जुड़ सकते हैं। अगर आज उस डॉक्टर के साथ आपकी अपॉइंटमेंट है, तो उसकी जगह उसके लिए चेक-इन करें। आप एक समय में एक ही कतार में रह सकते हैं।",
+                    "आज एखाद्या डॉक्टरांकडे तुमची अपॉइंटमेंट नसेल, तर CareFlow मध्ये (रांग स्थिती पानावर, किंवा सहाय्यकाला सांगून) तुमच्या फोनवरून त्या डॉक्टरांच्या रांगेत सामील होऊ शकता. आज त्या डॉक्टरांकडे तुमची अपॉइंटमेंट असेल, तर त्याऐवजी तिच्यासाठी चेक-इन करा. तुम्ही एका वेळी एकाच रांगेत राहू शकता.",
+                ),
+            ),
+            (
+                T("When it is open", "यह कब खुला रहता है", "हे केव्हा सुरू असते"),
+                T(
+                    f"Online joining opens {JOIN_OPENS_M} minutes before the department's OPD starts and closes {JOIN_CLOSES_M} minutes before the OPD ends. To keep the queue fair, each doctor accepts at most {ONLINE_CAP} online patients who have not yet reached the hospital; if the online places are full, please come to the reception.",
+                    f"ऑनलाइन जुड़ना विभाग की ओपीडी शुरू होने से {JOIN_OPENS_M} मिनट पहले खुलता है और ओपीडी खत्म होने से {JOIN_CLOSES_M} मिनट पहले बंद हो जाता है। कतार को निष्पक्ष रखने के लिए हर डॉक्टर अधिकतम {ONLINE_CAP} ऐसे ऑनलाइन मरीज़ लेते हैं जो अभी अस्पताल नहीं पहुंचे हैं; ऑनलाइन जगहें भर जाने पर कृपया रिसेप्शन पर आएं।",
+                    f"ऑनलाइन सामील होणे विभागाची ओपीडी सुरू होण्याच्या {JOIN_OPENS_M} मिनिटे आधी सुरू होते आणि ओपीडी संपण्याच्या {JOIN_CLOSES_M} मिनिटे आधी बंद होते. रांग न्याय्य ठेवण्यासाठी प्रत्येक डॉक्टर जास्तीत जास्त {ONLINE_CAP} असे ऑनलाइन रुग्ण घेतात जे अजून रुग्णालयात पोहोचलेले नाहीत; ऑनलाइन जागा भरल्यास कृपया रिसेप्शनवर या.",
+                ),
+            ),
+            (
+                T("On the day", "उस दिन", "त्या दिवशी"),
+                T(
+                    "You get a token starting with V and your place in the queue by the time you joined. Please reach the OPD desk before your turn and show your token, so the staff know you have arrived. If you are called and are not there, your turn is marked as missed. If you change your mind, leave the queue in CareFlow so the people behind you move up.",
+                    "आपको V से शुरू होने वाला टोकन और जुड़ने के समय के अनुसार कतार में जगह मिलती है। कृपया अपनी बारी से पहले ओपीडी डेस्क पहुंचकर अपना टोकन दिखाएं, ताकि स्टाफ़ को पता चले कि आप आ गए हैं। बुलाए जाने पर अगर आप मौजूद न हों, तो आपकी बारी छूटी हुई मानी जाती है। अगर आपका इरादा बदल जाए, तो CareFlow में कतार छोड़ दें ताकि आपके पीछे वाले आगे बढ़ सकें।",
+                    "तुम्हाला V ने सुरू होणारे टोकन आणि सामील झाल्याच्या वेळेनुसार रांगेत जागा मिळते. कृपया तुमचा क्रमांक येण्यापूर्वी ओपीडी डेस्कवर पोहोचून टोकन दाखवा, म्हणजे तुम्ही आला आहात हे कर्मचाऱ्यांना कळेल. बोलावल्यावर तुम्ही हजर नसाल तर तुमचा क्रमांक चुकलेला मानला जातो. तुमचा विचार बदलल्यास CareFlow मध्ये रांग सोडा, म्हणजे तुमच्या मागचे लोक पुढे जातील.",
                 ),
             ),
         ),

@@ -144,6 +144,21 @@ def test_knowledge_answer_has_a_source_chip(page: Page):
     expect(page.locator(".source-detail")).to_contain_text("verified")
 
 
+def test_assistant_joins_a_queue_online_and_leaves_it(page: Page):
+    sign_in(page, "Patient")
+    send(page, "Can I join the dermatology queue today? I have no appointment.")
+    card = page.get_by_role("region", name="Please confirm")
+    expect(card).to_contain_text("Dr. Ritu Agarwal (Dermatology)")
+    expect(card).to_contain_text("Floor")
+    card.get_by_role("button", name="Confirm").click()
+    expect(page.locator(".msg.assistant").last).to_contain_text(re.compile(r"token V\d\d"))
+    send(page, "Something came up, please take me out of the queue.")
+    card = page.get_by_role("region", name="Please confirm")
+    expect(card).to_contain_text("Dr. Ritu Agarwal")
+    card.get_by_role("button", name="Confirm").click()
+    expect(page.locator(".msg.assistant").last).to_contain_text("has left Dr. Ritu Agarwal's queue")
+
+
 def test_interface_switches_to_hindi_and_marathi(page: Page):
     sign_in(page, "Patient")
     page.get_by_role("button", name="हिन्दी").first.click()

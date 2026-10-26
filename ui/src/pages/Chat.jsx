@@ -17,7 +17,9 @@ import {
   Phone,
   SendHorizontal,
   ShieldCheck,
+  Ticket,
   UserRound,
+  UsersRound,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
@@ -37,6 +39,9 @@ const SUMMARY_ROWS = [
   ["date", "dateLabel", CalendarDays],
   ["time", "timeLabel", Clock],
   ["dates", "datesLabel", CalendarRange],
+  ["token", "token", Ticket],
+  ["floor", "floorLabel", MapPin],
+  ["people_ahead", "peopleAhead", UsersRound],
 ];
 const SUGGESTIONS = [
   ["suggestBook", CalendarPlus],

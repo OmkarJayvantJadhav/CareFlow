@@ -33,6 +33,37 @@ recorded there (with its date, configuration and git commit). See `eval/README.m
 | Non-emergencies, held-out set 1 — false alarms | 40 | 36 (90.0%) | false alarm rate 10.0% |
 | Non-emergencies, held-out set 2 — false alarms | 60 | 55 (91.7%) | false alarm rate 8.3% |
 
+## Assistant queue actions (`agent_queue_actions.json`)
+
+Check in, join a queue online and leave it by chat (10 scenarios, family `queue_action`). Run 1 found
+one wrong answer (the assistant gave the online-joining time from the documents instead of today's
+queue tool); the tool description was then changed and run 2 made. Both runs are counted.
+
+| Measure | Result |
+| --- | --- |
+| pass^1 | 95.0% (20 runs) |
+| pass^2 (both runs passed) | 90.0% (10 scenarios) |
+| Wrong-action rate | 0.0% |
+| False emergencies | 0 |
+| Median turn latency | 0.95 s |
+
+## Emergency gate after the queue retrain (`emergency_gate_v3.json`)
+
+The gate alone (no LLM), after queue-management messages were added to its training data. The
+safety table above was measured with the previous gate. Recall for emergency sets, false-alarm rate
+for the negative sets.
+
+| Set | Cases | Flagged | Rate |
+| --- | --- | --- | --- |
+| emergency | 40 | 40 | 100.0% |
+| emergency_holdout | 40 | 40 | 100.0% |
+| emergency_holdout2 | 60 | 58 | 96.7% |
+| emergency_negatives | 20 | 0 | 0.0% |
+| emergency_holdout_negatives | 40 | 4 | 10.0% |
+| emergency_holdout2_negatives | 60 | 5 | 8.3% |
+
+Classifier, 5-fold cross-validation on its 836 training examples at threshold 0.6: recall 90.6%, false alarms 4.7%.
+
 <!-- details below are kept -->
 
 ## Wait-time model (docs §14.3) — `ml_wait_time.json`

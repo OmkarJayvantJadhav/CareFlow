@@ -19,12 +19,14 @@ from datetime import date, datetime, timedelta
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.agent.messages import display_date
 from app.agent.tracing import Trace
-from app.db.models import Appointment, Doctor, Patient
+from app.db.models import Appointment, Doctor, Patient, QueueEntry
 from app.queue import engine as queue_engine
+from app.queue.coordination import virtual_queue_options
 from app.rag.retriever import get_retriever
 from app.safety.injection import neutralize
 from app.timeutil import to_ist
@@ -111,6 +113,19 @@ class EntryArgs(Args):
     entry_id: int = Field(gt=0)
 
 
+class QueueOptionsArgs(Args):
+    department: str | None = Field(None, max_length=60, description="Department, e.g. ENT; leave out for all")
+
+
+class CheckInArgs(Args):
+    appointment_id: int = Field(gt=0)
+
+
+class JoinQueueArgs(Args):
+    patient_id: int = Field(gt=0)
+    doctor_id: int = Field(gt=0)
+
+
 class EmergencyArgs(Args):
     language: Literal["en", "hi", "mr"] | None = None
 
@@ -173,6 +188,21 @@ def _appointment_view(a: dict) -> dict:
     return {k: a[k] for k in ("appointment_id", "patient_name", "doctor_name", "department", "date", "time", "status")}
 
 
+def _check_in_state(db: Session, a: dict, now: datetime) -> str:
+    """For today's appointments: whether the patient can check in online now (features 24, 25)."""
+    entry = db.scalars(
+        select(QueueEntry).where(QueueEntry.appointment_id == a["appointment_id"], QueueEntry.status != "transferred")
+    ).first()
+    if entry is not None:
+        return f"checked in, token {entry.token}"
+    start = datetime.fromisoformat(a["start_at"])
+    if now < start - policy.SELF_CHECK_IN_OPENS:
+        return f"online check-in opens at {to_ist(start - policy.SELF_CHECK_IN_OPENS):%H:%M}"
+    if now > start + policy.SELF_CHECK_IN_CLOSES:
+        return "online check-in has closed; check in at the reception desk"
+    return "online check-in is open now"
+
+
 def _resolve_date(value: str, now: datetime) -> date:
     return parse_day(value, now)[1]
 
@@ -229,9 +259,16 @@ def run_check_availability(ctx: ToolContext, args: CheckAvailabilityArgs) -> dic
 
 def run_get_patient_appointments(ctx: ToolContext, args: PatientArgs) -> dict:
     result = booking.get_patient_appointments(ctx.db, ctx.actor, args.patient_id, now=ctx.now)
+    today = ctx.now.date().isoformat()
+    upcoming = []
+    for a in result["upcoming"]:
+        view = _appointment_view(a)
+        if a["date"] == today and a["status"] in ("booked", "rescheduled"):
+            view["check_in"] = _check_in_state(ctx.db, a, ctx.now)
+        upcoming.append(view)
     return {
         "patient": result["patient_name"],
-        "upcoming": [_appointment_view(a) for a in result["upcoming"]],
+        "upcoming": upcoming,
         "past": [_appointment_view(a) for a in result["past"][:5]],
     }
 
@@ -247,6 +284,7 @@ def _queue_view(status: dict) -> dict:
         "people_ahead": status["ahead"],
         "wait": estimate.get("display"),
         "doctor_status": status["doctor_status"],
+        **({"joined_online": True, "arrived": bool(status.get("arrived_at"))} if status.get("joined_remotely") else {}),
     }
 
 
@@ -255,7 +293,11 @@ def run_get_queue_status(ctx: ToolContext, args: QueueStatusArgs) -> dict:
         return _queue_view(queue_engine.get_queue_status(ctx.db, ctx.actor, args.entry_id, now=ctx.now))
     entries = queue_engine.active_entries_for(ctx.db, ctx.actor, ctx.now)
     if not entries:
-        return {"entries": [], "note": "No one is checked in today; check in at the reception desk first."}
+        return {
+            "entries": [],
+            "note": "No one is in a queue today. With an appointment today: check in (check_in, from an hour before "
+            "the slot). Without one: join a doctor's queue online (list_queues_today, then join_virtual_queue).",
+        }
     return {"entries": [{**_queue_view(e), "patient": e["patient_name"]} for e in entries]}
 
 
@@ -275,6 +317,36 @@ def run_predict_wait_time(ctx: ToolContext, args: EntryArgs) -> dict:
         "say": estimate["display"],
         "doctor_status": status["doctor_status"],
     }
+
+
+def run_list_queues_today(ctx: ToolContext, args: QueueOptionsArgs) -> dict:
+    """Doctors whose queue can be joined online today, with queue lengths (feature 38)."""
+    wanted = (args.department or "").lower()
+    out = []
+    for dept in virtual_queue_options(ctx.db, ctx.now)["departments"]:
+        if wanted and wanted not in dept["department"].lower():
+            continue
+        out.append(
+            {
+                "department": dept["department"],
+                "floor": dept["floor"],
+                "online_joining": f"{dept['opens']}-{dept['closes']}"
+                + ("" if dept["window_open"] else " (closed now)"),
+                "doctors": [
+                    {
+                        "doctor_id": d["doctor_id"],
+                        "name": d["doctor_name"],
+                        "waiting": d["waiting"],
+                        "about_min": d["estimated_wait_min"],
+                        "can_join": d["can_join"],
+                    }
+                    for d in dept["doctors"]
+                ],
+            }
+        )
+    if not out:
+        return {"departments": [], "note": "No OPD for that department today."}
+    return {"departments": out}
 
 
 # --------------------------------------------------------------------------- write tools (preview -> card)
@@ -382,6 +454,46 @@ def run_join_waiting_list(ctx: ToolContext, args: WaitingListArgs) -> dict:
     return _card(ctx, "join_waiting_list", {**args.model_dump(), "dates": dates}, summary)
 
 
+def run_check_in(ctx: ToolContext, args: CheckInArgs) -> dict:
+    appt = _current_appointment(ctx.db, args.appointment_id)
+    _preview(ctx, lambda: queue_engine.check_in(ctx.db, ctx.actor, args.appointment_id, now=ctx.now))
+    summary = _appointment_summary(appt, ctx.language)
+    return _card(ctx, "check_in", args.model_dump(), summary)
+
+
+def run_join_virtual_queue(ctx: ToolContext, args: JoinQueueArgs) -> dict:
+    preview = _preview(
+        ctx, lambda: queue_engine.join_virtual_queue(ctx.db, ctx.actor, args.doctor_id, args.patient_id, now=ctx.now)
+    )
+    summary = {
+        "patient": ctx.db.get(Patient, args.patient_id).synthetic_name,
+        "doctor": preview["doctor_name"],
+        "department": preview["department"],
+        "floor": str(preview["floor"]),
+        "people_ahead": str(max(0, (preview["position"] or 1) - 1)),
+    }
+    return _card(ctx, "join_virtual_queue", args.model_dump(), summary)
+
+
+def _entry_summary(db: Session, entry_id: int) -> dict:
+    entry = db.get(QueueEntry, entry_id)
+    if entry is None:
+        raise ToolError("NOT_FOUND", f"Queue entry {entry_id} does not exist.")
+    doctor = entry.session.doctor
+    return {
+        "patient": entry.patient.synthetic_name,
+        "doctor": doctor.name,
+        "department": doctor.department.name,
+        "token": entry.token,
+    }
+
+
+def run_leave_queue(ctx: ToolContext, args: EntryArgs) -> dict:
+    summary = _entry_summary(ctx.db, args.entry_id)
+    _preview(ctx, lambda: queue_engine.mark_left(ctx.db, ctx.actor, args.entry_id, now=ctx.now))
+    return _card(ctx, "leave_queue", args.model_dump(), summary)
+
+
 def execute_confirmed(db: Session, actor: Actor, pending: dict, now: datetime) -> dict:
     """Run the confirmed card's action for real (called by the chat layer, never by the LLM)."""
     tool, args = pending["tool"], pending["args"]
@@ -398,6 +510,12 @@ def execute_confirmed(db: Session, actor: Actor, pending: dict, now: datetime) -
         return waiting_list.join_waiting_list(
             db, actor, args["patient_id"], args["doctor_id"], args["dates"], confirmed=True, now=now
         )
+    if tool == "check_in":
+        return queue_engine.check_in(db, actor, args["appointment_id"], now=now)
+    if tool == "join_virtual_queue":
+        return queue_engine.join_virtual_queue(db, actor, args["doctor_id"], args["patient_id"], now=now)
+    if tool == "leave_queue":
+        return queue_engine.mark_left(db, actor, args["entry_id"], now=now)
     raise ToolError("VALIDATION_ERROR", f"Unknown action {tool}.")
 
 
@@ -451,6 +569,13 @@ TOOLS: dict[str, ToolSpec] = {
             EntryArgs, "read", run_predict_wait_time, "Estimating the wait",
         ),
         ToolSpec(
+            "list_queues_today",
+            "Today's OPD queues a patient without an appointment can join online: per department the joining hours "
+            "and whether joining is open now, per doctor how many are waiting and the rough wait. Use it for any "
+            "question about joining a queue today, including when joining opens.",
+            QueueOptionsArgs, "read", run_list_queues_today, "Checking today's queues",
+        ),
+        ToolSpec(
             "book_appointment",
             "Request booking a slot for a patient. The user is then asked to confirm a card; nothing is booked until they do.",
             BookArgs, "write", run_book, "Preparing the booking",
@@ -469,6 +594,24 @@ TOOLS: dict[str, ToolSpec] = {
             "join_waiting_list",
             "Request adding a patient to a doctor's waiting list when no slot is free on the wanted dates; the user confirms a card.",
             WaitingListArgs, "write", run_join_waiting_list, "Preparing the waiting-list request",
+        ),
+        ToolSpec(
+            "check_in",
+            "Request checking a patient in for today's appointment (allowed from 1 hour before the slot until 15 "
+            "minutes after it starts); the user confirms a card and then gets a token.",
+            CheckInArgs, "write", run_check_in, "Preparing the check-in",
+        ),
+        ToolSpec(
+            "join_virtual_queue",
+            "Request adding a patient WITHOUT an appointment with that doctor today to the doctor's queue from their "
+            "phone; the user confirms a card and then gets a V token.",
+            JoinQueueArgs, "write", run_join_virtual_queue, "Preparing to join the queue",
+        ),
+        ToolSpec(
+            "leave_queue",
+            "Request taking a patient out of today's queue when they cannot wait or come (entry_id from "
+            "get_queue_status); the user confirms a card.",
+            EntryArgs, "write", run_leave_queue, "Preparing to leave the queue",
         ),
         ToolSpec(
             "emergency_redirect",

@@ -1,0 +1,50 @@
+{
+  "header": {
+    "run_at": "2026-10-26T08:14:18+00:00",
+    "eval_clock": "2026-10-19T08:00:00+05:30",
+    "embedding_backend": "auto",
+    "reranker_backend": "auto",
+    "git_commit": "c1da129",
+    "uncommitted_code_changes": true,
+    "note": "Gate after adding queue-management training examples (D-95); the published safety.json used the previous gate."
+  },
+  "training_cv": {
+    "examples": 836,
+    "emergencies": 393,
+    "threshold": 0.6,
+    "recall": 0.9059,
+    "false_alarm_rate": 0.0474
+  },
+  "sets": {
+    "emergency": {
+      "cases": 40,
+      "flagged": 40,
+      "gate_recall": 1.0
+    },
+    "emergency_holdout": {
+      "cases": 40,
+      "flagged": 40,
+      "gate_recall": 1.0
+    },
+    "emergency_holdout2": {
+      "cases": 60,
+      "flagged": 58,
+      "gate_recall": 0.9667
+    },
+    "emergency_negatives": {
+      "cases": 20,
+      "flagged": 0,
+      "false_alarm_rate": 0.0
+    },
+    "emergency_holdout_negatives": {
+      "cases": 40,
+      "flagged": 4,
+      "false_alarm_rate": 0.1
+    },
+    "emergency_holdout2_negatives": {
+      "cases": 60,
+      "flagged": 5,
+      "false_alarm_rate": 0.0833
+    }
+  }
+}

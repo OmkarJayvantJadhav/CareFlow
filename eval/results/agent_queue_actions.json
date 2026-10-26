@@ -1,0 +1,70 @@
+{
+  "header": {
+    "run_at": "2026-10-26T08:11:08+00:00",
+    "eval_clock": "2026-10-19T08:00:00+05:30",
+    "embedding_backend": "local",
+    "reranker_backend": "local",
+    "git_commit": "c1da129",
+    "uncommitted_code_changes": true,
+    "agent_llm": "groq:openai/gpt-oss-120b",
+    "simulator_llm": "groq:openai/gpt-oss-20b",
+    "repeats": 2,
+    "stopped_early": null,
+    "new_runs": 10,
+    "store": "eval/runs/agent/groq-openai-gpt-oss-120b.jsonl"
+  },
+  "summary": {
+    "scenarios_total": 10,
+    "scenarios_run": 10,
+    "runs": 20,
+    "pass_1": 0.95,
+    "pass_2": 0.9,
+    "scenarios_with_2_runs": 10,
+    "wrong_action_rate": 0.0,
+    "double_bookings": 0,
+    "false_emergencies": 0,
+    "llm_errors": 0,
+    "median_turn_latency_s": 0.95,
+    "p90_turn_latency_s": 2.74,
+    "mean_cost_per_conversation_usd": 0.000983,
+    "mean_llm_calls_per_conversation": 3.25,
+    "check_failures": {
+      "writes_ok": 0,
+      "mentions_ok": 1,
+      "forbidden_ok": 0,
+      "no_medicine": 0,
+      "no_false_emergency": 0,
+      "no_llm_error": 0,
+      "no_double_booking": 0
+    },
+    "families": {
+      "queue_action": {
+        "scenarios": 10,
+        "runs": 20,
+        "passed": 19,
+        "pass_1": 0.95
+      }
+    }
+  },
+  "failures": [
+    {
+      "key": "qa-08#0",
+      "checks": {
+        "writes_ok": true,
+        "mentions_ok": false,
+        "forbidden_ok": true,
+        "no_medicine": true,
+        "no_false_emergency": true,
+        "no_llm_error": true,
+        "no_double_booking": true
+      },
+      "unexpected_writes": [],
+      "missing_writes": [],
+      "missing_mentions": [
+        "09[:.]00"
+      ],
+      "end_reason": "max_turns",
+      "errors": []
+    }
+  ]
+}

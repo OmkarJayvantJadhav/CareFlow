@@ -196,9 +196,14 @@ def _execute_card(
         "reschedule_appointment": "done_reschedule",
         "cancel_appointment": "done_cancel",
         "join_waiting_list": "done_waiting_list",
+        "check_in": "done_check_in",
+        "join_virtual_queue": "done_join_queue",
+        "leave_queue": "done_leave_queue",
     }[tool]
     cancel_hours = int(policy.CANCEL_CUTOFF.total_seconds() // 3600)
-    reply = message(done_key, lang, cancel_hours=cancel_hours, **pending["summary"])
+    # The token is only known once the change is made.
+    values = {**pending["summary"], "token": result.get("token", pending["summary"].get("token", ""))}
+    reply = message(done_key, lang, cancel_hours=cancel_hours, **values)
     return reply, {"tool": tool, "ok": True, "label": "Applying the change"}, {"status": "done", **result}
 
 

@@ -10,3 +10,7 @@ doc_key: policies/walk-in-patients
 ## Coming without an appointment
 
 You can come to the OPD without an appointment on the doctor's OPD days. Register at the reception with your name, birth year and mobile number to get a W token. Walk-in patients are seen in the gaps between booked appointments, so the wait can be longer than with a booking.
+
+## Joining from your phone
+
+If you have a CareFlow account, you can also join a doctor's queue from your phone before you leave home and come in when your turn is near. See 'Joining a queue online'.

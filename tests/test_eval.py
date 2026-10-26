@@ -59,11 +59,12 @@ def test_baseline_mode_writes_without_a_confirmation_card(world, kb):
 
 def test_scenario_file_has_the_documented_families():
     rows = [json.loads(line) for line in open("eval/datasets/agent_scenarios.jsonl", encoding="utf-8")]
-    assert len(rows) == 120 and len({r["id"] for r in rows}) == 120
+    assert len(rows) == 130 and len({r["id"] for r in rows}) == 130
     assert Counter(r["family"] for r in rows) == {
         "book": 25, "reschedule": 15, "cancel": 15, "waiting_list": 10, "caregiver": 10,
-        "doctor_unavailable": 10, "queue": 10, "conflict": 15, "out_of_scope": 10,
+        "doctor_unavailable": 10, "queue": 10, "conflict": 15, "out_of_scope": 10, "queue_action": 10,
     }  # fmt: skip
+    assert [r["family"] for r in rows[-10:]] == ["queue_action"] * 10  # appended: earlier ids keep their place
 
 
 def test_rag_answer_records_the_sources_the_model_saw(world, kb):

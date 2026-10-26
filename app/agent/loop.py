@@ -41,6 +41,9 @@ CONFIRM_KEYS = {
     "reschedule_appointment": "confirm_reschedule",
     "cancel_appointment": "confirm_cancel",
     "join_waiting_list": "confirm_waiting_list",
+    "check_in": "confirm_check_in",
+    "join_virtual_queue": "confirm_join_queue",
+    "leave_queue": "confirm_leave_queue",
 }
 
 
