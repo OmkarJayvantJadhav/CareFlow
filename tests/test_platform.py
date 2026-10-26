@@ -51,3 +51,12 @@ def test_health(engine, kb):
     # No LLM key is configured in tests, so chat is unavailable and the status says so.
     assert checks["llm_providers"] == "none configured" and body["status"] == "degraded"
     assert "Not for medical use" in body["banner"]
+
+
+def test_statements_are_never_prepared_on_the_server(engine):
+    """Behind a pooler in transaction mode (Neon's pooled URL) prepared statements break start-up (D-128)."""
+    with engine.connect() as conn:
+        assert conn.connection.dbapi_connection.prepare_threshold is None
+        for _ in range(8):  # more than psycopg's default threshold of 5
+            conn.execute(text("SELECT 1"))
+        assert conn.execute(text("SELECT count(*) FROM pg_prepared_statements")).scalar() == 0

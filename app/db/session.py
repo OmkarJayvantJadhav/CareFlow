@@ -16,12 +16,20 @@ def normalize_url(url: str) -> str:
     return url
 
 
+# psycopg prepares a statement on the server after it has run five times. Through a connection pooler in
+# transaction mode (Neon's pooled connection string is one) the next statement may reach another server
+# connection, and start-up failed ("prepared statement already exists", or "received 2 results from command
+# COMMIT" on Neon). Statements are therefore never prepared (D-128).
+CONNECT_ARGS = {"prepare_threshold": None}
+
+
 def make_engine(url: str | None = None) -> Engine:
     return create_engine(
         normalize_url(url or get_settings().database_url),
         pool_pre_ping=True,
         pool_size=5,
         max_overflow=5,
+        connect_args=CONNECT_ARGS,
     )
 
 

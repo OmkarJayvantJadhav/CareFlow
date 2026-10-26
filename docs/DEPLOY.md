@@ -13,7 +13,9 @@ check the limits when you deploy.
 1. Sign up at <https://neon.tech> and create a project (region: Singapore, closest to Pune), Postgres only.
 2. Copy the connection string from **Connect**. It can be pasted as it is
    (`postgresql://USER:PASSWORD@HOST/neondb?sslmode=require…`); the app switches it to the psycopg driver.
-   This is your `DATABASE_URL`. Keep it secret.
+   This is your `DATABASE_URL`. Keep it secret. The pooled string (host with `-pooler`) and the direct one
+   both work: CareFlow never uses server-side prepared statements, which a pooler in transaction mode
+   cannot carry (D-128).
 
 The first start enables pgvector, migrates the database, seeds the fictional hospital (~20 s; demo mode only)
 and loads the knowledge base. Neon's free plan suspends compute when idle; the first request after a pause takes a few

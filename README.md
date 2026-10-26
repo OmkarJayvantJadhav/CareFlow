@@ -17,7 +17,7 @@ coordinate every queue, and the hospital's admins keep its people, timetables, r
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-459%20Python%20·%2044%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-460%20Python%20·%2044%20browser-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
 > ⚠️ **The live demo uses a fictional hospital (Indravani General Hospital) and synthetic data. Not for medical use.**
@@ -389,7 +389,7 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 459 tests
+pytest                                     # 460 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
 pytest -m e2e tests/e2e                    # 44 browser tests, including accessibility and 360 px
@@ -570,7 +570,7 @@ docs/         specification, decisions, deployment guide, screenshots
 | Document | Contents |
 | --- | --- |
 | [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md) | The specification (version 2.0): problem, requirements (FR-01–FR-74), architecture, database, API, screens, tests, roadmap, security, operations, risks and evaluation |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-127), with the reason |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-128), with the reason |
 | [`docs/DEPLOY.md`](docs/DEPLOY.md) | Free deployment on Render and Neon, monitoring and runbook |
 | [`eval/README.md`](eval/README.md) | How the evaluation works and how to run it |
 | [`eval/results/README.md`](eval/results/README.md) | The generated results table with sample sizes |
