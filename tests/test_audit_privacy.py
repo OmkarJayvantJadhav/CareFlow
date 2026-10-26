@@ -86,7 +86,7 @@ def test_tc16_every_write_tool_writes_an_audit_row(world):
     pawar = world.doctor("Dr. Suresh Pawar")
     world.slots(pawar, TODAY)
     walk = engine.register_walk_in(db, staff, pawar.id, name="Ravi Test", birth_year=1970, phone="98765 43210", now=NOW)
-    engine.set_priority(db, staff, walk["entry_id"], 1, now=NOW)
+    engine.set_priority(db, world.doctor_account("Dr. Suresh Pawar"), walk["entry_id"], 1, now=NOW)
     engine.record_doctor_event(db, staff, walk["session_id"], "delay", minutes=10, now=NOW)
     db.commit()
 

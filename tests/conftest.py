@@ -32,6 +32,7 @@ from app.db.models import OPERATIONAL_TABLES, AppUser, Doctor, Patient, Slot  # 
 from app.db.session import get_engine, normalize_url  # noqa: E402
 from app.timeutil import at  # noqa: E402
 from app.tools.permissions import Actor  # noqa: E402
+from simulator.hospital import doctor_username  # noqa: E402
 from simulator.seed import ensure_slots, seed_reference  # noqa: E402
 
 # A fixed clock: Monday 19 October 2026, 08:00 in the hospital's time zone.
@@ -82,6 +83,10 @@ class World:
 
     def user(self, username: str) -> Actor:
         return Actor.from_user(self.db.scalars(select(AppUser).where(AppUser.username == username)).one())
+
+    def doctor_account(self, name: str) -> Actor:
+        """The signed-in doctor's own account (e.g. "Dr. Suresh Pawar" -> dr-pawar)."""
+        return self.user(doctor_username(name))
 
     def doctor(self, name: str) -> Doctor:
         return self.db.scalars(select(Doctor).where(Doctor.name == name)).one()

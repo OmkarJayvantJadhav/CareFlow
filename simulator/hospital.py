@@ -58,6 +58,12 @@ DEMO_USERS = [
     ("sim-desk", "Simulator front desk", "staff", None),
 ]
 
+
+def doctor_username(name: str) -> str:
+    """Every doctor has an account for their own queue: "Dr. Suresh Pawar" signs in as "dr-pawar"."""
+    return "dr-" + name.split()[-1].lower()
+
+
 # caregiver username, patient key, verified
 CAREGIVER_LINKS = [
     ("rajan", "vinayak", True),

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from app.config import HOSPITAL_TZ
-from app.queue.merge import QueueItem, merge_order
+from app.queue.merge import QueueItem, effective_priority, merge_order
 
 T0 = datetime(2026, 10, 19, 9, 0, tzinfo=HOSPITAL_TZ)
 
@@ -80,3 +80,29 @@ def test_no_walk_ins_booked_go_in_slot_order_even_if_early():
 def test_unknown_rule_is_rejected():
     with pytest.raises(ValueError):
         merge_order([], "random", T0, 10)
+
+
+# --------------------------------------------------------------------------- features 51 - 53
+
+
+def test_moved_booked_patient_joins_the_walk_in_lane_by_their_check_in_time():
+    """A patient moved from another doctor has no slot here; they keep the time they first checked in."""
+    items = [booked(1, 0, -10), booked(2, 15, 10), booked(9, 0, -20, transferred=True), walk_in(4, -5)]
+    assert merge_order(items, "alternate", T0, 15) == [1, 9, 2, 4]
+
+
+@pytest.mark.parametrize(
+    ("manual", "categories", "due", "expected"),
+    [
+        (0, [], True, 0),
+        (0, ["senior"], True, 1),
+        (0, ["senior", "pregnant"], True, 2),
+        (3, ["pregnant"], True, 3),  # the doctor's choice wins when it is higher
+        (0, ["pregnant"], False, 0),  # a booked patient's category counts only once their slot is due
+        (1, ["pregnant"], False, 1),
+        (0, ["child"], True, 0),  # weight 0: the category has no priority
+    ],
+)
+def test_effective_priority(manual, categories, due, expected):
+    weights = {"senior": 1, "pregnant": 2, "child": 0}
+    assert effective_priority(manual, categories, weights, due) == expected

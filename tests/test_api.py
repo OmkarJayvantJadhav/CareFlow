@@ -14,7 +14,7 @@ from tests.conftest import SATURDAY
 
 
 @pytest.fixture
-def api(world, kb):
+def api(world, kb, frozen_clock):
     chat_limiter.reset()
     client = TestClient(app)
     yield client

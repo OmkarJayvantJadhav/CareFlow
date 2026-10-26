@@ -6,6 +6,7 @@ import {
   CircleCheck,
   Coffee,
   Database,
+  DoorOpen,
   Gauge,
   RotateCcw,
   Search,
@@ -175,6 +176,9 @@ export default function Dashboard() {
                       <th scope="col" className="num">
                         {t("noShows")}
                       </th>
+                      <th scope="col" className="num">
+                        {t("leftUnseen")}
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -189,6 +193,7 @@ export default function Dashboard() {
                         </td>
                         <td className="num">{d.booked_today}</td>
                         <td className="num">{d.no_shows_today}</td>
+                        <td className="num">{d.left_unseen_today || "—"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -210,6 +215,7 @@ export default function Dashboard() {
                   ["utilizationNext7", usage.overall.utilization, Gauge, ""],
                   ["attendance30", usage.overall.attendance_rate, UserCheck, "info"],
                   ["noShowRate30", usage.overall.no_show_rate, UserX, "danger"],
+                  ["abandonment30", usage.overall.abandonment_rate, DoorOpen, "warn"],
                 ].map(([label, value, Icon, tone]) => (
                   <div key={label} className="card kpi">
                     <span className={`icon-tile ${tone}`} aria-hidden="true">
@@ -245,6 +251,9 @@ export default function Dashboard() {
                           {t("noShows")}
                         </th>
                         <th scope="col" className="num">
+                          {t("leftUnseen")}
+                        </th>
+                        <th scope="col" className="num">
                           {t("attendance")}
                         </th>
                       </tr>
@@ -265,6 +274,7 @@ export default function Dashboard() {
                           <td className="num">{d.free}</td>
                           <td className="num">{d.attended}</td>
                           <td className="num">{d.no_shows}</td>
+                          <td className="num">{d.left_unseen}</td>
                           <td className="num">{pct(d.attendance_rate)}</td>
                         </tr>
                       ))}

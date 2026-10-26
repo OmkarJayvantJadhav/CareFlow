@@ -9,6 +9,9 @@ import {
   HeartPulse,
   Info,
   LayoutDashboard,
+  ListChecks,
+  Network,
+  Scale,
   ListOrdered,
   LogOut,
   MessageCircle,
@@ -32,16 +35,26 @@ const NAV = {
     { to: "/desk", label: "navDesk", icon: ClipboardList },
     { to: "/calendar", label: "navCalendar", icon: CalendarRange },
     { to: "/doctors", label: "navDoctors", icon: Stethoscope },
+    { to: "/coordination", label: "navCoordination", icon: Network },
   ],
+  doctor: [{ to: "/my-queue", label: "navMyQueue", icon: ListChecks }],
   admin: [
     { to: "/admin", label: "navDashboard", icon: LayoutDashboard },
     { to: "/analytics", label: "navAnalytics", icon: BarChart3 },
     { to: "/registration-form", label: "navRegistrationForm", icon: ClipboardPen },
+    { to: "/priority-rules", label: "navPriorityRules", icon: Scale },
+    { to: "/coordination", label: "navCoordination", icon: Network },
   ],
 };
 NAV.caregiver = NAV.patient;
 
-const ROLE_LABEL = { patient: "rolePatient", caregiver: "roleCaregiver", staff: "roleStaff", admin: "roleAdmin" };
+const ROLE_LABEL = {
+  patient: "rolePatient",
+  caregiver: "roleCaregiver",
+  staff: "roleStaff",
+  admin: "roleAdmin",
+  doctor: "roleDoctor",
+};
 
 function Brand() {
   const { t } = useSession();

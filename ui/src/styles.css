@@ -682,6 +682,11 @@ label {
   background: var(--warn-soft);
   color: var(--warn-text);
 }
+.notice.info {
+  border-color: var(--info-line);
+  background: var(--info-soft);
+  color: var(--info-text);
+}
 
 .error {
   border-color: var(--danger-line);
@@ -1629,9 +1634,12 @@ button.wide {
   align-items: start;
 }
 
-.desk-side {
+.desk-side,
+.desk-main {
   display: grid;
   gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
 }
 
 .token-pill {
@@ -1676,6 +1684,7 @@ button.wide {
 .doctor-card {
   display: grid;
   gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .doctor-card .who {
@@ -1687,6 +1696,7 @@ button.wide {
 .doctor-card .who > div {
   min-width: 0;
   flex: 1;
+  overflow-wrap: anywhere;
 }
 
 .doctor-card .controls {
@@ -2467,6 +2477,19 @@ label.check input {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    max-width: 100%;
+    hyphens: auto;
+    overflow-wrap: anywhere;
+  }
+
+  /* Five tabs do not fit with large text: show the icons; the labels stay for screen readers. */
+  .large-text nav.main-nav:has(> a:nth-child(5)) a span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   nav.main-nav a.active {
@@ -2599,4 +2622,73 @@ label.check input {
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* ---------------------------------------------------------------- queue management (phase 6C) */
+
+.current-patient {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--primary-line);
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+}
+
+.sub-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 1rem 0 0.5rem;
+  font-size: 1rem;
+}
+
+.load-bar {
+  display: inline-block;
+  vertical-align: middle;
+  width: 3.5rem;
+  height: 0.4rem;
+  margin-right: 0.5rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.load-bar i {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+}
+
+.priority-pick {
+  margin: 0;
+  flex: 0 1 11rem;
+  min-width: 0;
+}
+
+.priority-pick label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.queue-actions {
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+}
+
+/* A vertical list of cards; minmax(0, 1fr) keeps wide tables scrolling inside their card. */
+.stack {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* An odd number of demo roles: the last one spans the row. */
+.roles > .role:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
 }

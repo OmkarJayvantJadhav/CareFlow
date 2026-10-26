@@ -3,7 +3,9 @@
 * Utilization: booked share of the bookable slots (free + booked; blocked slots are not offered) from
   today for the next ``days`` days, per department and doctor.
 * Attendance: of the appointments that took place in the last 30 days, the share that were attended
-  (completed) rather than missed (no-show); cancellations are counted separately.
+  (completed) rather than missed: never arrived (no-show) or arrived and left without being seen
+  (feature 47), which are counted apart; cancellations are counted separately.
+* Abandonment: of everyone who joined a queue (booked and walk-in), the share who left without being seen.
 """
 
 from collections import defaultdict
@@ -61,20 +63,23 @@ def utilization(db: Session, now: datetime, days: int = 7) -> dict:
             "utilization": _rate(s["booked"], bookable),
             "attended": o["completed"],
             "no_shows": o["no_show"],
+            "left_unseen": o["left"],
             "cancelled": o["cancelled"],
-            "attendance_rate": _rate(o["completed"], o["completed"] + o["no_show"]),
+            "attendance_rate": _rate(o["completed"], o["completed"] + o["no_show"] + o["left"]),
             "typical_consult_min": durations[d.id]["typical"],
         }
         rows.append(row)
         dept = by_dept[d.department.name]
-        for key in ("booked", "free", "blocked", "attended", "no_shows", "cancelled"):
+        for key in ("booked", "free", "blocked", "attended", "no_shows", "left_unseen", "cancelled"):
             dept[key] += row[key]
     departments = [
         {
             "department": name,
             **counts,
             "utilization": _rate(counts["booked"], counts["booked"] + counts["free"]),
-            "attendance_rate": _rate(counts["attended"], counts["attended"] + counts["no_shows"]),
+            "attendance_rate": _rate(
+                counts["attended"], counts["attended"] + counts["no_shows"] + counts["left_unseen"]
+            ),
         }
         for name, counts in sorted(by_dept.items())
     ]
@@ -92,13 +97,27 @@ def utilization(db: Session, now: datetime, days: int = 7) -> dict:
     total_free = sum(r["free"] for r in rows)
     attended = sum(r["attended"] for r in rows)
     no_shows = sum(r["no_shows"] for r in rows)
+    left = sum(r["left_unseen"] for r in rows)
+    took_place = attended + no_shows + left
+    # Queue abandonment counts every arrival, booked or walk-in; a moved patient counts once, where they ended.
+    queued = db.execute(
+        select(func.count(), func.count().filter(QueueEntry.status == "left"))
+        .select_from(QueueEntry)
+        .where(
+            QueueEntry.status != "transferred",
+            QueueEntry.checked_in_at >= at(since, time.min),
+            QueueEntry.checked_in_at < at(today, time.min),
+        )
+    ).one()
     return {
         "window": {"from": today.isoformat(), "days": days},
         "attendance_window_days": ATTENDANCE_DAYS,
         "overall": {
             "utilization": _rate(total_booked, total_booked + total_free),
-            "attendance_rate": _rate(attended, attended + no_shows),
-            "no_show_rate": _rate(no_shows, attended + no_shows),
+            "attendance_rate": _rate(attended, took_place),
+            "no_show_rate": _rate(no_shows, took_place),
+            "left_unseen_rate": _rate(left, took_place),
+            "abandonment_rate": _rate(queued[1], queued[0]),
             "late_arrival_rate": _rate(arrivals[1], arrivals[0]),
         },
         "departments": departments,

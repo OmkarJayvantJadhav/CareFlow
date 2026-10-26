@@ -5,11 +5,14 @@ import Appointments from "./pages/Appointments";
 import Book from "./pages/Book";
 import Calendar from "./pages/Calendar";
 import Chat from "./pages/Chat";
+import Coordination from "./pages/Coordination";
 import Dashboard from "./pages/Dashboard";
+import DoctorQueue from "./pages/DoctorQueue";
 import DoctorStatus from "./pages/DoctorStatus";
 import FrontDesk from "./pages/FrontDesk";
 import Kiosk from "./pages/Kiosk";
 import Notifications from "./pages/Notifications";
+import PriorityRules from "./pages/PriorityRules";
 import Profile from "./pages/Profile";
 import QueueStatus from "./pages/QueueStatus";
 import Receipt from "./pages/Receipt";
@@ -22,6 +25,7 @@ export const HOME = {
   caregiver: "/chat",
   staff: "/desk",
   admin: "/admin",
+  doctor: "/my-queue",
 };
 
 function Guard({ roles, children }) {
@@ -147,6 +151,30 @@ export default function App() {
           element={
             <Guard roles={["admin"]}>
               <RegistrationForm />
+            </Guard>
+          }
+        />
+        <Route
+          path="/my-queue"
+          element={
+            <Guard roles={["doctor"]}>
+              <DoctorQueue />
+            </Guard>
+          }
+        />
+        <Route
+          path="/coordination"
+          element={
+            <Guard roles={["staff", "admin"]}>
+              <Coordination />
+            </Guard>
+          }
+        />
+        <Route
+          path="/priority-rules"
+          element={
+            <Guard roles={["admin"]}>
+              <PriorityRules />
             </Guard>
           }
         />

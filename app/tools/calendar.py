@@ -7,7 +7,15 @@ from datetime import date, datetime, time, timedelta
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.db.models import ACTIVE_APPOINTMENT_STATUSES, Appointment, Doctor, DoctorLeave, QueueEntry, Slot
+from app.db.models import (
+    ACTIVE_APPOINTMENT_STATUSES,
+    Appointment,
+    Doctor,
+    DoctorLeave,
+    QueueEntry,
+    QueueSession,
+    Slot,
+)
 from app.timeutil import at, resolve_now, to_ist
 from app.tools import policy
 from app.tools.audit import write_tool
@@ -28,23 +36,23 @@ def consult_minutes(db: Session, doctor_ids: list[int], now: datetime) -> dict[i
     """
     since = now - timedelta(days=DURATION_HISTORY_DAYS)
     minutes = func.extract("epoch", QueueEntry.consult_end - QueueEntry.consult_start) / 60
+    # Grouped by the doctor who actually saw the patient (a moved patient is seen by someone else).
     rows = db.execute(
         select(
-            Slot.doctor_id,
+            QueueSession.doctor_id,
             func.count(),
             func.percentile_cont(0.5).within_group(minutes),
             func.percentile_cont(0.8).within_group(minutes),
         )
         .select_from(QueueEntry)
-        .join(Appointment, Appointment.id == QueueEntry.appointment_id)
-        .join(Slot, Slot.id == Appointment.slot_id)
+        .join(QueueSession, QueueSession.id == QueueEntry.session_id)
         .where(
-            Slot.doctor_id.in_(doctor_ids),
+            QueueSession.doctor_id.in_(doctor_ids),
             QueueEntry.consult_end.is_not(None),
             QueueEntry.consult_start.is_not(None),
             QueueEntry.consult_start >= since,
         )
-        .group_by(Slot.doctor_id)
+        .group_by(QueueSession.doctor_id)
     ).all()
     measured = {doctor_id: (n, median, p80) for doctor_id, n, median, p80 in rows}
     out = {}

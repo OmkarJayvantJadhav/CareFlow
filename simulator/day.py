@@ -17,10 +17,11 @@ import numpy as np
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db.models import ACTIVE_APPOINTMENT_STATUSES, Appointment, Doctor, QueueSession, Slot
+from app.db.models import ACTIVE_APPOINTMENT_STATUSES, Appointment, AppUser, Doctor, QueueSession, Slot
 from app.queue import engine
 from app.timeutil import at
 from app.tools.errors import ToolError
+from app.tools.permissions import Actor
 from simulator import hospital
 from simulator.seed import book_as_simulator, ensure_slots, random_phone, simulated_patient_ids, system_actor
 
@@ -176,7 +177,9 @@ class SessionSimulator:
         elif kind == "walk_in":
             entry = self._walk_in(when)
             if entry and self.rng.random() < self.p.priority_rate:
-                engine.set_priority(db, actor, entry["entry_id"], 1, now=when)
+                # The desk asks and the doctor authorizes (feature 52).
+                asked = engine.request_priority(db, actor, entry["entry_id"], 1, "unwell while waiting", now=when)
+                engine.decide_priority_request(db, self._doctor_actor(), asked["request_id"], True, now=when)
         elif kind == "return":
             engine.mark_returned(db, actor, data["entry_id"], now=when)
         elif kind == "unavailable":
@@ -209,6 +212,10 @@ class SessionSimulator:
         self._session(entry["session_id"])
         self.stats.walk_ins += 1
         return entry
+
+    def _doctor_actor(self) -> Actor:
+        user = self.db.scalars(select(AppUser).where(AppUser.doctor_id == self.doctor.id)).one()
+        return Actor.from_user(user)
 
     def _patient_ids(self) -> list[int]:
         if self._pids is None:

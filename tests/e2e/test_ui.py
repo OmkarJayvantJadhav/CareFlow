@@ -222,7 +222,7 @@ def test_consent_and_caregiver_approval(page: Page, base_url: str):
 
 def test_front_desk_checks_in_and_registers_a_walk_in(page: Page):
     sign_in(page, "Front desk")
-    page.get_by_label("Doctor").select_option(label="Dr. Kavita Joshi — General Medicine")
+    page.get_by_label("Doctor", exact=True).select_option(label="Dr. Kavita Joshi — General Medicine")
     bookings = page.get_by_role("region", name="Bookings today")
     bookings.get_by_role("button", name="Check in").first.click()
     expect(bookings.get_by_text(re.compile(r"Checked in B\d\d")).first).to_be_visible()
@@ -243,7 +243,7 @@ def test_front_desk_checks_in_and_registers_a_walk_in(page: Page):
 def test_staff_record_and_remove_leave_in_the_calendar(page: Page):
     sign_in(page, "Front desk")
     page.get_by_role("link", name="Calendar").click()
-    page.get_by_label("Doctor").select_option(label="Dr. Imran Shaikh — General Medicine")
+    page.get_by_label("Doctor", exact=True).select_option(label="Dr. Imran Shaikh — General Medicine")
     expect(page.get_by_text(re.compile(r"^Typical visit: \d+ min"))).to_be_visible()
     leave = page.get_by_role("region", name="Leave", exact=True)
     leave.get_by_label("From").fill("2026-10-27")
@@ -286,7 +286,7 @@ def test_desk_checks_in_by_receipt_code_and_the_kiosk_too(page: Page, base_url: 
 
 def test_walk_in_finds_the_existing_record(page: Page):
     sign_in(page, "Front desk")
-    page.get_by_label("Doctor").select_option(label="Dr. Vikram Bhosale — Orthopaedics")
+    page.get_by_label("Doctor", exact=True).select_option(label="Dr. Vikram Bhosale — Orthopaedics")
     walk_in = page.get_by_role("region", name="Register walk-in")
     walk_in.get_by_label("Patient name").fill("asha  patil")
     walk_in.get_by_label("Birth year").fill("1992")
@@ -317,12 +317,102 @@ def test_admin_adds_a_registration_question_asked_at_sign_up(page: Page):
     expect(form.get_by_label(re.compile(f"^{question}"))).to_be_visible()
 
 
+# --------------------------------------------------------------------------- queue management (phase 6C)
+
+
+def _walk_in(staff_api: Api, doctor_name: str, name: str, phone: str) -> dict:
+    doctor = next(d for d in staff_api.get("/staff/today")["doctors"] if d["doctor_name"] == doctor_name)
+    body = {"doctor_id": doctor["doctor_id"], "name": name, "birth_year": 1961, "phone": phone}
+    return staff_api.post("/queue/walk-ins", body)
+
+
+def test_caregiver_joins_a_queue_online_and_leaves_it(page: Page):
+    sign_in(page, "Caregiver")
+    page.get_by_role("navigation", name="Main").get_by_role("link", name="Queue status").click()
+    join = page.get_by_role("region", name="Join a queue online")
+    join.get_by_label("Department").select_option(label="ENT")
+    join.get_by_role("button", name="Join queue: Dr. Snehal Gokhale").click()
+    card = page.locator("section.token-card").filter(has_text="Dr. Snehal Gokhale")
+    expect(card).to_contain_text("V01")
+    expect(card).to_contain_text("Please reach the OPD desk on floor 2")
+    card.get_by_role("button", name="Leave the queue").click()
+    page.get_by_role("dialog", name="Leave the queue (V01)?").get_by_role("button", name="Leave the queue").click()
+    expect(card).to_have_count(0)
+
+
+def test_front_desk_asks_the_doctor_and_moves_a_patient(page: Page, staff_api: Api):
+    walk = _walk_in(staff_api, "Dr. Kavita Joshi", "Sunanda Pathak", "9811100011")
+    token = walk["token"]
+    sign_in(page, "Front desk")
+    page.get_by_label("Doctor", exact=True).select_option(label="Dr. Kavita Joshi — General Medicine")
+    queue = page.get_by_role("region", name="Queue")
+    queue.get_by_role("button", name=f"Ask doctor for priority: {token}").click()
+    dialog = page.get_by_role("dialog", name=f"Ask the doctor to change {token}'s priority")
+    dialog.get_by_label("Reason for the doctor").fill("pregnant, feeling faint")
+    dialog.get_by_role("button", name="Send to doctor").click()
+    expect(queue.get_by_text("Asked doctor: priority 1")).to_be_visible()
+    queue.get_by_role("button", name=f"Move: {token}").click()
+    dialog = page.get_by_role("dialog", name=f"Move {token} to another doctor")
+    dialog.get_by_label("Move to").select_option(label="Dr. Suresh Pawar")
+    dialog.get_by_role("button", name="Move").click()
+    expect(queue.get_by_text("Sunanda Pathak")).to_have_count(0)
+    page.get_by_label("Doctor", exact=True).select_option(label="Dr. Suresh Pawar — General Medicine")
+    expect(queue.get_by_text("Sunanda Pathak")).to_be_visible()
+    expect(queue.get_by_text("Moved here")).to_be_visible()
+
+
+def test_doctor_authorizes_priority_and_sees_their_patient(page: Page, staff_api: Api):
+    walk = _walk_in(staff_api, "Dr. Suresh Pawar", "Girish Bhave", "9811100022")
+    staff_api.post(f"/queue/sessions/{walk['session_id']}/events", {"type": "resume"})  # end any earlier delay
+    staff_api.post(f"/queue/entries/{walk['entry_id']}/priority-requests", {"priority": 3, "reason": "chest pain"})
+    sign_in(page, "Doctor")
+    expect(page.get_by_role("heading", level=1, name="My queue")).to_be_visible()
+    requests = page.get_by_role("region", name="Requests from the front desk")
+    expect(requests).to_contain_text("chest pain")
+    requests.get_by_role("button", name=f"Approve: {walk['token']}").click()
+    expect(requests).to_contain_text("No requests waiting for you.")
+    expect(page.get_by_label(f"Priority for {walk['token']}")).to_have_value("3")
+    page.get_by_role("button", name="Call next").click()
+    room = page.get_by_role("region", name="In the room")
+    expect(room).to_contain_text("Girish Bhave")
+    room.get_by_role("button", name="Start").click()
+    room.get_by_role("button", name="End").click()
+    expect(room).not_to_contain_text("Girish Bhave")
+
+
+def test_coordination_suggests_and_makes_a_balancing_move(page: Page, staff_api: Api):
+    for i in range(5):
+        _walk_in(staff_api, "Dr. Anand Kulkarni", f"Cardio Walkin {chr(65 + i)}", f"98111000{30 + i}")
+    sign_in(page, "Front desk")
+    page.get_by_role("link", name="Coordination").click()
+    page.get_by_label("Department").select_option(label="Cardiology")
+    cardiology = page.get_by_role("region", name="Cardiology").first
+    expect(cardiology.get_by_role("row").filter(has_text="Dr. Anand Kulkarni")).to_be_visible()
+    move = cardiology.get_by_role("button", name=re.compile(r"^Move W\d\d → Dr. Meera Iyer")).first
+    move.click()
+    expect(
+        page.get_by_role("status").filter(has_text=re.compile(r"moved to Dr. Meera Iyer. New token: T\d\d"))
+    ).to_be_visible()
+
+
+def test_admin_sets_priority_rules(page: Page):
+    sign_in(page, "OPD admin")
+    page.get_by_role("link", name="Priority rules").click()
+    page.get_by_label("Priority for Pregnant").select_option(label="2 — High")
+    page.get_by_role("button", name="Save").click()
+    expect(page.get_by_role("status").filter(has_text="Saved. Today's queues have been reordered.")).to_be_visible()
+    page.reload()
+    expect(page.get_by_label("Priority for Pregnant")).to_have_value("2")
+
+
 def test_doctor_marked_unavailable_informs_patients(page: Page):
     sign_in(page, "Front desk")
     page.get_by_role("link", name="Doctor status").click()
     card = page.get_by_role("region", name="Dr. Meera Iyer")
-    page.once("dialog", lambda dialog: dialog.accept())
     card.get_by_role("button", name="Unavailable today").click()
+    dialog = page.get_by_role("dialog", name="Unavailable today — Dr. Meera Iyer")
+    expect(dialog.get_by_label("Move the patients already waiting to other doctors in the department")).to_be_checked()
+    dialog.get_by_role("button", name="Unavailable today").click()
     expect(page.get_by_role("status").filter(has_text="Patients informed")).to_be_visible()
     expect(card).to_contain_text("Not available today")
 
@@ -372,8 +462,9 @@ def _axe_violations(page: Page) -> list[dict]:
     [
         (None, []),
         ("Patient", ["Assistant", "Book", "My appointments", "Queue status", "Notifications", "Profile"]),
-        ("Front desk", ["Front desk", "Calendar", "Doctor status"]),
-        ("OPD admin", ["Dashboard", "Analytics", "Registration form"]),
+        ("Front desk", ["Front desk", "Calendar", "Doctor status", "Coordination"]),
+        ("OPD admin", ["Dashboard", "Analytics", "Registration form", "Priority rules", "Coordination"]),
+        ("Doctor", ["My queue"]),
     ],
 )
 def test_no_serious_accessibility_violations(page: Page, role, links):

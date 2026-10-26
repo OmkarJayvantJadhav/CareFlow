@@ -1,6 +1,7 @@
-import { CircleCheck, Coffee, Play, Timer, UserX } from "lucide-react";
+import { CircleCheck, Coffee, Play, Siren, Timer, UserX } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
+import ConfirmDialog from "../components/ConfirmDialog";
 import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
 import { initials } from "../format";
@@ -8,7 +9,8 @@ import { useSession } from "../session";
 
 const TONE = { available: "ok", on_break: "warn", delayed: "warn", unavailable: "danger" };
 
-/** S7: breaks, delays and unavailability; shows how many patients were informed. */
+/** S7: breaks, delays, emergencies and unavailability (features 49, 50); shows how many patients were
+informed and, when a doctor is unavailable, can hand the waiting patients to colleagues (feature 42). */
 export default function DoctorStatus() {
   const { t } = useSession();
   const [doctors, setDoctors] = useState(null);
@@ -16,6 +18,8 @@ export default function DoctorStatus() {
   const [notice, setNotice] = useState(null);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(null);
+  const [unavailable, setUnavailable] = useState(null);
+  const [reassign, setReassign] = useState(true);
 
   const load = useCallback(async () => {
     try {
@@ -30,7 +34,6 @@ export default function DoctorStatus() {
   }, [load]);
 
   async function event(d, type) {
-    if (type === "unavailable" && !window.confirm(t("confirmUnavailable", { doctor: d.doctor_name }))) return;
     setBusy(d.doctor_id);
     setError(null);
     setNotice(null);
@@ -38,10 +41,17 @@ export default function DoctorStatus() {
       const sessionId =
         d.session_id ?? (await api(`/staff/doctors/${d.doctor_id}/session`, { method: "POST" })).session_id;
       const body = { type };
-      if (type === "break" || type === "delay")
+      if (type === "break" || type === "delay" || type === "emergency")
         body.minutes = Number(minutes[d.doctor_id] || (type === "break" ? 15 : 20));
+      if (type === "unavailable") body.reassign = reassign;
       const result = await api(`/queue/sessions/${sessionId}/events`, { method: "POST", body });
-      if (type === "unavailable") setNotice(t("affected", { count: result.affected?.length ?? 0 }));
+      if (type === "unavailable") {
+        const moved = result.moved?.length ?? 0;
+        setNotice(
+          `${t("affected", { count: result.affected?.length ?? 0 })}${moved ? ` ${t("movedCount", { count: moved })}` : ""}`,
+        );
+        setUnavailable(null);
+      }
       await load();
     } catch (err) {
       setError(err);
@@ -119,6 +129,15 @@ export default function DoctorStatus() {
                       <Timer size={16} aria-hidden="true" />
                       {t("markDelay")}
                     </button>
+                    <button
+                      type="button"
+                      className="danger-outline"
+                      disabled={busy !== null}
+                      onClick={() => event(d, "emergency")}
+                    >
+                      <Siren size={16} aria-hidden="true" />
+                      {t("markEmergency")}
+                    </button>
                   </div>
                   <div className="row">
                     {d.doctor_status !== "available" && (
@@ -131,7 +150,10 @@ export default function DoctorStatus() {
                       type="button"
                       className="danger-outline"
                       disabled={busy !== null}
-                      onClick={() => event(d, "unavailable")}
+                      onClick={() => {
+                        setReassign(true);
+                        setUnavailable(d);
+                      }}
                     >
                       <UserX size={16} aria-hidden="true" />
                       {t("markUnavailable")}
@@ -143,6 +165,26 @@ export default function DoctorStatus() {
           );
         })}
       </div>
+      <ConfirmDialog
+        open={unavailable !== null}
+        title={unavailable ? t("markUnavailable") + ` — ${unavailable.doctor_name}` : ""}
+        confirmLabel={t("markUnavailable")}
+        cancelLabel={t("back")}
+        busy={busy !== null}
+        danger
+        onConfirm={() => void event(unavailable, "unavailable")}
+        onClose={() => setUnavailable(null)}
+      >
+        {unavailable && (
+          <>
+            <p>{t("confirmUnavailable", { doctor: unavailable.doctor_name })}</p>
+            <label className="check">
+              <input type="checkbox" checked={reassign} onChange={(e) => setReassign(e.target.checked)} />
+              {t("reassignWaiting")}
+            </label>
+          </>
+        )}
+      </ConfirmDialog>
     </main>
   );
 }

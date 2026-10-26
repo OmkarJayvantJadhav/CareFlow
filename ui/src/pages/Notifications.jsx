@@ -1,4 +1,15 @@
-import { AlarmClock, Bell, CalendarX2, CheckCheck, Info, ListOrdered, RotateCcw, UserX } from "lucide-react";
+import {
+  AlarmClock,
+  ArrowRightLeft,
+  Bell,
+  CalendarX2,
+  CheckCheck,
+  Info,
+  ListOrdered,
+  RotateCcw,
+  Timer,
+  UserX,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
@@ -14,6 +25,8 @@ const KIND = {
   rebook: { icon: RotateCcw, tone: "warn" },
   unavailable: { icon: UserX, tone: "danger" },
   turn_near: { icon: ListOrdered, tone: "" },
+  transfer: { icon: ArrowRightLeft, tone: "info" },
+  delay: { icon: Timer, tone: "warn" },
 };
 
 /** S13: reminders, rebooking offers and other messages (stored, as the demo sends no SMS). */

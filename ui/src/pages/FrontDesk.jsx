@@ -1,8 +1,11 @@
 import {
+  ArrowRightLeft,
   CalendarClock,
   Check,
   Clock,
   CircleCheck,
+  DoorOpen,
+  Footprints,
   ListOrdered,
   Megaphone,
   Play,
@@ -19,7 +22,9 @@ import CodeCheckIn from "../components/CodeCheckIn";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
+import { EntryBadges } from "../components/QueueBadges";
 import { CategoryBadges, CustomFields, useRegistrationFields } from "../components/Registration";
+import { byDepartment } from "../format";
 import { LANGS } from "../i18n";
 import { useSession } from "../session";
 import { followSession } from "../staff";
@@ -40,6 +45,10 @@ export default function FrontDesk() {
   const [answers, setAnswers] = useState({});
   const [matches, setMatches] = useState(null);
   const [editing, setEditing] = useState(null);
+  // Dialogs: ask the doctor for a priority change (feature 52), move a patient (42, 53), left unseen (47).
+  const [asking, setAsking] = useState(null);
+  const [moving, setMoving] = useState(null);
+  const [leaving, setLeaving] = useState(null);
   const fields = useRegistrationFields();
 
   const doctor = doctors?.find((d) => d.doctor_id === selected) ?? null;
@@ -88,11 +97,33 @@ export default function FrontDesk() {
       await api(path, { method, body });
       await load();
       await loadQueue(sessionId);
+      return true;
     } catch (err) {
       setError(err);
+      return false;
     } finally {
       setBusy(false);
     }
+  }
+
+  async function askDoctor() {
+    const done = await act(`/queue/entries/${asking.entry.entry_id}/priority-requests`, "POST", {
+      priority: Number(asking.priority),
+      reason: asking.reason.trim(),
+    });
+    if (done) setAsking(null);
+  }
+
+  async function moveEntry() {
+    const done = await act(`/queue/entries/${moving.entry.entry_id}/transfer`, "POST", {
+      doctor_id: Number(moving.doctor_id),
+      reason: moving.reason.trim() || null,
+    });
+    if (done) setMoving(null);
+  }
+
+  async function markLeft() {
+    if (await act(`/queue/entries/${leaving.entry_id}/left`)) setLeaving(null);
   }
 
   // Duplicate check first (feature 48): staff see likely matches before a new record is created.
@@ -231,17 +262,17 @@ export default function FrontDesk() {
                       <tr key={e.entry_id}>
                         <td>
                           <span className="token-pill">{e.token}</span>
-                          {e.priority > 0 && (
-                            <div className="badge warn" style={{ marginTop: "0.25rem" }}>
-                              <Star size={12} aria-hidden="true" /> {t("priority")} {e.priority}
-                            </div>
-                          )}
                         </td>
                         <td>
                           <div>{e.patient_name}</div>
                           <div className="row" style={{ gap: "0.25rem" }}>
                             <span className={`badge ${ENTRY_TONE[e.status] ?? ""}`}>{t(`entry_${e.status}`)}</span>
-                            <CategoryBadges categories={e.categories} />
+                            <EntryBadges entry={e} />
+                            {e.pending_request && (
+                              <span className="badge info">
+                                {t("requestPending", { priority: e.pending_request.priority })}
+                              </span>
+                            )}
                             {e.late_minutes ? (
                               <span className="badge warn">{t("lateBy", { minutes: e.late_minutes })}</span>
                             ) : null}
@@ -249,7 +280,7 @@ export default function FrontDesk() {
                         </td>
                         <td>{e.estimate?.display ?? "—"}</td>
                         <td>
-                          <div className="row" style={{ justifyContent: "flex-end" }}>
+                          <div className="row queue-actions">
                             {e.status === "called" && (
                               <button
                                 type="button"
@@ -292,18 +323,54 @@ export default function FrontDesk() {
                                 {t("returned")}
                               </button>
                             )}
-                            {e.status === "waiting" && e.priority < MAX_PRIORITY && (
+                            {e.joined_remotely && !e.arrived_at && (
+                              <button
+                                type="button"
+                                className="secondary"
+                                disabled={busy}
+                                aria-label={`${t("arrived")}: ${e.token}`}
+                                onClick={() => act(`/queue/entries/${e.entry_id}/arrived`)}
+                              >
+                                <Footprints size={16} aria-hidden="true" />
+                                {t("arrived")}
+                              </button>
+                            )}
+                            {e.status === "waiting" && !e.pending_request && (
                               <button
                                 type="button"
                                 className="quiet"
                                 disabled={busy}
-                                aria-label={`${t("priorityUp")}: ${e.token}`}
-                                title={t("priorityUp")}
+                                aria-label={`${t("askPriority")}: ${e.token}`}
+                                title={t("askPriority")}
                                 onClick={() =>
-                                  act(`/queue/entries/${e.entry_id}/priority`, "PATCH", { priority: e.priority + 1 })
+                                  setAsking({ entry: e, priority: Math.min(e.priority + 1, MAX_PRIORITY), reason: "" })
                                 }
                               >
-                                <Star size={16} aria-hidden="true" />+
+                                <Star size={16} aria-hidden="true" />
+                              </button>
+                            )}
+                            {(e.status === "waiting" || e.status === "missed") && (
+                              <button
+                                type="button"
+                                className="quiet"
+                                disabled={busy}
+                                aria-label={`${t("move")}: ${e.token}`}
+                                title={t("move")}
+                                onClick={() => setMoving({ entry: e, doctor_id: "", reason: "" })}
+                              >
+                                <ArrowRightLeft size={16} aria-hidden="true" />
+                              </button>
+                            )}
+                            {e.status !== "in_consultation" && (
+                              <button
+                                type="button"
+                                className="quiet"
+                                disabled={busy}
+                                aria-label={`${t("markLeft")}: ${e.token}`}
+                                title={t("markLeft")}
+                                onClick={() => setLeaving(e)}
+                              >
+                                <DoorOpen size={16} aria-hidden="true" />
                               </button>
                             )}
                           </div>
@@ -367,6 +434,7 @@ export default function FrontDesk() {
                         <span className="badge ok">
                           <Check size={13} aria-hidden="true" />
                           {t("checkedIn")} {b.token}
+                          {b.seen_by ? ` · ${t("withDoctor", { doctor: b.seen_by })}` : ""}
                         </span>
                       ) : b.status === "booked" ? (
                         <button
@@ -493,6 +561,105 @@ export default function FrontDesk() {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={asking !== null}
+        title={asking ? t("askPriorityTitle", { token: asking.entry.token }) : ""}
+        confirmLabel={t("sendToDoctor")}
+        cancelLabel={t("back")}
+        busy={busy}
+        confirmDisabled={!asking || asking.reason.trim().length < 3}
+        onConfirm={() => void askDoctor()}
+        onClose={() => setAsking(null)}
+      >
+        {asking && (
+          <>
+            <p className="muted small">{t("askPriorityHint")}</p>
+            <div className="field">
+              <label htmlFor="ask-level">{t("priority")}</label>
+              <select
+                id="ask-level"
+                value={asking.priority}
+                onChange={(e) => setAsking({ ...asking, priority: Number(e.target.value) })}
+              >
+                {Array.from({ length: MAX_PRIORITY + 1 }, (_, p) => (
+                  <option key={p} value={p} disabled={p === asking.entry.priority}>
+                    {t(`priorityLevel_${p}`)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="ask-reason">{t("reasonForDoctor")}</label>
+              <input
+                id="ask-reason"
+                required
+                minLength={3}
+                maxLength={200}
+                value={asking.reason}
+                onChange={(e) => setAsking({ ...asking, reason: e.target.value })}
+              />
+            </div>
+          </>
+        )}
+      </ConfirmDialog>
+      <ConfirmDialog
+        open={moving !== null}
+        title={moving ? t("moveTitle", { token: moving.entry.token }) : ""}
+        confirmLabel={t("move")}
+        cancelLabel={t("back")}
+        busy={busy}
+        confirmDisabled={!moving?.doctor_id}
+        onConfirm={() => void moveEntry()}
+        onClose={() => setMoving(null)}
+      >
+        {moving && doctors && (
+          <>
+            <p className="muted small">{t("moveHint")}</p>
+            <div className="field">
+              <label htmlFor="mv-doctor">{t("moveTo")}</label>
+              <select
+                id="mv-doctor"
+                value={moving.doctor_id}
+                onChange={(e) => setMoving({ ...moving, doctor_id: e.target.value })}
+              >
+                <option value="">{t("chooseDoctor")}</option>
+                {byDepartment(doctors.filter((d) => d.doctor_id !== selected && d.doctor_status !== "unavailable")).map(
+                  ([dept, list]) => (
+                    <optgroup key={dept} label={dept}>
+                      {list.map((d) => (
+                        <option key={d.doctor_id} value={d.doctor_id}>
+                          {d.doctor_name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ),
+                )}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="mv-reason">{t("reasonOptional")}</label>
+              <input
+                id="mv-reason"
+                maxLength={200}
+                value={moving.reason}
+                onChange={(e) => setMoving({ ...moving, reason: e.target.value })}
+              />
+            </div>
+          </>
+        )}
+      </ConfirmDialog>
+      <ConfirmDialog
+        open={leaving !== null}
+        title={leaving ? t("markLeftTitle", { token: leaving.token }) : ""}
+        confirmLabel={t("markLeft")}
+        cancelLabel={t("back")}
+        busy={busy}
+        danger
+        onConfirm={() => void markLeft()}
+        onClose={() => setLeaving(null)}
+      >
+        <p>{t("markLeftText")}</p>
+      </ConfirmDialog>
       <ConfirmDialog
         open={editing !== null}
         title={editing ? `${t("categoriesFor")} ${editing.name}` : ""}

@@ -32,10 +32,11 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 EMBEDDING_DIM = 384
 
-ROLES = ("patient", "caregiver", "staff", "admin")
+ROLES = ("patient", "caregiver", "staff", "admin", "doctor")
 LANGUAGES = ("en", "hi", "mr")
 SLOT_STATUSES = ("free", "booked", "blocked")
-APPOINTMENT_STATUSES = ("booked", "rescheduled", "cancelled", "completed", "no_show", "displaced")
+# "left": the patient checked in but went home before being seen (feature 47); a no-show never arrived.
+APPOINTMENT_STATUSES = ("booked", "rescheduled", "cancelled", "completed", "no_show", "displaced", "left")
 ACTIVE_APPOINTMENT_STATUSES = ("booked", "rescheduled")
 APPOINTMENT_SOURCES = ("agent", "staff", "simulator")
 WAITLIST_STATUSES = ("active", "offered", "fulfilled", "cancelled")
@@ -44,7 +45,8 @@ MERGE_RULES = ("slot_order", "alternate")
 DOCTOR_STATUSES = ("available", "on_break", "delayed", "unavailable")
 SESSION_STATUSES = ("open", "closed")
 ENTRY_KINDS = ("booked", "walk_in")
-ENTRY_STATUSES = ("waiting", "called", "in_consultation", "done", "missed", "closed")
+# "transferred": moved to another doctor (a new entry carries on there); "left": left without being seen.
+ENTRY_STATUSES = ("waiting", "called", "in_consultation", "done", "missed", "closed", "transferred", "left")
 WAITING_ENTRY_STATUSES = ("waiting", "called")
 EVENT_TYPES = (
     "check_in",
@@ -61,10 +63,18 @@ EVENT_TYPES = (
     "emergency",
     "unavailable",
     "session_closed",
+    "remote_join",
+    "arrived",
+    "transfer_out",
+    "transfer_in",
+    "left",
+    "priority_request",
 )
 NOTIFICATION_CHANNELS = ("sms", "whatsapp")
 # What a notification is about; reminders are sent once per appointment and kind.
-NOTIFICATION_KINDS = ("info", "reminder_day", "reminder_soon", "rebook", "unavailable", "turn_near")
+NOTIFICATION_KINDS = (
+    "info", "reminder_day", "reminder_soon", "rebook", "unavailable", "turn_near", "transfer", "delay",
+)  # fmt: skip
 HANDOFF_STATUSES = ("open", "in_progress", "closed")
 
 
@@ -152,6 +162,7 @@ class AppUser(Base):
     __table_args__ = (
         CheckConstraint(_in("role", ROLES), name="ck_app_user_role"),
         CheckConstraint("role <> 'patient' OR patient_id IS NOT NULL", name="ck_app_user_patient_has_record"),
+        CheckConstraint("role <> 'doctor' OR doctor_id IS NOT NULL", name="ck_app_user_doctor_has_record"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -159,6 +170,7 @@ class AppUser(Base):
     display_name: Mapped[str] = mapped_column(String(120))
     role: Mapped[str] = mapped_column(String(12))
     patient_id: Mapped[int | None] = mapped_column(ForeignKey("patient.id"))
+    doctor_id: Mapped[int | None] = mapped_column(ForeignKey("doctor.id"))  # a doctor's own account
     # Accounts people create themselves have a password (scrypt hash); the seeded demo accounts have none.
     password_hash: Mapped[str | None] = mapped_column(String(200))
     self_registered: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
@@ -270,7 +282,13 @@ class QueueEntry(Base):
     __tablename__ = "queue_entry"
     __table_args__ = (
         UniqueConstraint("session_id", "token", name="uq_queue_entry_token"),
-        UniqueConstraint("appointment_id", name="uq_queue_entry_appointment"),
+        # One live entry per appointment; a transferred entry hands the appointment on to its successor.
+        Index(
+            "uq_queue_entry_appointment",
+            "appointment_id",
+            unique=True,
+            postgresql_where=text("status <> 'transferred'"),
+        ),
         CheckConstraint(_in("kind", ENTRY_KINDS), name="ck_queue_entry_kind"),
         CheckConstraint(_in("status", ENTRY_STATUSES), name="ck_queue_entry_status"),
         CheckConstraint("kind = 'walk_in' OR appointment_id IS NOT NULL", name="ck_queue_entry_booked_has_appt"),
@@ -295,6 +313,11 @@ class QueueEntry(Base):
     consult_end: Mapped[datetime | None] = mapped_column(TZ)
     late_minutes: Mapped[int | None] = mapped_column(Integer)  # booked arrivals after their slot (feature 33)
     status: Mapped[str] = mapped_column(String(16), default="waiting")
+    # Virtual queue (feature 38): joined from a phone; arrived_at is set when they reach the desk.
+    joined_remotely: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    arrived_at: Mapped[datetime | None] = mapped_column(TZ)
+    # Set on the new entry when a patient is moved from another doctor's queue (features 42, 43, 53).
+    transferred_from_id: Mapped[int | None] = mapped_column(ForeignKey("queue_entry.id"))
 
     session: Mapped[QueueSession] = relationship(back_populates="entries")
     appointment: Mapped[Appointment | None] = relationship()
@@ -406,6 +429,7 @@ class Notification(Base):
 
 
 CONSENT_PURPOSES = ("reuse_registration", "reminders", "caregiver_access")
+PATIENT_CATEGORIES = ("senior", "child", "pregnant", "disability")
 FIELD_KINDS = ("text", "number", "choice", "yes_no")
 
 
@@ -493,6 +517,44 @@ class DoctorLeave(Base):
     doctor: Mapped[Doctor] = relationship()
 
 
+class PriorityRule(Base):
+    """Automatic queue priority per patient category (feature 51); 0 means the category gets no priority."""
+
+    __tablename__ = "priority_rule"
+    __table_args__ = (
+        CheckConstraint(_in("category", PATIENT_CATEGORIES), name="ck_priority_rule_category"),
+        CheckConstraint("weight BETWEEN 0 AND 3", name="ck_priority_rule_weight"),
+    )
+
+    category: Mapped[str] = mapped_column(String(12), primary_key=True)
+    weight: Mapped[int] = mapped_column(SmallInteger, default=0, server_default="0")
+    # Who changed a weight is in the audit log; no foreign key, so a demo reset keeps the configuration.
+    updated_at: Mapped[datetime | None] = mapped_column(TZ)
+
+
+class PriorityRequest(Base):
+    """The front desk asks for a priority change; the patient's doctor authorizes or declines it (feature 52)."""
+
+    __tablename__ = "priority_request"
+    __table_args__ = (
+        CheckConstraint("status IN ('pending', 'approved', 'declined')", name="ck_priority_request_status"),
+        CheckConstraint("priority BETWEEN 0 AND 3", name="ck_priority_request_priority"),
+        Index("uq_priority_request_pending", "entry_id", unique=True, postgresql_where=text("status = 'pending'")),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    entry_id: Mapped[int] = mapped_column(ForeignKey("queue_entry.id"))
+    priority: Mapped[int] = mapped_column(SmallInteger)
+    reason: Mapped[str] = mapped_column(String(200))
+    status: Mapped[str] = mapped_column(String(10), default="pending", server_default="pending")
+    requested_by: Mapped[int] = mapped_column(ForeignKey("app_user.id"))
+    requested_at: Mapped[datetime] = mapped_column(TZ)
+    decided_by: Mapped[int | None] = mapped_column(ForeignKey("app_user.id"))
+    decided_at: Mapped[datetime | None] = mapped_column(TZ)
+
+    entry: Mapped[QueueEntry] = relationship()
+
+
 class AuditLog(Base):
     """Append-only (enforced by a trigger in the migration). Arguments are masked."""
 
@@ -546,6 +608,7 @@ class HandoffTicket(Base):
 # Everything that demo reset wipes and reloads (FR-34). The knowledge base is
 # reference content, loaded by its own ingestion step, and is left alone.
 OPERATIONAL_TABLES = (
+    "priority_request",
     "caregiver_request",
     "consent",
     "patient_field_value",

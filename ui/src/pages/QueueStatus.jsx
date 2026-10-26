@@ -1,6 +1,17 @@
-import { Hourglass, ListOrdered, RefreshCw, Stethoscope, Timer, UsersRound } from "lucide-react";
+import {
+  DoorOpen,
+  Hourglass,
+  ListOrdered,
+  MapPin,
+  RefreshCw,
+  Smartphone,
+  Stethoscope,
+  Timer,
+  UsersRound,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, socketUrl } from "../api";
+import ConfirmDialog from "../components/ConfirmDialog";
 import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
 import { useSession } from "../session";
@@ -9,9 +20,11 @@ const MAX_DOTS = 12;
 
 const POLL_MS = 5000;
 
-function EntryCard({ initial }) {
+function EntryCard({ initial, onLeft }) {
   const { t } = useSession();
   const [status, setStatus] = useState(initial);
+  const [leaving, setLeaving] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [updated, setUpdated] = useState(() => new Date());
   const [live, setLive] = useState(false);
   const [error, setError] = useState(null);
@@ -61,6 +74,20 @@ function EntryCard({ initial }) {
     };
   }, [initial.session_id, refresh]);
 
+  async function leave() {
+    setBusy(true);
+    try {
+      await api(`/queue/entries/${status.entry_id}/left`, { method: "POST" });
+      setLeaving(false);
+      onLeft();
+    } catch (err) {
+      setError(err);
+      setLeaving(false);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const doctorKey = `doctor_${status.doctor_status}`;
   const ahead = status.ahead ?? null;
   const yourTurn = status.status === "called";
@@ -94,6 +121,12 @@ function EntryCard({ initial }) {
         {yourTurn && (
           <div className="notice your-turn" role="status">
             {t("entry_called")}
+          </div>
+        )}
+        {status.joined_remotely && !status.arrived_at && !yourTurn && (
+          <div className="notice info" role="status">
+            <MapPin size={18} aria-hidden="true" />
+            {t("comeToDesk", { floor: status.floor, token: status.token })}
           </div>
         )}
         {status.doctor_status !== "available" && (
@@ -141,14 +174,154 @@ function EntryCard({ initial }) {
           {t("lastUpdated", { time: updated.toLocaleTimeString() })}
         </p>
         {error !== null && <ErrorMessage error={error} onRetry={refresh} />}
+        {(status.status === "waiting" || status.status === "missed") && (
+          <button type="button" className="quiet" onClick={() => setLeaving(true)}>
+            <DoorOpen size={16} aria-hidden="true" />
+            {t("leaveQueue")}
+          </button>
+        )}
       </div>
+      <ConfirmDialog
+        open={leaving}
+        title={t("leaveQueueTitle", { token: status.token })}
+        confirmLabel={t("leaveQueue")}
+        cancelLabel={t("back")}
+        busy={busy}
+        danger
+        onConfirm={() => void leave()}
+        onClose={() => setLeaving(false)}
+      >
+        <p>{t("leaveQueueText")}</p>
+      </ConfirmDialog>
+    </section>
+  );
+}
+
+/** Join a doctor's queue from the phone, without a booking (feature 38). */
+function JoinQueue({ onJoined }) {
+  const { user, t } = useSession();
+  const patients = user.patients ?? [];
+  const [options, setOptions] = useState(null);
+  const [department, setDepartment] = useState("");
+  const [patientId, setPatientId] = useState(patients[0]?.patient_id ?? null);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const data = await api("/queue/virtual/options");
+      setOptions(data.departments);
+      setDepartment((current) => current || String(data.departments[0]?.department_id ?? ""));
+      setError(null);
+    } catch (err) {
+      setError(err);
+    }
+  }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function join(doctorId) {
+    setBusy(true);
+    setError(null);
+    try {
+      await api("/queue/virtual/join", { method: "POST", body: { doctor_id: doctorId, patient_id: patientId } });
+      onJoined();
+    } catch (err) {
+      setError(err);
+      await load();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (patients.length === 0) return null;
+  const dept = options?.find((d) => String(d.department_id) === department) ?? null;
+  return (
+    <section className="card" aria-labelledby="join-h" style={{ marginTop: "1rem" }}>
+      <div className="card-head">
+        <h2 id="join-h">
+          <Smartphone size={20} aria-hidden="true" />
+          {t("joinTitle")}
+        </h2>
+      </div>
+      <p className="muted" style={{ marginBottom: "0.75rem" }}>
+        {t("joinIntro")}
+      </p>
+      {error !== null && <ErrorMessage error={error} />}
+      {options === null && error === null && <Loading />}
+      {options?.length === 0 && <p className="muted">{t("noOpdToday")}</p>}
+      {options && options.length > 0 && (
+        <>
+          <div className="row" style={{ alignItems: "flex-end" }}>
+            {patients.length > 1 && (
+              <div className="field" style={{ flex: "1 1 12rem" }}>
+                <label htmlFor="join-patient">{t("forPatient")}</label>
+                <select
+                  id="join-patient"
+                  value={patientId ?? ""}
+                  onChange={(e) => setPatientId(Number(e.target.value))}
+                >
+                  {patients.map((p) => (
+                    <option key={p.patient_id} value={p.patient_id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className="field" style={{ flex: "1 1 12rem" }}>
+              <label htmlFor="join-dept">{t("department")}</label>
+              <select id="join-dept" value={department} onChange={(e) => setDepartment(e.target.value)}>
+                {options.map((d) => (
+                  <option key={d.department_id} value={d.department_id}>
+                    {d.department}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {dept && (
+            <>
+              <p className="muted small">
+                {dept.window_open
+                  ? t("joinOpenUntil", { closes: dept.closes, floor: dept.floor })
+                  : t("joinWindow", { opens: dept.opens, closes: dept.closes })}
+              </p>
+              <ul className="booking-list" aria-label={dept.department}>
+                {dept.doctors.map((d) => (
+                  <li key={d.doctor_id}>
+                    <span className="booking-who">
+                      <strong>{d.doctor_name}</strong>
+                      <span className="muted small">
+                        {d.state === "on_leave" || d.state === "unavailable" || d.state === "closed"
+                          ? t(`state_${d.state}`, { minutes: 0 })
+                          : `${t("waitingNow")}: ${d.waiting} · ${t("aboutMinutes", { minutes: d.estimated_wait_min ?? 0 })}`}
+                        {d.full ? ` · ${t("onlineFull")}` : ""}
+                      </span>
+                    </span>
+                    <button
+                      type="button"
+                      disabled={busy || !d.can_join || patientId === null}
+                      aria-label={`${t("joinQueue")}: ${d.doctor_name}`}
+                      onClick={() => void join(d.doctor_id)}
+                    >
+                      {t("joinQueue")}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </>
+      )}
     </section>
   );
 }
 
 /** S4: token, people ahead, wait estimate with range, doctor status, updated live. */
 export default function QueueStatus() {
-  const { t } = useSession();
+  const { user, t } = useSession();
   const [entries, setEntries] = useState(null);
   const [error, setError] = useState(null);
   const load = useCallback(async () => {
@@ -180,11 +353,14 @@ export default function QueueStatus() {
           <span>{t("queueNone")}</span>
         </div>
       )}
-      <div style={{ display: "grid", gap: "1rem" }}>
+      <div className="stack">
         {entries?.map((e) => (
-          <EntryCard key={e.entry_id} initial={e} />
+          <EntryCard key={e.entry_id} initial={e} onLeft={() => void load()} />
         ))}
       </div>
+      {entries !== null && (user.role === "caregiver" || entries.length === 0) && (
+        <JoinQueue onJoined={() => void load()} />
+      )}
     </main>
   );
 }

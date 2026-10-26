@@ -24,6 +24,8 @@ def test_schema_has_the_designed_tables_plus_later_phases_and_pgvector(engine):
         "patient_field_value",
         "consent",
         "caregiver_request",
+        "priority_rule",
+        "priority_request",
     }
     assert len(tables) == 17 + len(later) and later <= tables
     with engine.connect() as conn:

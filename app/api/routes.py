@@ -26,7 +26,7 @@ from app.tools.permissions import Actor
 from app.tools.receipts import reference_code
 
 router = APIRouter(prefix="/api/v1")
-DEMO_USERS_BY_ROLE = {"patient": "asha", "caregiver": "rajan", "staff": "priya", "admin": "mehta"}
+DEMO_USERS_BY_ROLE = {"patient": "asha", "caregiver": "rajan", "staff": "priya", "admin": "mehta", "doctor": "dr-pawar"}
 chat_limiter = SlidingWindowLimiter(3600)
 register_limiter = SlidingWindowLimiter(3600)
 login_failures = SlidingWindowLimiter(900)
@@ -37,7 +37,7 @@ USERNAME_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{2,29}$")
 
 
 class LoginRequest(BaseModel):
-    role: Literal["patient", "caregiver", "staff", "admin"] | None = None
+    role: Literal["patient", "caregiver", "staff", "admin", "doctor"] | None = None
     username: str | None = Field(None, max_length=60)
 
 
@@ -49,6 +49,7 @@ def _user_view(db: Session, user: AppUser) -> dict:
         "display_name": user.display_name,
         "role": user.role,
         "patient_id": user.patient_id,
+        "doctor_id": user.doctor_id,
         "patients": [{"patient_id": pid, "name": name} for pid, name in patients.items()],
     }
 

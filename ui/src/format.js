@@ -38,3 +38,23 @@ export function initials(name) {
     .join("")
     .toUpperCase();
 }
+
+/** [[department, doctors], ...] in the order the doctors come, for a <select> with <optgroup>s. */
+export function byDepartment(doctors) {
+  const groups = new Map();
+  for (const d of doctors) {
+    if (!groups.has(d.department)) groups.set(d.department, []);
+    groups.get(d.department).push(d);
+  }
+  return [...groups.entries()];
+}
+
+/** "10:35" from an ISO timestamp, in the hospital's time zone. */
+export function clockTime(iso) {
+  return new Intl.DateTimeFormat("en-IN", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Kolkata",
+  }).format(new Date(iso));
+}

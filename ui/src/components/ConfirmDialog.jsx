@@ -8,6 +8,7 @@ export default function ConfirmDialog({
   confirmLabel,
   cancelLabel,
   busy,
+  confirmDisabled = false,
   danger,
   onConfirm,
   onClose,
@@ -37,7 +38,12 @@ export default function ConfirmDialog({
             <button type="button" className="quiet" disabled={busy} onClick={onClose}>
               {cancelLabel}
             </button>
-            <button type="button" className={danger ? "danger" : undefined} disabled={busy} onClick={onConfirm}>
+            <button
+              type="button"
+              className={danger ? "danger" : undefined}
+              disabled={busy || confirmDisabled}
+              onClick={onConfirm}
+            >
               {confirmLabel}
             </button>
           </div>

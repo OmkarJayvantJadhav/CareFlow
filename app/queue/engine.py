@@ -1,4 +1,4 @@
-"""Live OPD queue (FR-21 – FR-23, FR-27, FR-28). Deterministic; every write is audited.
+"""Live OPD queue (FR-21 – FR-23, FR-27, FR-28, features 36 – 55). Deterministic; every write is audited.
 
 Every function takes an optional ``now`` so the simulator can replay a whole day.
 Positions are recomputed after every queue event.
@@ -6,7 +6,7 @@ Positions are recomputed after every queue event.
 
 from datetime import date, datetime, time, timedelta
 
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -18,30 +18,50 @@ from app.db.models import (
     Appointment,
     Doctor,
     Patient,
+    PriorityRequest,
+    PriorityRule,
     QueueEntry,
     QueueEvent,
     QueueSession,
     Slot,
 )
-from app.queue.merge import QueueItem, merge_order
+from app.queue.merge import QueueItem, effective_priority, merge_order
 from app.queue.predictions import latest_estimate, refresh_predictions
 from app.safety.privacy import mask_payload, mask_phone_number
 from app.timeutil import at, resolve_now, to_ist
 from app.tools import policy
 from app.tools.audit import write_tool
+from app.tools.calendar import leave_days
 from app.tools.errors import ToolError
 from app.tools.notify import notify
-from app.tools.permissions import Actor, can_manage_patient, linked_patient_ids, require_role
+from app.tools.permissions import (
+    Actor,
+    can_manage_patient,
+    linked_patient_ids,
+    require_own_doctor,
+    require_patient_access,
+    require_queue_control,
+    require_role,
+)
+from app.tools.registration import categories
 from app.tools.serialize import entry_dict
 
 DOCTOR_EVENTS = ("break", "delay", "emergency", "resume", "unavailable")
 MAX_PRIORITY = 3
+# Patients still in the hospital's care: they cannot join another queue at the same time.
+ACTIVE_ENTRY_STATUSES = ("waiting", "called", "in_consultation", "missed")
 
 
 # --------------------------------------------------------------------------- sessions
 
 
 def get_or_create_session(db: Session, doctor_id: int, day: date, merge_rule: str | None = None) -> QueueSession:
+    _ensure_session(db, doctor_id, day, merge_rule)
+    return _lock_session(db, doctor_id=doctor_id, day=day)
+
+
+def _ensure_session(db: Session, doctor_id: int, day: date, merge_rule: str | None = None) -> int:
+    """Create the doctor's session for the day if it does not exist yet (without locking it); return its id."""
     doctor = db.get(Doctor, doctor_id)
     if doctor is None:
         raise ToolError("NOT_FOUND", f"Doctor {doctor_id} does not exist.")
@@ -57,7 +77,12 @@ def get_or_create_session(db: Session, doctor_id: int, day: date, merge_rule: st
         )
         .on_conflict_do_nothing(constraint="uq_queue_session_doctor_date")
     )
-    return _lock_session(db, doctor_id=doctor_id, day=day)
+    return db.scalar(select(QueueSession.id).where(QueueSession.doctor_id == doctor_id, QueueSession.date == day))
+
+
+def _lock_sessions(db: Session, session_ids: list[int]) -> dict[int, QueueSession]:
+    """Lock several sessions in id order, so two moves in opposite directions cannot deadlock."""
+    return {sid: _lock_session(db, session_id=sid) for sid in sorted(set(session_ids))}
 
 
 def _lock_session(
@@ -129,6 +154,8 @@ def ordered_waiting(db: Session, session: QueueSession, now: datetime) -> list[Q
         db.scalars(select(QueueEntry).where(QueueEntry.session_id == session.id, QueueEntry.status == "waiting"))
     )
     by_id = {e.id: e for e in waiting}
+    start = projection_start(session, now)
+    weights = priority_weights(db)
     items = [
         QueueItem(
             entry_id=e.id,
@@ -136,12 +163,24 @@ def ordered_waiting(db: Session, session: QueueSession, now: datetime) -> list[Q
             checked_in_at=e.checked_in_at,
             scheduled_at=e.scheduled_at,
             requeued_at=e.requeued_at,
-            priority=e.priority,
+            priority=effective_priority(e.priority, categories(e.patient, now.year), weights, category_due(e, start)),
+            transferred=e.transferred_from_id is not None,
         )
         for e in waiting
     ]
-    order = merge_order(items, session.merge_rule, projection_start(session, now), session.doctor.slot_minutes)
+    order = merge_order(items, session.merge_rule, start, session.doctor.slot_minutes)
     return [by_id[i] for i in order]
+
+
+def priority_weights(db: Session) -> dict[str, int]:
+    """Category weights set by the admin (feature 51); a category without a row has no priority."""
+    rules = db.scalars(select(PriorityRule).execution_options(populate_existing=True))
+    return {r.category: r.weight for r in rules}
+
+
+def category_due(entry: QueueEntry, start: datetime) -> bool:
+    """Category priority applies to a booked patient only once their slot time has come."""
+    return entry.kind == "walk_in" or entry.transferred_from_id is not None or entry.scheduled_at <= start
 
 
 def recompute_positions(db: Session, session: QueueSession, now: datetime) -> list[QueueEntry]:
@@ -163,6 +202,11 @@ def _after_event(db: Session, session: QueueSession, now: datetime) -> None:
     refresh_predictions(db, session, now)
 
 
+def reorder_session(db: Session, session_id: int, now: datetime) -> None:
+    """Recompute a session's order and estimates after the priority rules change."""
+    _after_event(db, _lock_session(db, session_id=session_id), now)
+
+
 # --------------------------------------------------------------------------- arrivals
 
 
@@ -172,7 +216,22 @@ def _in_queue(db: Session, session: QueueSession, patient_id: int) -> bool:
             select(QueueEntry.id).where(
                 QueueEntry.session_id == session.id,
                 QueueEntry.patient_id == patient_id,
-                QueueEntry.status.in_((*WAITING_ENTRY_STATUSES, "in_consultation", "missed")),
+                QueueEntry.status.in_(ACTIVE_ENTRY_STATUSES),
+            )
+        ).first()
+        is not None
+    )
+
+
+def _in_any_queue_today(db: Session, patient_id: int, day: date) -> bool:
+    return (
+        db.scalars(
+            select(QueueEntry.id)
+            .join(QueueSession, QueueSession.id == QueueEntry.session_id)
+            .where(
+                QueueSession.date == day,
+                QueueEntry.patient_id == patient_id,
+                QueueEntry.status.in_(ACTIVE_ENTRY_STATUSES),
             )
         ).first()
         is not None
@@ -307,8 +366,9 @@ def register_walk_in(
 def call_next(db: Session, actor: Actor, session_id: int, now: datetime | None = None) -> dict | None:
     """Call the next patient by the merge rule. Returns None when nobody is waiting."""
     now = resolve_now(now)
-    require_role(actor, "staff")
+    require_role(actor, "staff", "doctor")
     session = _lock_session(db, session_id=session_id)
+    require_queue_control(actor, session.doctor_id)
     _require_open(session)
     _auto_resume(db, session, now)
     if session.busy_until and session.busy_until > now:
@@ -336,8 +396,9 @@ def call_next(db: Session, actor: Actor, session_id: int, now: datetime | None =
 @write_tool("start_consultation")
 def start_consultation(db: Session, actor: Actor, entry_id: int, now: datetime | None = None) -> dict:
     now = resolve_now(now)
-    require_role(actor, "staff")
+    require_role(actor, "staff", "doctor")
     entry, session = _lock_entry(db, entry_id)
+    require_queue_control(actor, session.doctor_id)
     if entry.status != "called":
         raise ToolError("INVALID_STATE", "Only a called patient can start a consultation.")
     entry.status = "in_consultation"
@@ -350,8 +411,9 @@ def start_consultation(db: Session, actor: Actor, entry_id: int, now: datetime |
 @write_tool("end_consultation")
 def end_consultation(db: Session, actor: Actor, entry_id: int, now: datetime | None = None) -> dict:
     now = resolve_now(now)
-    require_role(actor, "staff")
+    require_role(actor, "staff", "doctor")
     entry, session = _lock_entry(db, entry_id)
+    require_queue_control(actor, session.doctor_id)
     if entry.status != "in_consultation":
         raise ToolError("INVALID_STATE", "This patient is not in a consultation.")
     entry.status = "done"
@@ -368,8 +430,9 @@ def end_consultation(db: Session, actor: Actor, entry_id: int, now: datetime | N
 def mark_missed_turn(db: Session, actor: Actor, entry_id: int, now: datetime | None = None) -> dict:
     """A called patient did not come in; they can return later (FR-23)."""
     now = resolve_now(now)
-    require_role(actor, "staff")
+    require_role(actor, "staff", "doctor")
     entry, session = _lock_entry(db, entry_id)
+    require_queue_control(actor, session.doctor_id)
     if entry.status != "called":
         raise ToolError("INVALID_STATE", "Only a called patient can miss their turn.")
     entry.status = "missed"
@@ -382,8 +445,9 @@ def mark_missed_turn(db: Session, actor: Actor, entry_id: int, now: datetime | N
 def mark_returned(db: Session, actor: Actor, entry_id: int, now: datetime | None = None) -> dict:
     """A patient who missed their turn is back; they rejoin by return time."""
     now = resolve_now(now)
-    require_role(actor, "staff")
+    require_role(actor, "staff", "doctor")
     entry, session = _lock_entry(db, entry_id)
+    require_queue_control(actor, session.doctor_id)
     _require_open(session)
     if entry.status != "missed":
         raise ToolError("INVALID_STATE", "Only a patient who missed their turn can return.")
@@ -397,20 +461,343 @@ def mark_returned(db: Session, actor: Actor, entry_id: int, now: datetime | None
 
 @write_tool("set_priority")
 def set_priority(db: Session, actor: Actor, entry_id: int, priority: int, now: datetime | None = None) -> dict:
-    """FR-28: staff only; the change is audited by the write_tool wrapper."""
+    """Clinician-authorized priority (FR-28, feature 52): only the patient's own doctor sets it directly;
+    the front desk asks with request_priority. The change is audited by the write_tool wrapper."""
     now = resolve_now(now)
-    require_role(actor, "staff")
+    require_role(actor, "doctor")
+    _check_priority(priority)
+    entry, session = _lock_entry(db, entry_id)
+    require_own_doctor(actor, session.doctor_id)
+    _require_open(session)
+    _apply_priority(db, session, entry, priority, now)
+    return entry_dict(entry)
+
+
+def _check_priority(priority: int) -> None:
     if not 0 <= priority <= MAX_PRIORITY:
         raise ToolError("VALIDATION_ERROR", f"Priority must be between 0 and {MAX_PRIORITY}.")
-    entry, session = _lock_entry(db, entry_id)
-    _require_open(session)
+
+
+def _apply_priority(
+    db: Session, session: QueueSession, entry: QueueEntry, priority: int, now: datetime, **payload
+) -> None:
     if entry.status != "waiting":
         raise ToolError("INVALID_STATE", "Priority can only be changed for a waiting patient.")
     previous = entry.priority
     entry.priority = priority
-    _event(db, session, "priority", now, entry_id=entry.id, previous=previous, priority=priority)
+    _event(db, session, "priority", now, entry_id=entry.id, previous=previous, priority=priority, **payload)
+    _after_event(db, session, now)
+
+
+def _request_dict(r: PriorityRequest) -> dict:
+    return {
+        "request_id": r.id,
+        "entry_id": r.entry_id,
+        "token": r.entry.token,
+        "current_priority": r.entry.priority,
+        "priority": r.priority,
+        "reason": r.reason,
+        "status": r.status,
+        "requested_at": r.requested_at.isoformat(),
+        "decided_at": r.decided_at.isoformat() if r.decided_at else None,
+    }
+
+
+@write_tool("request_priority")
+def request_priority(
+    db: Session, actor: Actor, entry_id: int, priority: int, reason: str, now: datetime | None = None
+) -> dict:
+    """The front desk asks the patient's doctor to change their priority (feature 52)."""
+    now = resolve_now(now)
+    require_role(actor, "staff")
+    _check_priority(priority)
+    reason = " ".join((reason or "").split())
+    if not 3 <= len(reason) <= 200:
+        raise ToolError("VALIDATION_ERROR", "Give the doctor a short reason (3-200 characters).")
+    entry, session = _lock_entry(db, entry_id)
+    _require_open(session)
+    if entry.status != "waiting":
+        raise ToolError("INVALID_STATE", "Priority can only be changed for a waiting patient.")
+    if entry.priority == priority:
+        raise ToolError("VALIDATION_ERROR", f"Token {entry.token} already has priority {priority}.")
+    pending = db.scalars(
+        select(PriorityRequest.id).where(PriorityRequest.entry_id == entry.id, PriorityRequest.status == "pending")
+    ).first()
+    if pending is not None:
+        raise ToolError("DUPLICATE", "A request for this patient is already waiting for the doctor.")
+    request = PriorityRequest(
+        entry_id=entry.id,
+        priority=priority,
+        reason=reason,
+        status="pending",
+        requested_by=actor.user_id,
+        requested_at=now,
+    )
+    db.add(request)
+    db.flush()
+    _event(db, session, "priority_request", now, entry_id=entry.id, request_id=request.id, priority=priority)
+    return {**_request_dict(request), "session_id": session.id}
+
+
+@write_tool("decide_priority_request")
+def decide_priority_request(
+    db: Session, actor: Actor, request_id: int, approve: bool, now: datetime | None = None
+) -> dict:
+    """The patient's doctor authorizes or declines the front desk's request (feature 52)."""
+    now = resolve_now(now)
+    require_role(actor, "doctor")
+    request = db.get(PriorityRequest, request_id)
+    if request is None:
+        raise ToolError("NOT_FOUND", f"Priority request {request_id} does not exist.")
+    entry, session = _lock_entry(db, request.entry_id)
+    require_own_doctor(actor, session.doctor_id)
+    db.refresh(request, with_for_update=True)
+    if request.status != "pending":
+        raise ToolError("INVALID_STATE", f"This request has already been {request.status}.")
+    if approve:
+        _require_open(session)
+        _apply_priority(db, session, entry, request.priority, now, request_id=request.id)
+    request.status = "approved" if approve else "declined"
+    request.decided_by = actor.user_id
+    request.decided_at = now
+    db.flush()
+    return {**_request_dict(request), "session_id": session.id}
+
+
+def pending_priority_requests(db: Session, session_id: int) -> list[dict]:
+    """Requests still waiting for the doctor, for patients who are still waiting."""
+    rows = db.scalars(
+        select(PriorityRequest)
+        .join(QueueEntry, QueueEntry.id == PriorityRequest.entry_id)
+        .where(
+            QueueEntry.session_id == session_id,
+            QueueEntry.status == "waiting",
+            PriorityRequest.status == "pending",
+        )
+        .order_by(PriorityRequest.id)
+    )
+    return [_request_dict(r) for r in rows]
+
+
+# --------------------------------------------------------------------------- moving patients
+
+
+def _doctor_on_leave(db: Session, doctor_id: int, day: date) -> bool:
+    return (doctor_id, day) in leave_days(db, day, day)
+
+
+def _move_entry(
+    db: Session, entry: QueueEntry, source: QueueSession, target: QueueSession, now: datetime, reason: str | None
+) -> QueueEntry:
+    """Close the entry here and continue it in the target doctor's queue under a new T-token.
+
+    The patient keeps their check-in time (they do not go to the back of the line), their priority and
+    their appointment; the old entry is kept as history."""
+    if entry.status == "in_consultation":  # forwarded by the doctor after seeing the patient
+        entry.consult_end = now
+    entry.status = "transferred"
+    entry.position = None
+    db.flush()  # releases the appointment before the new entry takes it over
+    moved = QueueEntry(
+        session_id=target.id,
+        appointment_id=entry.appointment_id,
+        patient_id=entry.patient_id,
+        token=_next_token(db, target, "T"),
+        kind=entry.kind,
+        scheduled_at=entry.scheduled_at,
+        checked_in_at=entry.checked_in_at,
+        status="waiting",
+        priority=entry.priority,
+        late_minutes=entry.late_minutes,
+        joined_remotely=entry.joined_remotely,
+        arrived_at=entry.arrived_at,
+        transferred_from_id=entry.id,
+    )
+    db.add(moved)
+    db.flush()
+    doctor = target.doctor
+    _event(db, source, "transfer_out", now, entry_id=entry.id, to_doctor_id=doctor.id, new_entry_id=moved.id,
+           reason=reason)  # fmt: skip
+    _event(db, target, "transfer_in", now, entry_id=moved.id, from_doctor_id=source.doctor_id, token=moved.token)
+    notify(
+        db,
+        entry.patient_id,
+        f"You have been moved to {doctor.name} ({doctor.department.name}, floor {doctor.department.floor}). "
+        f"Your new token is {moved.token}; you keep your place by the time you checked in.",
+        now,
+        kind="transfer",
+        appointment_id=entry.appointment_id,
+    )
+    return moved
+
+
+@write_tool("transfer_entry")
+def transfer_entry(
+    db: Session, actor: Actor, entry_id: int, doctor_id: int, reason: str | None = None, now: datetime | None = None
+) -> dict:
+    """Move a patient to another doctor today: in the same department (reassignment, feature 42) or another
+    one (transfer and forwarding, features 43 and 53). The front desk moves anyone who is waiting; the
+    patient's doctor can also forward the patient they are seeing."""
+    now = resolve_now(now)
+    require_role(actor, "staff", "doctor")
+    reason = " ".join(reason.split())[:200] if reason else None
+    source_id = db.scalar(select(QueueEntry.session_id).where(QueueEntry.id == entry_id))
+    if source_id is None:
+        raise ToolError("NOT_FOUND", f"Queue entry {entry_id} does not exist.")
+    source_doctor = db.scalar(select(QueueSession.doctor_id).where(QueueSession.id == source_id))
+    require_queue_control(actor, source_doctor)
+    if doctor_id == source_doctor:
+        raise ToolError("VALIDATION_ERROR", "The patient is already in this doctor's queue.")
+    if db.get(Doctor, doctor_id) is None:
+        raise ToolError("NOT_FOUND", f"Doctor {doctor_id} does not exist.")
+    if _doctor_on_leave(db, doctor_id, now.date()):
+        raise ToolError("INVALID_STATE", "That doctor is on leave today.")
+    target_id = _ensure_session(db, doctor_id, now.date())
+    sessions = _lock_sessions(db, [source_id, target_id])
+    source, target = sessions[source_id], sessions[target_id]
+    entry = db.scalars(
+        select(QueueEntry).where(QueueEntry.id == entry_id).with_for_update().execution_options(populate_existing=True)
+    ).one()
+    if source.date != now.date():
+        raise ToolError("INVALID_STATE", "Only today's patients can be moved.")
+    _require_open(target)
+    allowed = ("waiting", "called", "missed", "in_consultation") if actor.role == "doctor" else ("waiting", "missed")
+    if entry.status not in allowed:
+        raise ToolError("INVALID_STATE", f"A patient who is {entry.status.replace('_', ' ')} cannot be moved.")
+    if _in_queue(db, target, entry.patient_id):
+        raise ToolError("ALREADY_CHECKED_IN", "This patient is already in that doctor's queue.")
+    moved = _move_entry(db, entry, source, target, now, reason)
+    _after_event(db, source, now)
+    _after_event(db, target, now)
+    return {
+        **entry_dict(moved),
+        "from_session_id": source.id,
+        "from_doctor": source.doctor.name,
+        "to_doctor": target.doctor.name,
+        "same_department": source.doctor.department_id == target.doctor.department_id,
+    }
+
+
+def _colleague_session_ids(db: Session, doctor_id: int, day: date) -> list[int]:
+    """Open sessions today of the other doctors in the same department who are working (not on leave)."""
+    doctor = db.get(Doctor, doctor_id)
+    away = leave_days(db, day, day)
+    ids = []
+    for other in db.scalars(
+        select(Doctor).where(Doctor.department_id == doctor.department_id, Doctor.id != doctor_id).order_by(Doctor.id)
+    ):
+        if day.isoweekday() in other.opd_days and (other.id, day) not in away:
+            session_id = _ensure_session(db, other.id, day)
+            if db.scalar(select(QueueSession.status).where(QueueSession.id == session_id)) == "open":
+                ids.append(session_id)
+    return ids
+
+
+# --------------------------------------------------------------------------- virtual queue, arrival, leaving
+
+
+@write_tool("join_virtual_queue")
+def join_virtual_queue(db: Session, actor: Actor, doctor_id: int, patient_id: int, now: datetime | None = None) -> dict:
+    """A patient without a booking joins a doctor's queue today from their phone (feature 38)."""
+    now = resolve_now(now)
+    require_role(actor, "patient", "caregiver")
+    require_patient_access(db, actor, patient_id)
+    doctor = db.get(Doctor, doctor_id)
+    if doctor is None:
+        raise ToolError("NOT_FOUND", f"Doctor {doctor_id} does not exist.")
+    day = now.date()
+    if day.isoweekday() not in doctor.opd_days or _doctor_on_leave(db, doctor_id, day):
+        raise ToolError("INVALID_STATE", f"{doctor.name} has no OPD today.")
+    dept = doctor.department
+    opens = at(day, dept.opd_start) - policy.VIRTUAL_JOIN_OPENS
+    closes = at(day, dept.opd_end) - policy.VIRTUAL_JOIN_CLOSES
+    if not opens <= now <= closes:
+        raise ToolError(
+            "POLICY_WINDOW",
+            f"The online queue for {dept.name} is open from {to_ist(opens):%H:%M} to {to_ist(closes):%H:%M}.",
+        )
+    booked_today = db.scalars(
+        select(Appointment.id).where(
+            Appointment.patient_id == patient_id,
+            Appointment.doctor_id == doctor_id,
+            Appointment.appt_date == day,
+            Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES),
+        )
+    ).first()
+    if booked_today is not None:
+        raise ToolError("INVALID_STATE", f"You have an appointment with {doctor.name} today; check in for it instead.")
+    if _in_any_queue_today(db, patient_id, day):
+        raise ToolError("ALREADY_CHECKED_IN", "You are already in a queue today.")
+    session = get_or_create_session(db, doctor_id, day)
+    _require_open(session)
+    remote_waiting = db.scalar(
+        select(func.count())
+        .select_from(QueueEntry)
+        .where(
+            QueueEntry.session_id == session.id,
+            QueueEntry.joined_remotely.is_(True),
+            QueueEntry.arrived_at.is_(None),
+            QueueEntry.status.in_(WAITING_ENTRY_STATUSES),
+        )
+    )
+    if remote_waiting >= policy.VIRTUAL_QUEUE_CAP:
+        raise ToolError("QUEUE_FULL", f"The online queue for {doctor.name} is full; please come to the OPD desk.")
+    entry = QueueEntry(
+        session_id=session.id,
+        patient_id=patient_id,
+        token=_next_token(db, session, "V"),
+        kind="walk_in",
+        checked_in_at=now,
+        status="waiting",
+        priority=0,
+        joined_remotely=True,
+    )
+    db.add(entry)
+    db.flush()
+    _event(db, session, "remote_join", now, entry_id=entry.id, token=entry.token)
+    _after_event(db, session, now)
+    return {**entry_dict(entry), "doctor_name": doctor.name, "department": dept.name, "floor": dept.floor}
+
+
+@write_tool("mark_arrived")
+def mark_arrived(db: Session, actor: Actor, entry_id: int, now: datetime | None = None) -> dict:
+    """A patient who joined online has reached the OPD desk."""
+    now = resolve_now(now)
+    require_role(actor, "staff")
+    entry, session = _lock_entry(db, entry_id)
+    if not entry.joined_remotely or entry.arrived_at is not None:
+        raise ToolError("INVALID_STATE", "This patient is already marked as here.")
+    if entry.status not in ACTIVE_ENTRY_STATUSES:
+        raise ToolError("INVALID_STATE", "This patient is no longer in the queue.")
+    entry.arrived_at = now
+    _event(db, session, "arrived", now, entry_id=entry.id)
+    db.flush()
+    return entry_dict(entry)
+
+
+@write_tool("mark_left")
+def mark_left(db: Session, actor: Actor, entry_id: int, now: datetime | None = None) -> dict:
+    """Left without being seen (feature 47): the front desk records it, or the patient leaves the queue
+    themselves. Counted separately from no-shows, who never arrived."""
+    now = resolve_now(now)
+    require_role(actor, "staff", "patient", "caregiver")
+    entry, session = _lock_entry(db, entry_id)
+    if actor.role != "staff" and not can_manage_patient(db, actor, entry.patient_id):
+        raise ToolError("FORBIDDEN", "You are not allowed to change this queue entry.")
+    if entry.status not in ("waiting", "called", "missed"):
+        raise ToolError("INVALID_STATE", "Only a patient who is still waiting can leave the queue.")
+    _leave(entry, now)
+    _event(db, session, "left", now, entry_id=entry.id, by=actor.role)
     _after_event(db, session, now)
     return entry_dict(entry)
+
+
+def _leave(entry: QueueEntry, now: datetime) -> None:
+    entry.status = "left"
+    entry.position = None
+    if entry.appointment is not None:
+        entry.appointment.status = "left"
+        entry.appointment.updated_at = now
 
 
 # --------------------------------------------------------------------------- doctor status
@@ -424,14 +811,28 @@ def record_doctor_event(
     type: str,
     minutes: int | None = None,
     reason: str | None = None,
+    reassign: bool = False,
     now: datetime | None = None,
 ) -> dict:
-    """Break, delay, emergency interruption, resume or unavailability (FR-23, FR-27)."""
+    """Break, delay, emergency interruption, resume or unavailability (FR-23, FR-27, features 49, 50).
+
+    Doctors record their own breaks, delays and emergencies; only the front desk declares a doctor
+    unavailable, optionally moving the waiting patients to colleagues in the department (feature 42)."""
     now = resolve_now(now)
-    require_role(actor, "staff")
+    require_role(actor, "staff", "doctor")
     if type not in DOCTOR_EVENTS:
         raise ToolError("VALIDATION_ERROR", f"Event type must be one of {', '.join(DOCTOR_EVENTS)}.")
+    if type == "unavailable" and actor.role != "staff":
+        raise ToolError("FORBIDDEN", "The front desk marks a doctor unavailable for the day.")
+    colleagues: list[int] = []
+    if type == "unavailable" and reassign:
+        row = db.execute(select(QueueSession.doctor_id, QueueSession.date).where(QueueSession.id == session_id)).first()
+        if row is None:
+            raise ToolError("NOT_FOUND", "Queue session not found.")
+        colleagues = _colleague_session_ids(db, row.doctor_id, row.date)
+        _lock_sessions(db, [session_id, *colleagues])
     session = _lock_session(db, session_id=session_id)
+    require_queue_control(actor, session.doctor_id)
     _require_open(session)
     if type in ("break", "delay", "emergency"):
         if minutes is None or not 1 <= minutes <= 240:
@@ -440,16 +841,25 @@ def record_doctor_event(
         session.busy_until = max(busy_until, session.busy_until) if session.busy_until else busy_until
         session.doctor_status = "on_break" if type == "break" else "delayed"
         session.delay_minutes = minutes if type != "break" else 0
-        _event(db, session, type, now, minutes=minutes, reason=reason)
+        notified = _notify_delay(db, session, type, minutes, now) if type != "break" else 0
+        _event(db, session, type, now, minutes=minutes, reason=reason, notified=notified)
     elif type == "resume":
         session.doctor_status = "available"
         session.busy_until = None
         session.delay_minutes = 0
         _event(db, session, "resume", now, reason=reason)
     else:
-        _event(db, session, "unavailable", now, reason=reason)
-        affected = _handle_unavailable(db, session, now)
-        return {"session_id": session.id, "doctor_status": session.doctor_status, "affected": affected}
+        _event(db, session, "unavailable", now, reason=reason, reassign=reassign)
+        targets = [_lock_session(db, session_id=sid) for sid in colleagues]
+        affected, moved = _handle_unavailable(db, session, now, targets)
+        for target in {m.session_id for m in moved}:
+            _after_event(db, _lock_session(db, session_id=target), now)
+        return {
+            "session_id": session.id,
+            "doctor_status": session.doctor_status,
+            "affected": affected,
+            "moved": [entry_dict(m) for m in moved],
+        }
     _after_event(db, session, now)
     return {
         "session_id": session.id,
@@ -458,9 +868,42 @@ def record_doctor_event(
     }
 
 
-def _handle_unavailable(db: Session, session: QueueSession, now: datetime) -> list[dict]:
-    """FR-27: close the queue, release today's remaining bookings for rebooking and notify everyone."""
+def _notify_delay(db: Session, session: QueueSession, type_: str, minutes: int, now: datetime) -> int:
+    """Tell everyone waiting that the doctor is held up (feature 49); they keep their place."""
+    doctor = session.doctor.name
+    if type_ == "emergency":
+        message = (f"{doctor} is attending to an emergency. Your consultation is delayed by about {minutes} "
+                   "minutes; you keep your place in the queue.")  # fmt: skip
+    else:
+        message = f"{doctor} is running about {minutes} minutes late. You keep your place in the queue."
+    waiting = db.scalars(
+        select(QueueEntry).where(QueueEntry.session_id == session.id, QueueEntry.status.in_(WAITING_ENTRY_STATUSES))
+    ).all()
+    for entry in waiting:
+        notify(db, entry.patient_id, message, now, kind="delay", appointment_id=entry.appointment_id)
+    return len(waiting)
+
+
+def _handle_unavailable(
+    db: Session, session: QueueSession, now: datetime, targets: list[QueueSession]
+) -> tuple[list[dict], list[QueueEntry]]:
+    """FR-27: close the queue, release today's remaining bookings for rebooking and notify everyone.
+
+    With ``targets`` (colleagues' open sessions), patients already waiting are moved to whichever colleague
+    will be free soonest instead of being sent home (feature 42)."""
     doctor = session.doctor
+    moved: list[QueueEntry] = []
+    if targets:
+        load = {t.id: _backlog_minutes(db, t, now) for t in targets}
+        for entry in ordered_waiting(db, session, now) + list(
+            db.scalars(select(QueueEntry).where(QueueEntry.session_id == session.id, QueueEntry.status == "called"))
+        ):
+            free = [t for t in targets if not _in_queue(db, t, entry.patient_id)]
+            if not free:
+                continue
+            target = min(free, key=lambda t: (load[t.id], t.id))
+            moved.append(_move_entry(db, entry, session, target, now, "doctor unavailable"))
+            load[target.id] += target.doctor.slot_minutes
     session.doctor_status = "unavailable"
     session.status = "closed"
     session.closed_at = now
@@ -487,10 +930,17 @@ def _handle_unavailable(db: Session, session: QueueSession, now: datetime) -> li
             Appointment.status.in_(ACTIVE_APPOINTMENT_STATUSES),
         )
     ):
-        in_consult = db.scalars(
-            select(QueueEntry.id).where(QueueEntry.appointment_id == appt.id, QueueEntry.status == "in_consultation")
+        # Keep appointments that are being seen here or carried on in a colleague's queue.
+        carried_on = db.scalars(
+            select(QueueEntry.id).where(
+                QueueEntry.appointment_id == appt.id,
+                or_(
+                    QueueEntry.status == "in_consultation",
+                    and_(QueueEntry.session_id != session.id, QueueEntry.status != "transferred"),
+                ),
+            )
         ).first()
-        if in_consult is not None:
+        if carried_on is not None:
             continue
         appt.status = "displaced"
         appt.updated_at = now
@@ -517,12 +967,24 @@ def _handle_unavailable(db: Session, session: QueueSession, now: datetime) -> li
             appointment_id=item.get("appointment_id"),
         ).id
     db.flush()
-    return list(affected.values())
+    return list(affected.values()), moved
+
+
+def _backlog_minutes(db: Session, session: QueueSession, now: datetime) -> float:
+    """Minutes of work ahead of a doctor: their waiting patients plus any break or delay still running."""
+    waiting = db.scalar(
+        select(func.count())
+        .select_from(QueueEntry)
+        .where(QueueEntry.session_id == session.id, QueueEntry.status.in_(("waiting", "called", "in_consultation")))
+    )
+    busy = max(0.0, (session.busy_until - now).total_seconds() / 60) if session.busy_until else 0.0
+    return waiting * session.doctor.slot_minutes + busy
 
 
 @write_tool("close_session")
 def close_session(db: Session, actor: Actor, session_id: int, now: datetime | None = None) -> dict:
-    """End of OPD: booked patients who never arrived (or never came back) become no-shows."""
+    """End of OPD: booked patients who never arrived become no-shows; patients who missed their turn and
+    never came back left without being seen. Both are offered a new appointment."""
     now = resolve_now(now)
     require_role(actor, "staff")
     session = _lock_session(db, session_id=session_id)
@@ -535,16 +997,18 @@ def close_session(db: Session, actor: Actor, session_id: int, now: datetime | No
     ).first()
     if active is not None:
         raise ToolError("INVALID_STATE", "Patients are still waiting; the session cannot be closed yet.")
-    missed: list[Appointment] = []
+    # Patients who missed their turn and never came back left without being seen (feature 47).
+    left: list[Appointment] = []
+    left_unseen = 0
     for entry in db.scalars(
         select(QueueEntry).where(QueueEntry.session_id == session.id, QueueEntry.status == "missed")
     ):
-        entry.status = "closed"
+        _leave(entry, now)
+        left_unseen += 1
         if entry.appointment is not None:
-            entry.appointment.status = "no_show"
-            entry.appointment.updated_at = now
-            missed.append(entry.appointment)
+            left.append(entry.appointment)
     checked_in = select(QueueEntry.appointment_id).where(QueueEntry.appointment_id.is_not(None))
+    no_shows: list[Appointment] = []
     for appt in db.scalars(
         select(Appointment).where(
             Appointment.doctor_id == session.doctor_id,
@@ -555,9 +1019,9 @@ def close_session(db: Session, actor: Actor, session_id: int, now: datetime | No
     ):
         appt.status = "no_show"
         appt.updated_at = now
-        missed.append(appt)
+        no_shows.append(appt)
     # Missed-appointment recovery: everyone who missed their visit is offered a new one.
-    for appt in missed:
+    for appt in no_shows + left:
         notify(
             db,
             appt.patient_id,
@@ -567,12 +1031,11 @@ def close_session(db: Session, actor: Actor, session_id: int, now: datetime | No
             kind="rebook",
             appointment_id=appt.id,
         )
-    no_shows = len(missed)
     session.status = "closed"
     session.closed_at = now
-    _event(db, session, "session_closed", now, no_shows=no_shows)
+    _event(db, session, "session_closed", now, no_shows=len(no_shows), left_unseen=left_unseen)
     db.flush()
-    return {"session_id": session.id, "status": "closed", "no_shows": no_shows}
+    return {"session_id": session.id, "status": "closed", "no_shows": len(no_shows), "left_unseen": left_unseen}
 
 
 # --------------------------------------------------------------------------- reads
@@ -602,6 +1065,7 @@ def get_queue_status(db: Session, actor: Actor, entry_id: int, now: datetime | N
         "doctor_id": session.doctor_id,
         "doctor_name": session.doctor.name,
         "department": session.doctor.department.name,
+        "floor": session.doctor.department.floor,
         "doctor_status": session.doctor_status,
         "delay_minutes": session.delay_minutes,
         "busy_until": session.busy_until.isoformat() if session.busy_until else None,

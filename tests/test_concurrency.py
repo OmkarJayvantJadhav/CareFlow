@@ -106,8 +106,8 @@ def test_simultaneous_walk_ins_get_unique_tokens(world, factory):
 
 
 def test_mixed_queue_actions_do_not_deadlock(world, factory):
-    doctor = world.doctor("Dr. Suresh Pawar")
-    staff = world.staff
+    doctor, joshi = world.doctor("Dr. Suresh Pawar"), world.doctor("Dr. Kavita Joshi")
+    staff, pawar = world.staff, world.doctor_account("Dr. Suresh Pawar")
     slots = world.slots(doctor, TODAY)
     patients = world.other_patients(6)
     appts = [
@@ -119,7 +119,8 @@ def test_mixed_queue_actions_do_not_deadlock(world, factory):
     session_id = walk_ins[0]["session_id"]
     calls = [
         lambda db: engine.call_next(db, staff, session_id, now=NOW)["token"],
-        lambda db: engine.set_priority(db, staff, walk_ins[2]["entry_id"], 2, now=NOW)["priority"],
+        lambda db: engine.set_priority(db, pawar, walk_ins[2]["entry_id"], 2, now=NOW)["priority"],
+        lambda db: engine.transfer_entry(db, staff, walk_ins[1]["entry_id"], joshi.id, now=NOW)["token"],
         lambda db: engine.check_in(db, staff, appts[0]["appointment_id"], now=NOW)["token"],
         lambda db: engine.check_in(db, staff, appts[1]["appointment_id"], now=NOW)["token"],
         lambda db: engine.record_doctor_event(db, staff, session_id, "delay", minutes=5, now=NOW)["doctor_status"],
@@ -129,4 +130,6 @@ def test_mixed_queue_actions_do_not_deadlock(world, factory):
     check = factory()
     tokens = check.scalars(select(QueueEntry.token).where(QueueEntry.session_id == session_id)).all()
     assert len(tokens) == len(set(tokens)) == 5
+    moved = check.scalars(select(QueueEntry).where(QueueEntry.transferred_from_id == walk_ins[1]["entry_id"])).one()
+    assert moved.token == "T01"
     check.close()

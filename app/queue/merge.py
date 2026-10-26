@@ -2,12 +2,14 @@
 
 Entries fall into three lanes:
 
-* priority lane - staff raised the priority (FR-28); highest priority first,
-  then by arrival.
+* priority lane - the patient's doctor raised the priority (feature 52), or the
+  patient belongs to a category the admin gives priority to (feature 51);
+  highest priority first, then by arrival.
 * booked lane - booked patients who arrived on time keep their slot order.
 * walk-in lane - walk-ins, plus booked patients who arrived more than the late
-  grace period after their slot or who missed their turn and came back; these
-  are ordered by (re)arrival time.
+  grace period after their slot, who missed their turn and came back, or who
+  were moved here from another doctor; these are ordered by (re)arrival time
+  (a moved patient keeps the time they first checked in).
 
 Rules for merging the booked and walk-in lanes:
 
@@ -18,6 +20,7 @@ Rules for merging the booked and walk-in lanes:
 * ``alternate`` - one booked patient, then one walk-in, and so on.
 """
 
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
@@ -33,6 +36,7 @@ class QueueItem:
     scheduled_at: datetime | None = None
     requeued_at: datetime | None = None
     priority: int = 0
+    transferred: bool = False
 
     @property
     def arrival(self) -> datetime:
@@ -42,10 +46,21 @@ class QueueItem:
     def keeps_slot_order(self) -> bool:
         return (
             self.kind == "booked"
+            and not self.transferred
             and self.scheduled_at is not None
             and self.requeued_at is None
             and self.checked_in_at <= self.scheduled_at + LATE_GRACE
         )
+
+
+def effective_priority(manual: int, categories: Iterable[str], weights: Mapping[str, int], due: bool) -> int:
+    """The doctor's manual priority, or the highest weight among the patient's categories if that is higher.
+
+    A booked patient's category counts only once their slot time has come (``due``), so arriving early
+    with a later booking does not jump the queue.
+    """
+    automatic = max((weights.get(c, 0) for c in categories), default=0) if due else 0
+    return max(manual, automatic)
 
 
 def merge_order(items: list[QueueItem], rule: str, start: datetime, consult_minutes: float) -> list[int]:

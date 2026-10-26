@@ -8,15 +8,17 @@ from datetime import date
 from pathlib import Path
 
 from fastapi import APIRouter, Depends
+from pydantic import BaseModel
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.agent.tracing import recent_traces
-from app.api.deps import Auth, get_auth, get_db
+from app.api.deps import Auth, get_auth, get_db, run_and_commit
 from app.api.routes import chat_limiter
 from app.config import get_settings
 from app.db.models import ACTIVE_APPOINTMENT_STATUSES, Appointment, Department, Doctor, QueueEntry, QueueSession
-from app.queue import engine
+from app.queue import engine, rules
+from app.queue.broadcast import broadcaster, session_messages
 from app.timeutil import now_ist, to_ist
 from app.tools.errors import ToolError
 from app.tools.permissions import require_role
@@ -41,7 +43,11 @@ def staff_today(auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) -
         for e in db.scalars(
             select(QueueEntry)
             .join(QueueSession)
-            .where(QueueSession.date == today, QueueEntry.appointment_id.is_not(None))
+            .where(
+                QueueSession.date == today,
+                QueueEntry.appointment_id.is_not(None),
+                QueueEntry.status != "transferred",  # a moved patient's live entry is with the other doctor
+            )
         )
     }
     doctors = []
@@ -66,6 +72,7 @@ def staff_today(auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) -
                     "entry_id": entry.id if entry else None,
                     "token": entry.token if entry else None,
                     "entry_status": entry.status if entry else None,
+                    "seen_by": entry.session.doctor.name if entry and entry.session.doctor_id != doctor.id else None,
                     # Check-in, late arrival and check-out (features 32, 33).
                     "checked_in_at": f"{to_ist(entry.checked_in_at):%H:%M}" if entry else None,
                     "late_minutes": entry.late_minutes if entry else None,
@@ -174,6 +181,8 @@ def dashboard(auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) -> 
                 "doctors_unavailable": sum(1 for s in dept_sessions if s.doctor_status == "unavailable"),
                 "booked_today": sum(1 for a in dept_appts if a.status in (*ACTIVE_APPOINTMENT_STATUSES, "completed")),
                 "no_shows_today": sum(1 for a in dept_appts if a.status == "no_show"),
+                # Left without being seen (feature 47): arrived, then went home; walk-ins included.
+                "left_unseen_today": sum(1 for s in dept_sessions for e in s.entries if e.status == "left"),
             }
         )
     return {
@@ -182,6 +191,28 @@ def dashboard(auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) -> 
         "evaluation": _evaluation_summary(),
         "operations": _operations(),
     }
+
+
+# --------------------------------------------------------------------------- priority rules (feature 51)
+
+
+class PriorityRules(BaseModel):
+    weights: dict[str, int]
+
+
+@router.get("/admin/priority-rules", tags=["admin"])
+def priority_rules(auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) -> dict:
+    require_role(auth.actor, "admin", "staff")
+    return {"rules": rules.list_rules(db)}
+
+
+@router.put("/admin/priority-rules", tags=["admin"])
+def save_priority_rules(body: PriorityRules, auth: Auth = Depends(get_auth), db: Session = Depends(get_db)) -> dict:
+    result = run_and_commit(db, lambda: rules.set_priority_rules(db, auth.actor, body.weights))
+    now = now_ist()
+    for session_id in result["reordered_sessions"]:
+        broadcaster.publish(session_id, session_messages(db, session_id, now))
+    return result
 
 
 # --------------------------------------------------------------------------- demo reset (FR-34)

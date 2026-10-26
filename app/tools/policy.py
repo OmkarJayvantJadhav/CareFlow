@@ -16,6 +16,12 @@ LATE_GRACE = timedelta(minutes=15)
 # outside that window the reception desk checks them in.
 SELF_CHECK_IN_OPENS = timedelta(hours=1)
 SELF_CHECK_IN_CLOSES = LATE_GRACE
+# Virtual queue (feature 38): patients without a booking may join a doctor's queue from their phone from an
+# hour before OPD opens until 30 minutes before it closes, while fewer than VIRTUAL_QUEUE_CAP remote patients
+# who have not yet arrived are waiting for that doctor.
+VIRTUAL_JOIN_OPENS = timedelta(hours=1)
+VIRTUAL_JOIN_CLOSES = timedelta(minutes=30)
+VIRTUAL_QUEUE_CAP = 10
 
 RESCHEDULE_POLICY = (
     "Appointments can be rescheduled up to 12 hours before the appointment time. "

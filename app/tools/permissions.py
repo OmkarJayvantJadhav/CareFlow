@@ -18,10 +18,11 @@ class Actor:
     user_id: int
     role: str
     patient_id: int | None = None
+    doctor_id: int | None = None
 
     @classmethod
     def from_user(cls, user: AppUser) -> "Actor":
-        return cls(user_id=user.id, role=user.role, patient_id=user.patient_id)
+        return cls(user_id=user.id, role=user.role, patient_id=user.patient_id, doctor_id=user.doctor_id)
 
 
 def linked_patient_ids(db: Session, actor: Actor) -> set[int]:
@@ -54,3 +55,16 @@ def require_patient_access(db: Session, actor: Actor, patient_id: int) -> None:
 def require_role(actor: Actor, *roles: str) -> None:
     if actor.role not in roles:
         raise ToolError("FORBIDDEN", "Your account is not allowed to do this.")
+
+
+def require_queue_control(actor: Actor, doctor_id: int) -> None:
+    """Run a doctor's queue: the front desk for any doctor, a doctor only for their own patients."""
+    if actor.role == "staff" or (actor.role == "doctor" and actor.doctor_id == doctor_id):
+        return
+    raise ToolError("FORBIDDEN", "Your account is not allowed to run this doctor's queue.")
+
+
+def require_own_doctor(actor: Actor, doctor_id: int) -> None:
+    """Clinical decisions (feature 52) are made by the patient's own doctor."""
+    if actor.role != "doctor" or actor.doctor_id != doctor_id:
+        raise ToolError("FORBIDDEN", "Only the patient's doctor can authorize this.")

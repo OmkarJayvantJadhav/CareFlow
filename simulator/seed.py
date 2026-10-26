@@ -92,6 +92,16 @@ def seed_reference(db: Session, rng: np.random.Generator) -> None:
         )
         db.add(user)
         users[username] = user
+    for doctor in db.scalars(select(Doctor).order_by(Doctor.id)):
+        db.add(
+            AppUser(
+                username=hospital.doctor_username(doctor.name),
+                display_name=doctor.name,
+                role="doctor",
+                doctor_id=doctor.id,
+                created_at=DEMO_ACCOUNTS_CREATED,
+            )
+        )
     db.flush()
     for caregiver, patient_key, verified in hospital.CAREGIVER_LINKS:
         db.add(

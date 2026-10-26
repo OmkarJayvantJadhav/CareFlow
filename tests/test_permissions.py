@@ -76,13 +76,23 @@ def test_tc13_patient_cannot_change_priority(world):
     assert refused.result == {"ok": False, "error": "FORBIDDEN"} and refused.role == "patient"
 
 
-def test_staff_priority_change_is_audited(world):
+def test_doctor_priority_change_is_audited(world):
     entry = _waiting_entry(world)
-    engine.set_priority(world.db, world.staff, entry["entry_id"], 2, now=NOW)
+    engine.set_priority(world.db, world.doctor_account("Dr. Suresh Pawar"), entry["entry_id"], 2, now=NOW)
     world.db.commit()
     assert world.db.get(QueueEntry, entry["entry_id"]).priority == 2
     row = world.db.scalars(select(AuditLog).where(AuditLog.tool == "set_priority")).one()
-    assert row.result["ok"] is True and row.arguments["priority"] == 2 and row.role == "staff"
+    assert row.result["ok"] is True and row.arguments["priority"] == 2 and row.role == "doctor"
+
+
+@pytest.mark.parametrize("who", ["staff", "other doctor"])
+def test_priority_is_clinician_authorized(world, who):
+    """Feature 52: neither the front desk nor another doctor sets a patient's priority directly."""
+    entry = _waiting_entry(world)
+    actor = world.staff if who == "staff" else world.doctor_account("Dr. Kavita Joshi")
+    with pytest.raises(ToolError) as err:
+        engine.set_priority(world.db, actor, entry["entry_id"], 2, now=NOW)
+    assert err.value.code == "FORBIDDEN"
 
 
 @pytest.mark.parametrize("username", ["asha", "rajan", "mehta"])

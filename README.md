@@ -5,7 +5,8 @@
 **An OPD assistant and live queue for a hospital — in English, हिन्दी and मराठी.**
 
 Book, reschedule and cancel appointments by chat or in a few taps, get answers cited from the hospital's
-own documents, check in from your phone or a kiosk, and watch your token move in real time.
+own documents, check in from your phone or a kiosk, join a queue online and watch your token move in real
+time — while doctors and the front desk run, balance and coordinate every queue.
 
 [![Live demo](https://img.shields.io/badge/live%20demo-careflow--zy87.onrender.com-0f766e?style=for-the-badge)](https://careflow-zy87.onrender.com)
 
@@ -14,7 +15,7 @@ own documents, check in from your phone or a kiosk, and watch your token move in
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-359%20Python%20·%2025%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-394%20Python%20·%2031%20browser-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
 > ⚠️ **Demo with a fictional hospital (Indravani General Hospital). Not for medical use.**
@@ -72,6 +73,10 @@ principles:
     <td><img src="docs/screenshots/dashboard.png" alt="Admin dashboard with headline numbers and a department chart"><br><sub><b>Admin dashboard</b> — today's numbers, utilization and evaluation results</sub></td>
   </tr>
   <tr>
+    <td><img src="docs/screenshots/doctor-queue.png" alt="A doctor's own queue with the patient in the room and requests from the front desk"><br><sub><b>Doctor</b> — own queue, forward a patient, authorize priority requests</sub></td>
+    <td><img src="docs/screenshots/coordination.png" alt="Department coordination board with expected finish times and balancing suggestions"><br><sub><b>Coordination</b> — every doctor's queue side by side, with balancing moves</sub></td>
+  </tr>
+  <tr>
     <td><img src="docs/screenshots/kiosk.png" alt="Self check-in kiosk"><br><sub><b>Kiosk</b> — self check-in at reception, first name only</sub></td>
     <td>
       <p align="center">
@@ -100,7 +105,8 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | **My appointments** | Upcoming and past visits, receipt, reschedule, cancel and rebook — every change confirmed in a dialog; actions close automatically inside the policy windows. |
 | **Receipts** | A printable receipt with a signed reference code and QR code. |
 | **Online check-in** | From an hour before the slot until 15 minutes after it starts; the token appears at once. |
-| **Live queue** | Your token, people ahead and "about 35 min (25–50)", updated over a WebSocket in under 2 seconds. |
+| **Join a queue online** | No appointment? Join a doctor's queue today from your phone (from an hour before OPD opens), come in when your turn is near, or leave the queue if plans change. |
+| **Live queue** | Your token, people ahead and "about 35 min (25–50)", updated over a WebSocket in under 2 seconds; a message if the doctor is delayed by an emergency, and your new token if you are moved to another doctor. |
 | **Reminders** | The day before and two hours before, in your language, in a notification list with an unread badge. |
 | **Profile and privacy** | Edit your details (phone stored masked), change your password, switch reminders and reuse of your details on or off, and approve or remove caregivers. |
 | **Accounts** | Create an account with a password, or try the demo roles without one. |
@@ -113,15 +119,28 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | **Check-in by code** | Type or scan the receipt's QR code; the signature is verified before anything is looked up. |
 | **Kiosk** | A full-screen self check-in screen that shows only the first name, doctor and time and resets itself. |
 | **Walk-ins** | Registration with duplicate detection; an existing record is reused only with the patient's consent. |
-| **Queue control** | Call next, start, end, missed turn, returned, priority — every change pushed live to patients. |
+| **Queue control** | Call next, start, end, missed turn, returned, arrived (online patients), left without being seen — every change pushed live to patients. |
+| **Priority requests** | Ask the patient's doctor to raise a priority, with a reason; the queue changes only when the doctor approves. |
+| **Move patients** | Reassign a waiting patient to another doctor in the department or transfer them to another department; they keep their check-in time and get a new token. When a doctor becomes unavailable, their waiting patients can go to colleagues. |
+| **Coordination** | Every doctor's queue in a department side by side, with expected finish times, overtime warnings and balancing suggestions confirmed one by one. |
 | **Doctor calendar** | Block or reopen slots, record leave (booked patients are told and can rebook free), expected visit length per doctor. |
-| **Doctor status** | Breaks, delays and "unavailable today" — estimates shift, positions never jump. |
+| **Doctor status** | Breaks, delays, emergencies and "unavailable today" — estimates shift, positions never jump, waiting patients are told. |
+
+### 🩺 For doctors
+
+| Feature | What you get |
+| --- | --- |
+| **My queue** | Only your own patients: who is in the room, who is waiting with their estimates and categories, and who missed their turn. |
+| **Run the room** | Call next, start, end or mark a missed turn, and forward a patient to another doctor or department. |
+| **Clinical priority** | Set a patient's priority yourself, and approve or decline the front desk's requests. |
+| **Your status** | Record a break, a delay or an emergency; waiting patients are told and keep their place. |
 
 ### 📊 For administrators
 
 | Feature | What you get |
 | --- | --- |
-| **Dashboard** | Booked, waiting, no-shows and doctors away; appointments by department; slot utilization, attendance and late-arrival rates; latency and cost of recent chat turns. |
+| **Dashboard** | Booked, waiting, no-shows, left without being seen and doctors away; appointments by department; slot utilization, attendance, no-show and abandonment rates; latency and cost of recent chat turns. |
+| **Priority rules** | Choose how much priority seniors, children, pregnant patients and people with a disability get; every open queue is reordered at once. |
 | **Analytics in plain language** | Questions answered with one validated, read-only SQL query (shown, with CSV export); requests to change data are refused before any model call. |
 | **Registration form** | Add extra registration questions in three languages — asked at sign-up and at the desk, checked by the server. |
 | **Evaluation results** | The latest results shipped with the build, each with its sample size. |
@@ -140,7 +159,7 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 
 ```mermaid
 flowchart LR
-    U["Patient · Front desk · Admin<br/>React UI (en / hi / mr)"] -->|HTTPS + WebSocket| API["FastAPI"]
+    U["Patient · Front desk · Doctor · Admin<br/>React UI (en / hi / mr)"] -->|HTTPS + WebSocket| API["FastAPI"]
     API --> G{"Emergency check<br/>(rules + classifier)"}
     G -->|emergency| E["Fixed guidance<br/>112 / 108 · no writes"]
     G -->|safe| A["Agent loop<br/>(hand-written tool calling)"]
@@ -164,6 +183,8 @@ flowchart LR
   replaced, in code, by "I couldn't find that". Instructions hidden in documents are removed first.
 - **Queue and predictions** (`app/queue/`, `app/ml/`) — every event recalculates positions and gives
   each waiting patient an estimate with a range from a LightGBM model trained on 90 simulated days.
+  Priority comes from the doctor or from admin-set category rules; moves between doctors, the virtual
+  queue and balancing suggestions (a transparent greedy rule) are in the same engine.
 - **Providers** — Groq (primary), Gemini (fallback) and Ollama (local) behind one interface.
 - **Analytics** — reporting views without names or phone numbers, a SELECT-only database role, a SQL
   validator, a read-only transaction and a timeout.
@@ -295,10 +316,10 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 359 tests
+pytest                                     # 394 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e                    # 25 browser tests, including accessibility and 360 px
+pytest -m e2e tests/e2e                    # 31 browser tests, including accessibility and 360 px
 ```
 
 GitHub Actions runs all of these and a Docker build on every push; Render redeploys from `develop`.
@@ -349,7 +370,8 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 
 ## Business rules
 
-Enforced in code ([`app/tools/policy.py`](app/tools/policy.py)) and stated identically in the hospital's documents.
+Enforced in code ([`app/tools/policy.py`](app/tools/policy.py)); the booking, rescheduling, cancellation and
+waiting-list rules are also stated, with the same numbers, in the hospital's documents.
 
 | Rule | Value |
 | --- | --- |
@@ -361,6 +383,9 @@ Enforced in code ([`app/tools/policy.py`](app/tools/policy.py)) and stated ident
 | ⏳ Waiting list | A freed slot is held for the first matching patient for up to 2 hours |
 | 📲 Online check-in | From 1 hour before the slot until 15 minutes after it starts |
 | 🕒 Late arrival | More than 15 minutes after the slot start → queued by arrival time |
+| 📱 Online queue | From 1 hour before OPD opens until 30 minutes before it closes; one queue per patient; at most 10 online patients not yet arrived per doctor |
+| ⭐ Priority | Set or approved by the patient's doctor; category priority counts from a booked patient's slot time |
+| 🔀 Moving patients | The patient keeps their check-in time and priority and is told the new token |
 | 🚑 Emergencies | Guidance (112 / 108) before anything else; nothing is written in that turn |
 
 ---
@@ -375,7 +400,8 @@ app/
   safety/     emergency check, language detection, medical-advice guard, injection filter, masking
   tools/      the business rules: booking, waiting list, calendar, recommendations, reminders,
               receipts, registration and consent, permissions, audit
-  queue/      merge rule, queue engine, live predictions, WebSocket broadcaster
+  queue/      merge rule, queue engine, priority rules, balancing, coordination, live predictions,
+              WebSocket broadcaster
   ml/         wait-time features, dataset, model and training (artifacts/ holds the trained model)
   analytics/  analytics agent, read-only SQL guard, utilization
   db/         SQLAlchemy models and sessions
@@ -412,6 +438,7 @@ docs/         specification, decisions, deployment guide, screenshots
 | FR-34 demo reset | `simulator/seed.py` | TC-17 |
 | Phase 6A appointment features | `app/tools/{calendar,recommend,reminders,receipts}.py`, `app/api/care_routes.py` | `test_care_features.py`, e2e |
 | Phase 6B registration and check-in | `app/tools/registration.py`, `app/api/registration_routes.py` | `test_registration.py`, `test_queue.py`, e2e |
+| Phase 6C queue management | `app/queue/{engine,balance,coordination,rules}.py`, `app/api/queue_routes.py` | `test_queue_management*.py`, `test_balance.py`, `test_merge.py`, e2e |
 | NFR-06 MAE below both baselines | `app/ml/train.py` | `eval/results/ml_wait_time.json` |
 | NFR-07 roles in tools | every service function | `test_permissions.py`, s14, s15 |
 | NFR-08 masking | `app/safety/privacy.py`, traces | TC-18, s29 |
@@ -431,7 +458,7 @@ docs/         specification, decisions, deployment guide, screenshots
   models, which handle Marathi inflections less well than the neural ones.
 - **Notifications are simulated** — stored and shown in the app, never sent by SMS.
 - **Accounts** have no email or SMS verification and no password reset (phone numbers are stored masked);
-  only patients can sign up — staff, admin and seeded caregiver accounts come with the demo.
+  only patients can sign up — staff, doctor, admin and seeded caregiver accounts come with the demo.
 - **One process** — the live WebSocket broadcaster runs in a single process; several servers would need a
   shared message bus.
 - **Free hosting** — the Render free instance sleeps after 15 idle minutes; the first visit then takes

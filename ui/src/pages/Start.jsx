@@ -6,6 +6,7 @@ import {
   Info,
   Languages,
   ListOrdered,
+  Stethoscope,
   UserRound,
   UsersRound,
 } from "lucide-react";
@@ -21,6 +22,7 @@ const ROLES = [
   { role: "patient", label: "rolePatient", hint: "rolePatientHint", icon: UserRound, tone: "" },
   { role: "caregiver", label: "roleCaregiver", hint: "roleCaregiverHint", icon: UsersRound, tone: "" },
   { role: "staff", label: "roleStaff", hint: "roleStaffHint", icon: ClipboardList, tone: "info" },
+  { role: "doctor", label: "roleDoctor", hint: "roleDoctorHint", icon: Stethoscope, tone: "info" },
   { role: "admin", label: "roleAdmin", hint: "roleAdminHint", icon: BarChart3, tone: "info" },
 ];
 
