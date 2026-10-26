@@ -9,6 +9,8 @@ import hashlib
 import hmac
 import secrets
 
+from app.tools.errors import ToolError
+
 N, R, P, DKLEN = 2**14, 8, 1, 32  # about 16 MB and a few tens of milliseconds per hash
 
 
@@ -39,3 +41,23 @@ def verify_password(password: str, stored: str | None) -> bool:
 
 # Compared against when the username does not exist, so a wrong username takes as long as a wrong password.
 DUMMY_HASH = hash_password(secrets.token_urlsafe(16))
+
+
+def check_new_password(password: str, previous: str | None = None) -> None:
+    """At least 8 characters, no spaces at the ends, not repetitive, and not the old one."""
+    if len(password) < 8 or password.strip() != password or len(set(password)) < 4:
+        raise ToolError("VALIDATION_ERROR", "Choose a stronger password (at least 8 characters, not repetitive).")
+    if previous is not None and password == previous:
+        raise ToolError("VALIDATION_ERROR", "Choose a password different from the current one.")
+
+
+# No 0/O, 1/l/I: a temporary password is read out or copied by hand.
+_TEMP_ALPHABET = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+
+def temporary_password(length: int = 12) -> str:
+    """A random password an admin hands over once; the account must replace it at its first sign-in."""
+    while True:
+        candidate = "".join(secrets.choice(_TEMP_ALPHABET) for _ in range(length))
+        if any(c.isdigit() for c in candidate) and len(set(candidate)) >= 4:
+            return candidate

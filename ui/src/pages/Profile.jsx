@@ -1,4 +1,4 @@
-import { CircleCheck, KeyRound, UserRound } from "lucide-react";
+import { CircleCheck, UserRound } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
@@ -7,6 +7,7 @@ import Loading from "../components/Loading";
 import { initials, longDate } from "../format";
 import { LANGS } from "../i18n";
 import { useSession } from "../session";
+import { PasswordCard } from "./Account";
 
 /** S12: the patient's own details (feature 29); the phone number is stored masked only. */
 export default function Profile() {
@@ -25,6 +26,7 @@ function CaregiverProfile() {
         </div>
       </div>
       <CaregiverAccess />
+      <PasswordCard />
     </main>
   );
 }
@@ -36,9 +38,6 @@ function PatientProfile() {
   const [error, setError] = useState(null);
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [pw, setPw] = useState({ current: "", next: "" });
-  const [pwError, setPwError] = useState(null);
-  const [pwDone, setPwDone] = useState(false);
 
   useEffect(() => {
     api("/me/profile")
@@ -66,19 +65,6 @@ function PatientProfile() {
       setError(err);
     } finally {
       setBusy(false);
-    }
-  }
-
-  async function changePassword(e) {
-    e.preventDefault();
-    setPwError(null);
-    setPwDone(false);
-    try {
-      await api("/me/password", { method: "POST", body: { current_password: pw.current, new_password: pw.next } });
-      setPw({ current: "", next: "" });
-      setPwDone(true);
-    } catch (err) {
-      setPwError(err);
     }
   }
 
@@ -175,57 +161,7 @@ function PatientProfile() {
             </form>
           </section>
 
-          <section className="card" aria-labelledby="pw-h" style={{ marginTop: "1rem" }}>
-            <div className="card-head">
-              <h2 id="pw-h">
-                <KeyRound size={18} aria-hidden="true" />
-                {t("changePassword")}
-              </h2>
-            </div>
-            {!profile.has_password && <p className="muted">{t("demoNoPassword")}</p>}
-            {profile.has_password && (
-              <form onSubmit={changePassword}>
-                <div className="field">
-                  <label htmlFor="pw-current">{t("currentPassword")}</label>
-                  <input
-                    id="pw-current"
-                    type="password"
-                    required
-                    autoComplete="current-password"
-                    value={pw.current}
-                    onChange={(e) => setPw({ ...pw, current: e.target.value })}
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="pw-new">{t("newPassword")}</label>
-                  <input
-                    id="pw-new"
-                    type="password"
-                    required
-                    minLength={8}
-                    maxLength={128}
-                    autoComplete="new-password"
-                    aria-describedby="pw-new-hint"
-                    value={pw.next}
-                    onChange={(e) => setPw({ ...pw, next: e.target.value })}
-                  />
-                  <p id="pw-new-hint" className="hint">
-                    {t("passwordHint")}
-                  </p>
-                </div>
-                {pwError !== null && <ErrorMessage error={pwError} />}
-                {pwDone && (
-                  <p className="notice" role="status">
-                    <CircleCheck size={18} aria-hidden="true" />
-                    {t("passwordChanged")}
-                  </p>
-                )}
-                <button type="submit" className="secondary">
-                  {t("changePassword")}
-                </button>
-              </form>
-            )}
-          </section>
+          <PasswordCard />
           <PatientPrivacy />
         </>
       )}

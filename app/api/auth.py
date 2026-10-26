@@ -36,14 +36,25 @@ def issue_token(user: AppUser, now: datetime | None = None) -> tuple[str, dateti
     now = now or now_ist()
     expires = now + timedelta(hours=get_settings().token_ttl_hours)
     payload = json.dumps(
-        {"uid": user.id, "role": user.role, "sid": uuid.uuid4().hex, "exp": int(expires.timestamp())},
+        {
+            "uid": user.id,
+            "role": user.role,
+            "ver": user.credentials_version,
+            "sid": uuid.uuid4().hex,
+            "exp": int(expires.timestamp()),
+        },
         separators=(",", ":"),
     ).encode()
     return f"{_b64(payload)}.{_sign(payload)}", expires
 
 
-def verify_token(db: Session, token: str, now: datetime | None = None) -> tuple[Actor, str, datetime]:
-    """Return (actor, session id, expiry) or raise UNAUTHORIZED."""
+def verify_token(
+    db: Session, token: str, now: datetime | None = None, allow_password_change: bool = False
+) -> tuple[Actor, str, datetime]:
+    """Return (actor, session id, expiry) or raise UNAUTHORIZED.
+
+    A token stops working when the account is switched off or its password or role changes (the
+    credentials version moves on). An account that must choose a new password can only do that."""
     try:
         body, signature = token.split(".", 1)
         payload = _unb64(body)
@@ -56,6 +67,13 @@ def verify_token(db: Session, token: str, now: datetime | None = None) -> tuple[
     if expires <= (now or now_ist()):
         raise ToolError("UNAUTHORIZED", "Your session has expired; please sign in again.")
     user = db.get(AppUser, int(claims["uid"]))
-    if user is None or user.role != claims.get("role"):
+    if (
+        user is None
+        or not user.active
+        or user.role != claims.get("role")
+        or user.credentials_version != claims.get("ver", 0)
+    ):
         raise ToolError("UNAUTHORIZED", "Please sign in again.")
+    if user.must_change_password and not allow_password_change:
+        raise ToolError("PASSWORD_CHANGE_REQUIRED", "Please choose a new password first.")
     return Actor.from_user(user), str(claims["sid"]), expires

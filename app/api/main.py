@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, select, text
 
 from app.agent.llm import build_llm
+from app.api.accounts_routes import router as accounts_router
 from app.api.admin_routes import router as admin_router
 from app.api.care_routes import router as care_router
 from app.api.library_routes import router as library_router
@@ -147,6 +148,7 @@ def health() -> JSONResponse:
 
 app.include_router(router)
 app.include_router(admin_router)
+app.include_router(accounts_router)
 app.include_router(care_router)
 app.include_router(library_router)
 app.include_router(registration_router)

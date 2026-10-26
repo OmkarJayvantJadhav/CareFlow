@@ -32,13 +32,14 @@ const FEATURES = [
   { icon: FileCheck2, title: "feature3Title", text: "feature3Text" },
 ];
 
-/** S1: what CareFlow does, the language and the demo role. */
+/** S1: what CareFlow does, the language, sign-in and sign-up; the demo roles only on the demo deployment. */
 export default function Start() {
-  const { user, lang, setLang, signIn, t } = useSession();
+  const { user, config, demo, lang, setLang, signIn, t } = useSession();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
   const [mode, setMode] = useState("login");
+  const signUp = config?.allow_registration !== false;
   if (user) return <Navigate to={HOME[user.role]} replace />;
 
   async function choose(role) {
@@ -77,37 +78,43 @@ export default function Start() {
 
       <section className="card roles-card" aria-labelledby="auth-h">
         <h2 id="auth-h">{t("signInTitle")}</h2>
-        <div className="segmented auth-tabs" role="group" aria-label={t("signInTitle")}>
-          <button type="button" aria-pressed={mode === "login"} onClick={() => setMode("login")}>
-            {t("logIn")}
-          </button>
-          <button type="button" aria-pressed={mode === "register"} onClick={() => setMode("register")}>
-            {t("createAccount")}
-          </button>
-        </div>
-        {mode === "login" ? (
+        {signUp && (
+          <div className="segmented auth-tabs" role="group" aria-label={t("signInTitle")}>
+            <button type="button" aria-pressed={mode === "login"} onClick={() => setMode("login")}>
+              {t("logIn")}
+            </button>
+            <button type="button" aria-pressed={mode === "register"} onClick={() => setMode("register")}>
+              {t("createAccount")}
+            </button>
+          </div>
+        )}
+        {mode === "login" || !signUp ? (
           <LoginForm onDone={(u) => navigate(HOME[u.role])} />
         ) : (
           <RegisterForm onDone={(u) => navigate(HOME[u.role])} />
         )}
-        <div className="divider">
-          <span>{t("orTryDemo")}</span>
-        </div>
-        <h3 className="sr-only">{t("chooseRole")}</h3>
-        <div className="roles">
-          {ROLES.map(({ role, label, hint, icon: Icon, tone }) => (
-            <button key={role} type="button" className="role" disabled={busy !== null} onClick={() => choose(role)}>
-              <span className={`icon-tile ${tone}`} aria-hidden="true">
-                <Icon size={20} />
-              </span>
-              <span className="role-text">
-                <strong>{busy === role ? t("signingIn") : t(label)}</strong>
-                <span>{t(hint)}</span>
-              </span>
-              <ChevronRight className="chev" size={18} aria-hidden="true" />
-            </button>
-          ))}
-        </div>
+        {demo && (
+          <>
+            <div className="divider">
+              <span>{t("orTryDemo")}</span>
+            </div>
+            <h3 className="sr-only">{t("chooseRole")}</h3>
+            <div className="roles">
+              {ROLES.map(({ role, label, hint, icon: Icon, tone }) => (
+                <button key={role} type="button" className="role" disabled={busy !== null} onClick={() => choose(role)}>
+                  <span className={`icon-tile ${tone}`} aria-hidden="true">
+                    <Icon size={20} />
+                  </span>
+                  <span className="role-text">
+                    <strong>{busy === role ? t("signingIn") : t(label)}</strong>
+                    <span>{t(hint)}</span>
+                  </span>
+                  <ChevronRight className="chev" size={18} aria-hidden="true" />
+                </button>
+              ))}
+            </div>
+          </>
+        )}
         {error !== null && <ErrorMessage error={error} />}
         <div className="lang-pick">
           <h2>{t("chooseLanguage")}</h2>
@@ -127,7 +134,7 @@ export default function Start() {
         </div>
         <p className="demo-note">
           <Info size={16} aria-hidden="true" />
-          {t("demoNote")}
+          {t(demo ? "demoNote" : "staffAccountsNote")}
         </p>
       </section>
     </main>

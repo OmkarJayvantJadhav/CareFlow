@@ -15,6 +15,7 @@ import {
   Scale,
   ListOrdered,
   LogOut,
+  UserCog,
   MessageCircle,
   Stethoscope,
   UserRound,
@@ -23,6 +24,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { initials } from "../format";
 import { LANGS } from "../i18n";
 import { useNotifications } from "../notifications";
+import { PasswordGate } from "../pages/Account";
 import { useSession } from "../session";
 
 const NAV = {
@@ -43,6 +45,7 @@ const NAV = {
   admin: [
     { to: "/admin", label: "navDashboard", icon: LayoutDashboard },
     { to: "/analytics", label: "navAnalytics", icon: BarChart3 },
+    { to: "/accounts", label: "navAccounts", icon: UserCog },
     { to: "/registration-form", label: "navRegistrationForm", icon: ClipboardPen },
     { to: "/priority-rules", label: "navPriorityRules", icon: Scale },
     { to: "/coordination", label: "navCoordination", icon: Network },
@@ -101,14 +104,19 @@ function Preferences({ languages = true }) {
   );
 }
 
-/** The information library for everyone whose navigation does not list it (staff, doctors, admins). */
-function LibraryLink() {
+/** The information library (their navigation does not list it) and the account page, for staff, doctors and admins. */
+function StaffTools() {
   const { user, t } = useSession();
   if (user.role === "patient" || user.role === "caregiver") return null;
   return (
-    <NavLink to="/library" className="icon-link" aria-label={t("navLibrary")} title={t("navLibrary")}>
-      <BookOpen size={20} aria-hidden="true" />
-    </NavLink>
+    <>
+      <NavLink to="/library" className="icon-link" aria-label={t("navLibrary")} title={t("navLibrary")}>
+        <BookOpen size={20} aria-hidden="true" />
+      </NavLink>
+      <NavLink to="/account" className="icon-link" aria-label={t("navAccount")} title={t("navAccount")}>
+        <UserRound size={20} aria-hidden="true" />
+      </NavLink>
+    </>
   );
 }
 
@@ -142,10 +150,11 @@ function PatientTools() {
 }
 
 export default function Layout() {
-  const { user, signOut, t } = useSession();
+  const { user, demo, signOut, t } = useSession();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const banner = (
+  // The demo deployment says so on every page; a hospital's own deployment does not.
+  const banner = demo && (
     <div className="banner" role="note">
       <Info size={15} aria-hidden="true" />
       {t("banner")}
@@ -177,6 +186,24 @@ export default function Layout() {
     navigate("/");
   };
   const signOutLabel = `${t("signOut")} (${user.display_name})`;
+  if (user.must_change_password) {
+    return (
+      <>
+        {banner}
+        <header className="topbar start-top">
+          <Brand />
+          <span className="row" style={{ gap: "0.75rem" }}>
+            <Preferences />
+            <button type="button" className="quiet" onClick={leave}>
+              <LogOut size={18} aria-hidden="true" />
+              {t("signOut")}
+            </button>
+          </span>
+        </header>
+        <PasswordGate />
+      </>
+    );
+  }
   return (
     <>
       {banner}
@@ -211,7 +238,7 @@ export default function Layout() {
             </span>
             <Preferences />
             <span className="tools">
-              <LibraryLink />
+              <StaffTools />
               <PatientTools />
             </span>
             <button

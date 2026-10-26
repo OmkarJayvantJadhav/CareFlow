@@ -47,10 +47,18 @@ class Auth:
     expires_at: datetime
 
 
-def get_auth(authorization: str | None = Header(default=None), db: Session = Depends(get_db)) -> Auth:
+# All an account that must choose a new password may do before it has (phase 7A).
+PASSWORD_CHANGE_PATHS = {"/api/v1/me", "/api/v1/me/password"}
+
+
+def get_auth(request: Request, authorization: str | None = Header(default=None), db: Session = Depends(get_db)) -> Auth:
     if not authorization or not authorization.lower().startswith("bearer "):
         raise ToolError("UNAUTHORIZED", "Sign in first: send 'Authorization: Bearer <token>'.")
-    actor, session_id, expires = verify_token(db, authorization.split(" ", 1)[1].strip())
+    actor, session_id, expires = verify_token(
+        db,
+        authorization.split(" ", 1)[1].strip(),
+        allow_password_change=request.url.path in PASSWORD_CHANGE_PATHS,
+    )
     return Auth(actor, session_id, expires)
 
 

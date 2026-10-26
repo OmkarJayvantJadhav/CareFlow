@@ -1,5 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
+import Account from "./pages/Account";
+import Accounts from "./pages/Accounts";
 import Analytics from "./pages/Analytics";
 import Appointments from "./pages/Appointments";
 import Book from "./pages/Book";
@@ -30,9 +32,11 @@ export const HOME = {
   doctor: "/my-queue",
 };
 
-function Guard({ roles, children }) {
+/** `fullScreen` pages sit outside the layout, which is where a temporary password must be replaced first. */
+function Guard({ roles, fullScreen = false, children }) {
   const { user } = useSession();
   if (!user) return <Navigate to="/" replace />;
+  if (fullScreen && user.must_change_password) return <Navigate to={HOME[user.role]} replace />;
   if (!roles.includes(user.role)) return <Navigate to={HOME[user.role]} replace />;
   return children;
 }
@@ -45,7 +49,7 @@ export default function App() {
       <Route
         path="/kiosk"
         element={
-          <Guard roles={["staff"]}>
+          <Guard roles={["staff"]} fullScreen>
             <Kiosk />
           </Guard>
         }
@@ -172,6 +176,22 @@ export default function App() {
           element={
             <Guard roles={["staff", "admin"]}>
               <Coordination />
+            </Guard>
+          }
+        />
+        <Route
+          path="/accounts"
+          element={
+            <Guard roles={["admin"]}>
+              <Accounts />
+            </Guard>
+          }
+        />
+        <Route
+          path="/account"
+          element={
+            <Guard roles={["staff", "doctor", "admin"]}>
+              <Account />
             </Guard>
           }
         />

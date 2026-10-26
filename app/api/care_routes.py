@@ -11,8 +11,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.analytics.utilization import utilization
+from app.api.auth import issue_token
 from app.api.deps import Auth, get_auth, get_db, run_and_commit
-from app.api.passwords import hash_password, verify_password
+from app.api.passwords import check_new_password, hash_password, verify_password
 from app.db.models import AppUser, Department, Notification, Patient
 from app.safety.privacy import mask_phone_number
 from app.timeutil import iso, now_ist
@@ -94,11 +95,13 @@ def change_password(body: PasswordChange, auth: Auth = Depends(get_auth), db: Se
         raise ToolError("FORBIDDEN", "Demo accounts have no password to change.")
     if not verify_password(body.current_password, user.password_hash):
         raise ToolError("INVALID_CREDENTIALS", "Your current password is not right.")
-    if body.new_password.strip() != body.new_password or len(set(body.new_password)) < 4:
-        raise ToolError("VALIDATION_ERROR", "Choose a stronger password (at least 8 characters, not repetitive).")
+    check_new_password(body.new_password, body.current_password)
     user.password_hash = hash_password(body.new_password)
+    user.must_change_password = False
+    user.credentials_version += 1  # every other sign-in of this account ends
     db.commit()
-    return {"status": "changed"}
+    token, expires = issue_token(user)
+    return {"status": "changed", "token": token, "expires_at": iso(expires)}
 
 
 # --------------------------------------------------------------------------- notifications (features 7, 18)

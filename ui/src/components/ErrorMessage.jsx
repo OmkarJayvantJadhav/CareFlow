@@ -10,6 +10,8 @@ const KNOWN = new Set([
   "UNSAFE_QUERY",
   "INVALID_CREDENTIALS",
   "USERNAME_TAKEN",
+  "ACCOUNT_DISABLED",
+  "PASSWORD_CHANGE_REQUIRED",
 ]);
 
 /** Plain-language error with a next step; never a bare code (docs §8). */

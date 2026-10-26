@@ -21,12 +21,16 @@ def mask_text(text: str) -> str:
     return _PHONE_RE.sub(lambda m: mask_phone_number(m.group(1)), text)
 
 
+# Values under these keys are never stored or logged (a temporary password returned once, for example).
+_SECRET_KEY = re.compile(r"password|secret", re.I)
+
+
 def mask_payload(value: Any) -> Any:
-    """Recursively mask phone numbers inside JSON-like data."""
+    """Recursively mask phone numbers inside JSON-like data, and drop secrets."""
     if isinstance(value, str):
         return mask_text(value)
     if isinstance(value, dict):
-        return {k: mask_payload(v) for k, v in value.items()}
+        return {k: "[redacted]" if _SECRET_KEY.search(str(k)) else mask_payload(v) for k, v in value.items()}
     if isinstance(value, (list, tuple)):
         return [mask_payload(v) for v in value]
     return value

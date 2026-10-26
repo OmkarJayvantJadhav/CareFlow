@@ -18,7 +18,11 @@ const base = {
 
 function mockReplies(...replies) {
   const calls = [];
-  globalThis.fetch = vi.fn(async (_url, init) => {
+  globalThis.fetch = vi.fn(async (url, init) => {
+    // The session asks once what the deployment offers; that is not a chat turn.
+    if (String(url).endsWith("/config")) {
+      return new Response(JSON.stringify({ demo_mode: true, allow_registration: true }), { status: 200 });
+    }
     calls.push({ body: JSON.parse(String(init?.body ?? "{}")) });
     return new Response(JSON.stringify({ ...base, ...replies.shift() }), { status: 200 });
   });

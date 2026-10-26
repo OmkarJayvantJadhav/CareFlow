@@ -15,12 +15,13 @@ from app.agent.llm import LLM
 from app.analytics.agent import answer_question
 from app.api.auth import issue_token
 from app.api.deps import Auth, SlidingWindowLimiter, client_key, get_auth, get_db, get_llm, run_and_commit
-from app.api.passwords import DUMMY_HASH, hash_password, verify_password
+from app.api.passwords import DUMMY_HASH, check_new_password, hash_password, verify_password
 from app.config import get_settings
 from app.db.models import AppUser, Patient, QueueEntry
 from app.safety.privacy import mask_phone_number
 from app.timeutil import iso, now_ist
 from app.tools import booking, policy, registration, waiting_list
+from app.tools.accounts import USERNAME_RE
 from app.tools.errors import ToolError
 from app.tools.permissions import Actor
 from app.tools.receipts import reference_code
@@ -30,7 +31,6 @@ DEMO_USERS_BY_ROLE = {"patient": "asha", "caregiver": "rajan", "staff": "priya",
 chat_limiter = SlidingWindowLimiter(3600)
 register_limiter = SlidingWindowLimiter(3600)
 login_failures = SlidingWindowLimiter(900)
-USERNAME_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{2,29}$")
 
 
 # --------------------------------------------------------------------------- auth
@@ -50,6 +50,8 @@ def _user_view(db: Session, user: AppUser) -> dict:
         "role": user.role,
         "patient_id": user.patient_id,
         "doctor_id": user.doctor_id,
+        "must_change_password": user.must_change_password,
+        "has_password": user.password_hash is not None,
         "patients": [{"patient_id": pid, "name": name} for pid, name in patients.items()],
     }
 
@@ -63,22 +65,26 @@ def demo_login(body: LoginRequest, db: Session = Depends(get_db)) -> dict:
     if not username or username == "sim-desk":
         raise ToolError("VALIDATION_ERROR", "Give a demo role or username.")
     user = db.scalars(select(AppUser).where(AppUser.username == username)).first()
-    if user is None:
+    if user is None or not user.active:
         raise ToolError("VALIDATION_ERROR", f"There is no demo account called {username!r}.")
     return _signed_in(db, user)
 
 
 def _signed_in(db: Session, user: AppUser) -> dict:
+    user.last_login_at = now_ist()
+    db.commit()
     token, expires = issue_token(user)
     return {"token": token, "token_type": "bearer", "expires_at": iso(expires), "user": _user_view(db, user)}
 
 
 class RegisterRequest(BaseModel):
+    # A caregiver account has no patient record; it asks patients for access afterwards (feature 35).
+    account_type: Literal["patient", "caregiver"] = "patient"
     name: str = Field(min_length=2, max_length=80)
     username: str = Field(min_length=3, max_length=30)
     password: str = Field(min_length=8, max_length=128)
-    birth_year: int
-    phone: str = Field(max_length=20)
+    birth_year: int | None = None
+    phone: str | None = Field(None, max_length=20)
     language: Literal["en", "hi", "mr"] = "en"
     answers: dict[str, str] | None = None  # the hospital's extra registration questions (feature 28)
 
@@ -90,7 +96,7 @@ class PasswordLoginRequest(BaseModel):
 
 @router.post("/auth/register", tags=["auth"], status_code=201)
 def register(body: RegisterRequest, request: Request, db: Session = Depends(get_db)) -> dict:
-    """Create a patient account (a patient record and its login) and sign in.
+    """Create a patient account (a patient record and its login) or a caregiver account, and sign in.
 
     The phone number is stored masked only (NFR-08), as for every patient.
     """
@@ -106,35 +112,40 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
         )
     if len(name) < 2:
         raise ToolError("VALIDATION_ERROR", "Please give your name.")
-    this_year = now_ist().year
-    if not 1900 <= body.birth_year <= this_year:
-        raise ToolError("VALIDATION_ERROR", f"Birth year must be between 1900 and {this_year}.")
-    digits = re.sub(r"\D", "", body.phone)
-    if len(digits) == 12 and digits.startswith("91"):
-        digits = digits[2:]
-    if not re.fullmatch(r"[6-9]\d{9}", digits):
-        raise ToolError("VALIDATION_ERROR", "Enter a 10-digit Indian mobile number.")
-    if body.password.strip() != body.password or len(set(body.password)) < 4:
-        raise ToolError("VALIDATION_ERROR", "Choose a stronger password (at least 8 characters, not repetitive).")
+    patient_account = body.account_type == "patient"
+    digits = ""
+    if patient_account:
+        this_year = now_ist().year
+        if body.birth_year is None or not 1900 <= body.birth_year <= this_year:
+            raise ToolError("VALIDATION_ERROR", f"Birth year must be between 1900 and {this_year}.")
+        digits = re.sub(r"\D", "", body.phone or "")
+        if len(digits) == 12 and digits.startswith("91"):
+            digits = digits[2:]
+        if not re.fullmatch(r"[6-9]\d{9}", digits):
+            raise ToolError("VALIDATION_ERROR", "Enter a 10-digit Indian mobile number.")
+    check_new_password(body.password)
     register_limiter.check(
         client_key(request), settings.max_registrations_per_ip_per_hour, "Too many new accounts; please try later."
     )
     if db.scalars(select(AppUser.id).where(AppUser.username == username)).first() is not None:
         raise ToolError("USERNAME_TAKEN", "That username is taken; please choose another.")
-    answers = registration.clean_answers(db, body.answers)
-    patient = Patient(
-        synthetic_name=name,
-        birth_year=body.birth_year,
-        phone_masked=mask_phone_number(digits),
-        preferred_language=body.language,
-    )
-    db.add(patient)
-    db.flush()
+    patient = None
+    answers = {}
+    if patient_account:
+        answers = registration.clean_answers(db, body.answers)
+        patient = Patient(
+            synthetic_name=name,
+            birth_year=body.birth_year,
+            phone_masked=mask_phone_number(digits),
+            preferred_language=body.language,
+        )
+        db.add(patient)
+        db.flush()
     user = AppUser(
         username=username,
         display_name=name,
-        role="patient",
-        patient_id=patient.id,
+        role="patient" if patient_account else "caregiver",
+        patient_id=patient.id if patient else None,
         password_hash=hash_password(body.password),
         self_registered=True,
     )
@@ -144,7 +155,8 @@ def register(body: RegisterRequest, request: Request, db: Session = Depends(get_
     except IntegrityError:  # someone took the same username a moment ago
         db.rollback()
         raise ToolError("USERNAME_TAKEN", "That username is taken; please choose another.") from None
-    registration.save_answers(db, patient.id, answers)
+    if patient is not None:
+        registration.save_answers(db, patient.id, answers)
     result = _signed_in(db, user)
     db.commit()
     return result
@@ -163,6 +175,8 @@ def login(body: PasswordLoginRequest, request: Request, db: Session = Depends(ge
     if user is None or user.password_hash is None or not ok:
         login_failures.add(key)
         raise ToolError("INVALID_CREDENTIALS", "Wrong username or password.")
+    if not user.active:  # said only to someone who knows the password
+        raise ToolError("ACCOUNT_DISABLED", "This account has been switched off. Please contact the hospital.")
     return _signed_in(db, user)
 
 

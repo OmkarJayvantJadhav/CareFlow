@@ -540,11 +540,16 @@ label {
   margin-bottom: 1rem;
 }
 
+.card-head h1,
 .card-head h2,
 .card-head h3 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+h1.h2 {
+  font-size: 1.25rem;
 }
 
 .grid {
@@ -2801,4 +2806,80 @@ label.check input {
 
 .library-item > span:last-child {
   min-width: 0;
+}
+
+/* ------------------------------------------------------------------ accounts (admin) */
+
+.account-filters {
+  align-items: flex-end;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.account-filters .field {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.account-filters .grow {
+  flex: 1 1 12rem;
+}
+
+.account-filters input {
+  width: 100%;
+}
+
+.accounts-table th[scope="row"] {
+  font-weight: 600;
+}
+
+.accounts-table th[scope="row"] .badge {
+  margin-left: 0.375rem;
+}
+
+.badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.account-actions {
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.temp-password {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+.temp-password code {
+  font-size: 1.35rem;
+  letter-spacing: 0.08em;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+
+.account-kind {
+  border: 0;
+  padding: 0;
+  margin: 0 0 0.875rem;
+  min-width: 0;
+}
+
+.account-kind legend {
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 0.375rem;
+}
+
+.gate-text {
+  margin: 0 0 1rem;
 }

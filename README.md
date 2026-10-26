@@ -15,11 +15,12 @@ time — while doctors and the front desk run, balance and coordinate every queu
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-406%20Python%20·%2034%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-416%20Python%20·%2036%20browser-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
-> ⚠️ **Demo with a fictional hospital (Indravani General Hospital). Not for medical use.**
-> Every patient, doctor and schedule is synthetic; phone numbers are stored masked.
+> ⚠️ **The live demo uses a fictional hospital (Indravani General Hospital) and synthetic data. Not for medical use.**
+> A hospital runs its own copy with `DEMO_MODE=false`: no demo roles or reset, and accounts managed by its admins
+> ([production setup](#running-it-for-a-real-hospital)). Phone numbers are stored masked.
 
 </div>
 
@@ -77,6 +78,10 @@ principles:
     <td><img src="docs/screenshots/coordination.png" alt="Department coordination board with expected finish times and balancing suggestions"><br><sub><b>Coordination</b> — every doctor's queue side by side, with balancing moves</sub></td>
   </tr>
   <tr>
+    <td><img src="docs/screenshots/accounts.png" alt="Accounts page with a new account's temporary password shown once"><br><sub><b>Accounts</b> — admins add staff and doctors; the temporary password is shown once</sub></td>
+    <td><img src="docs/screenshots/start-hospital.png" alt="Start page of a hospital's own deployment, without demo roles"><br><sub><b>A hospital's own deployment</b> — sign-in and sign-up, no demo</sub></td>
+  </tr>
+  <tr>
     <td><img src="docs/screenshots/kiosk.png" alt="Self check-in kiosk"><br><sub><b>Kiosk</b> — self check-in at reception, first name only</sub></td>
     <td>
       <p align="center">
@@ -110,7 +115,7 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | **Live queue** | Your token, people ahead and "about 35 min (25–50)", updated over a WebSocket in under 2 seconds; a message if the doctor is delayed by an emergency, and your new token if you are moved to another doctor. |
 | **Reminders** | The day before and two hours before, in your language, in a notification list with an unread badge. |
 | **Profile and privacy** | Edit your details (phone stored masked), change your password, switch reminders and reuse of your details on or off, and approve or remove caregivers. |
-| **Accounts** | Create an account with a password, or try the demo roles without one. |
+| **Accounts** | Create an account with a password — for yourself, or as a caregiver for a family member — or try the demo roles without one. |
 
 ### 🧾 For the front desk
 
@@ -145,7 +150,8 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | **Analytics in plain language** | Questions answered with one validated, read-only SQL query (shown, with CSV export); requests to change data are refused before any model call. |
 | **Registration form** | Add extra registration questions in three languages — asked at sign-up and at the desk, checked by the server. |
 | **Evaluation results** | The latest results shipped with the build, each with its sample size. |
-| **Demo reset** | Back to the seed data in one click (people's own accounts and consent are kept). |
+| **Accounts** | Create front-desk, doctor, admin and caregiver accounts with a one-time temporary password; switch accounts off and on; reset forgotten passwords. Switching off or resetting ends that person's sessions at once. |
+| **Demo reset** | Back to the seed data in one click (people's own accounts and consent are kept; demo deployment only). |
 
 ### ♿ Accessibility and languages
 
@@ -270,8 +276,30 @@ The container migrates the database, seeds the fictional hospital, loads the kno
 | 📘 API docs | <http://localhost:8000/docs> |
 
 **Demo accounts** (no password): `asha` (patient), `rajan` (caregiver for his father Vinayak), `sunil`
-(caregiver not yet verified), `priya` (front desk), `mehta` (admin) — or create your own account on the
-start page.
+(caregiver not yet verified), `priya` (front desk), `mehta` (admin), `dr-pawar` (doctor; every doctor has a
+`dr-<surname>` account) — or create your own account on the start page.
+
+### Running it for a real hospital
+
+Set `DEMO_MODE=false` and choose the first administrator in the environment:
+
+```bash
+DEMO_MODE=false
+AUTH_SECRET=<a long random value>
+INITIAL_ADMIN_USERNAME=admin.sharma
+INITIAL_ADMIN_PASSWORD=<a temporary password, 8+ characters>
+INITIAL_ADMIN_NAME="Dr. Sharma"
+```
+
+At start-up the first admin is created only if no admin can sign in yet, and must choose a new password at the
+first sign-in. That admin creates the front-desk, doctor and other admin accounts under **Accounts**. Each new
+account gets a temporary password shown once, which must be replaced at its first sign-in. Patients and
+caregivers sign up on the start page or are registered at the desk. With a shell you can also run
+`python -m app.manage create-admin --username U --name "…"` or `reset-password --username U`.
+
+> Still to come: departments, doctors and OPD schedules are not yet editable in the app (next phase), so
+> a production database starts without them. The hospital information library still describes the demo
+> hospital until documents can be edited.
 
 <details>
 <summary><b>Try it from the command line</b></summary>
@@ -323,10 +351,10 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 406 tests
+pytest                                     # 416 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e                    # 34 browser tests, including accessibility and 360 px
+pytest -m e2e tests/e2e                    # 36 browser tests, including accessibility and 360 px
 ```
 
 GitHub Actions runs all of these and a Docker build on every push; Render redeploys from `develop`.
@@ -344,6 +372,9 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 | `python -m simulator.kb.build` | Regenerate the knowledge base from `simulator/kb/` |
 | `python -m app.rag.ingest [--if-needed]` | Chunk, embed and load the knowledge base |
 | `python -m app.rag.preload` | Download the neural retrieval models |
+| `python -m app.manage prepare` | At start-up: demo seed (demo mode only) and the first admin from `INITIAL_ADMIN_*` |
+| `python -m app.manage create-admin --username U [--name N]` | A new admin with a temporary password, printed once |
+| `python -m app.manage reset-password --username U` | A temporary password for any account, printed once |
 
 </details>
 
@@ -364,12 +395,13 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 | `MAX_MESSAGES_PER_SESSION`, `MAX_MESSAGES_PER_IP_PER_HOUR` | 20, 60 | Chat quota guards |
 | `PROMPT_TOKEN_BUDGET`, `RAG_TOP_K` | 3000, 4 | Token budget per agent step; passages given to the model |
 | `AUTH_SECRET` | demo value | Signs sign-in tokens and receipt codes — set a long random value when deployed |
-| `ALLOW_REGISTRATION` | `true` | Let visitors create patient accounts |
+| `ALLOW_REGISTRATION` | `true` | Let visitors create patient and caregiver accounts |
+| `INITIAL_ADMIN_USERNAME`, `INITIAL_ADMIN_PASSWORD`, `INITIAL_ADMIN_NAME` | — | The first admin, created at start-up only if no admin can sign in yet |
 | `MAX_REGISTRATIONS_PER_IP_PER_HOUR`, `MAX_FAILED_LOGINS_PER_15_MIN` | 10, 10 | Limits per client address (and username for sign-in) |
 | `TRACE_DIR` | `traces` | JSON-lines traces of every turn (masked) |
 | `WARM_UP_RETRIEVER` | `true` | Load retrieval at start-up; also starts the slot top-up and reminder threads |
 | `QUEUE_MERGE_RULE` | `slot_order` | `slot_order` (booked keep slot order, walk-ins fill gaps) or `alternate` |
-| `DEMO_MODE`, `SIMULATOR_SEED` | `true`, `42` | Demo login and reset; seed for all synthetic data |
+| `DEMO_MODE`, `SIMULATOR_SEED` | `true`, `42` | `true`: the fictional hospital, demo roles, demo reset and banner; `false`: a hospital's own deployment. Seed for the synthetic data |
 
 </details>
 
@@ -459,13 +491,16 @@ docs/         specification, decisions, deployment guide, screenshots
 
 ## Limitations
 
-- **Synthetic data only.** The simulator's parameters are assumptions ([`docs/DECISIONS.md`](docs/DECISIONS.md), D-21),
-  and the wait-time model learned from simulated days whose queues are short.
+- **Measured on synthetic data.** The demo and the evaluation use the simulated hospital, whose parameters are
+  assumptions ([`docs/DECISIONS.md`](docs/DECISIONS.md), D-21); the wait-time model learned from simulated days
+  whose queues are short.
+- **Real use is being built in phases** (D-99): accounts and production mode are done; departments, doctors
+  and schedules, staff editing of patient records, editable documents and real SMS or email come next.
 - **Evaluation is incomplete** (see [Measured results](#measured-results)); retrieval was measured with the local
   models, which handle Marathi inflections less well than the neural ones.
 - **Notifications are simulated** — stored and shown in the app, never sent by SMS.
-- **Accounts** have no email or SMS verification and no password reset (phone numbers are stored masked);
-  only patients can sign up — staff, doctor, admin and seeded caregiver accounts come with the demo.
+- **Accounts** have no email or SMS verification and no self-service password reset (phone numbers are stored
+  masked); an admin resets a forgotten password with a temporary one.
 - **One process** — the live WebSocket broadcaster runs in a single process; several servers would need a
   shared message bus.
 - **Free hosting** — the Render free instance sleeps after 15 idle minutes; the first visit then takes
@@ -484,5 +519,5 @@ docs/         specification, decisions, deployment guide, screenshots
 | [`eval/results/README.md`](eval/results/README.md) | The generated results table with sample sizes |
 
 <div align="center">
-<sub>Indravani General Hospital and everyone in it are fictional. CareFlow is a demonstration, not a medical device.</sub>
+<sub>Indravani General Hospital and everyone in it are fictional. CareFlow helps run an OPD; it is not a medical device and gives no medical advice.</sub>
 </div>

@@ -235,7 +235,10 @@ def test_password_change_for_own_accounts(api):
         "/api/v1/me/password", json={"current_password": "tulsi-garden-42", "new_password": "monsoon-tea-7"},
         headers=headers,
     )  # fmt: skip
-    assert ok.json() == {"status": "changed"}
+    assert ok.json()["status"] == "changed"
+    # The old sign-in ends with the password change; the new token from the response works.
+    assert api.get("/api/v1/me", headers=headers).status_code == 401
+    assert api.get("/api/v1/me", headers={"Authorization": f"Bearer {ok.json()['token']}"}).status_code == 200
     assert api.post("/api/v1/auth/login", json={"username": "meena", "password": "monsoon-tea-7"}).status_code == 200
     assert api.post("/api/v1/auth/login", json={"username": "meena", "password": "tulsi-garden-42"}).status_code == 401
 

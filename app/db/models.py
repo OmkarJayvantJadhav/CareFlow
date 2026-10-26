@@ -175,6 +175,12 @@ class AppUser(Base):
     password_hash: Mapped[str | None] = mapped_column(String(200))
     self_registered: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
     created_at: Mapped[datetime] = mapped_column(TZ, server_default=func.now())
+    # Account management (phase 7A): a switched-off account cannot sign in; an account created or reset by an
+    # admin must choose its own password first; changing the password or role invalidates earlier sign-ins.
+    active: Mapped[bool] = mapped_column(Boolean, default=True, server_default=text("true"))
+    must_change_password: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    credentials_version: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    last_login_at: Mapped[datetime | None] = mapped_column(TZ)
 
 
 class CaregiverLink(Base):

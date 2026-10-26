@@ -4,10 +4,11 @@ roles and business rules are enforced in the tools."""
 from datetime import datetime
 
 from app.agent.messages import LANGUAGE_NAMES, display_date
+from app.config import get_settings
 
 PROMPT_VERSION = "agent-v4"
 
-SYSTEM_TEMPLATE = """You are CareFlow, the OPD assistant of Indravani General Hospital (fictional; demo, not for medical use).
+SYSTEM_TEMPLATE = """You are CareFlow, the OPD assistant of Indravani General Hospital{demo}.
 Now: {today}, {time} (India time).
 User: {user}. {patients}
 Reply in {language} only, briefly (at most 4 short sentences or a short list).
@@ -35,6 +36,7 @@ def patients_line(role: str, patients: dict[int, str]) -> str:
 
 def system_prompt(role: str, display_name: str, patients: dict[int, str], language: str, now: datetime) -> str:
     return SYSTEM_TEMPLATE.format(
+        demo=" (fictional; demo, not for medical use)" if get_settings().demo_mode else "",
         today=display_date(now.date(), "en"),
         time=now.strftime("%H:%M"),
         user=f"{display_name} ({role})",

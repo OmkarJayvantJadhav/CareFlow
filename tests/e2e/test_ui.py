@@ -74,6 +74,78 @@ def test_create_an_account_then_log_in_again(page: Page):
     expect(page.get_by_text("No upcoming appointments")).to_be_visible()
 
 
+def test_patient_changes_password_and_stays_signed_in(page: Page):
+    username = f"leela-{uuid.uuid4().hex[:6]}"
+    page.goto("/")
+    page.get_by_role("button", name="Create account").click()
+    form = page.get_by_role("form", name="Create account")
+    form.get_by_label("Full name").fill("Leela Kulkarni")
+    form.get_by_label("Username").fill(username)
+    form.get_by_label("Password", exact=True).fill("monsoon-tea-7")
+    form.get_by_label("Birth year").fill("1985")
+    form.get_by_label("Mobile number").fill("9822012346")
+    form.get_by_role("button", name="Create account").click()
+    page.get_by_role("link", name="Profile").click()
+    change = page.get_by_role("form", name="Change password")
+    change.get_by_label("Current password", exact=True).fill("monsoon-tea-7")
+    change.get_by_label("New password", exact=True).fill("winter-chai-8")
+    change.get_by_label("New password, again", exact=True).fill("winter-chai-9")
+    change.get_by_role("button", name="Change password").click()
+    expect(change.get_by_role("alert")).to_contain_text("The two new passwords are different.")
+    change.get_by_label("New password, again", exact=True).fill("winter-chai-8")
+    change.get_by_role("button", name="Change password").click()
+    expect(change.get_by_role("status")).to_contain_text("Password changed")
+    page.get_by_role("link", name="My appointments").click()  # still signed in, with the new sign-in
+    expect(page.get_by_text("No upcoming appointments")).to_be_visible()
+
+
+def log_in(page: Page, username: str, password: str) -> None:
+    login = page.get_by_role("form", name="Log in")
+    login.get_by_label("Username").fill(username)
+    login.get_by_label("Password", exact=True).fill(password)
+    login.get_by_role("button", name="Log in").click()
+
+
+def test_admin_creates_a_staff_account_that_chooses_its_own_password(page: Page):
+    username = f"desk-{uuid.uuid4().hex[:6]}"
+    sign_in(page, "OPD admin")
+    page.get_by_role("link", name="Accounts", exact=True).click()
+    page.get_by_role("button", name="New account").click()
+    dialog = page.get_by_role("dialog", name="New account")
+    dialog.get_by_label("Full name").fill("Kavya Shetty")
+    dialog.get_by_label("Username").fill(username)
+    dialog.get_by_label("Role").select_option("staff")
+    dialog.get_by_role("button", name="Create account").click()
+    shown = page.get_by_role("dialog", name="Temporary password")
+    temporary = shown.locator("code").inner_text()
+    assert len(temporary) == 12
+    shown.get_by_role("button", name="Done").click()
+    expect(page.get_by_role("row").filter(has_text=username)).to_contain_text("Temporary password")
+    page.get_by_role("button", name=re.compile("^Sign out")).click()
+
+    log_in(page, username, temporary)
+    expect(page.get_by_role("heading", name="Choose your own password")).to_be_visible()
+    expect(page.get_by_role("navigation", name="Main")).to_have_count(0)
+    gate = page.get_by_role("form", name="Change password")
+    gate.get_by_label("Temporary password", exact=True).fill(temporary)
+    gate.get_by_label("New password", exact=True).fill("harbour-lamp-31")
+    gate.get_by_label("New password, again", exact=True).fill("harbour-lamp-31")
+    gate.get_by_role("button", name="Change password").click()
+    expect(page.get_by_role("heading", name="Front desk", level=1)).to_be_visible()
+    page.get_by_role("button", name="Sign out (Kavya Shetty)").click()
+
+    sign_in(page, "OPD admin")
+    page.get_by_role("link", name="Accounts", exact=True).click()
+    page.get_by_label("Name or username").fill(username)
+    page.get_by_role("button", name="Search", exact=True).click()
+    page.get_by_role("button", name="Switch off: Kavya Shetty").click()
+    page.get_by_role("dialog", name="Switch account off").get_by_role("button", name="Switch off").click()
+    expect(page.get_by_role("status").filter(has_text="Kavya Shetty's account is switched off.")).to_be_visible()
+    page.get_by_role("button", name=re.compile("^Sign out")).click()
+    log_in(page, username, "harbour-lamp-31")
+    expect(page.get_by_role("form", name="Log in").get_by_role("alert")).to_contain_text("switched off")
+
+
 def test_book_from_recommendations_then_receipt_reschedule_and_cancel(page: Page):
     sign_in(page, "Patient")
     page.get_by_role("link", name="Book", exact=True).click()
@@ -506,9 +578,12 @@ def _axe_violations(page: Page) -> list[dict]:
                 "Profile",
             ],
         ),
-        ("Front desk", ["Front desk", "Calendar", "Doctor status", "Coordination"]),
-        ("OPD admin", ["Dashboard", "Analytics", "Registration form", "Priority rules", "Coordination"]),
-        ("Doctor", ["My queue"]),
+        ("Front desk", ["Front desk", "Calendar", "Doctor status", "Coordination", "My account"]),
+        (
+            "OPD admin",
+            ["Dashboard", "Analytics", "Accounts", "Registration form", "Priority rules", "Coordination", "My account"],
+        ),
+        ("Doctor", ["My queue", "My account"]),
     ],
 )
 def test_no_serious_accessibility_violations(page: Page, role, links):

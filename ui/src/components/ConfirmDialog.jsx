@@ -35,9 +35,11 @@ export default function ConfirmDialog({
           <h2 id="modal-title">{title}</h2>
           <div className="modal-body">{children}</div>
           <div className="modal-actions">
-            <button type="button" className="quiet" disabled={busy} onClick={onClose}>
-              {cancelLabel}
-            </button>
+            {cancelLabel && (
+              <button type="button" className="quiet" disabled={busy} onClick={onClose}>
+                {cancelLabel}
+              </button>
+            )}
             <button
               type="button"
               className={danger ? "danger" : undefined}

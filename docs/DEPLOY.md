@@ -1,5 +1,9 @@
 # Deploying CareFlow on free tiers (docs §12)
 
+There are two ways to run it: the **demo** (`DEMO_MODE=true`, the default: the fictional hospital, demo roles
+and a reset button) and **a hospital's own deployment** (`DEMO_MODE=false`, section 3). The steps are the same
+apart from a few settings.
+
 The whole app — API, chat, live queue and the React UI — is one Docker image listening on port 7860.
 The database is a free Neon Postgres with pgvector. Nothing here costs money; free tiers change, so
 check the limits when you deploy.
@@ -11,8 +15,8 @@ check the limits when you deploy.
    (`postgresql://USER:PASSWORD@HOST/neondb?sslmode=require…`); the app switches it to the psycopg driver.
    This is your `DATABASE_URL`. Keep it secret.
 
-The first start enables pgvector, migrates the database, seeds the fictional hospital (~20 s) and loads the
-knowledge base. Neon's free plan suspends compute when idle; the first request after a pause takes a few
+The first start enables pgvector, migrates the database, seeds the fictional hospital (~20 s; demo mode only)
+and loads the knowledge base. Neon's free plan suspends compute when idle; the first request after a pause takes a few
 seconds.
 
 ## 2. App: Render (free web service)
@@ -41,7 +45,35 @@ after 15 minutes without visitors; the first request then takes about a minute.
 "Patient" → ask "Book a Marathi-speaking cardiologist on Saturday" → confirm the card → see it under
 My appointments. `/api/v1/health` should say `"status": "ok"`.
 
-## 3. Monitoring
+## 3. A hospital's own deployment
+
+Use a separate Neon project (never the demo's database) and a separate Render service. In the service's
+**Environment**, set:
+
+| Name | Value |
+| --- | --- |
+| `DEMO_MODE` | `false` |
+| `AUTH_SECRET` | a long random value (Render can generate one) |
+| `INITIAL_ADMIN_USERNAME` | the first administrator's username, e.g. `admin.sharma` |
+| `INITIAL_ADMIN_PASSWORD` | a temporary password of at least 8 characters |
+| `INITIAL_ADMIN_NAME` | their name as shown in the app |
+| `ALLOW_REGISTRATION` | `true` to let patients and caregivers sign up themselves, `false` for desk registration only |
+
+At every start the app checks whether an admin can sign in. Only if none can does it create this admin, who
+must choose a new password at the first sign-in. The variables can stay set afterwards; they change nothing
+once an admin exists. Render's free plan has no shell, which is why the first admin comes from the
+environment. With a shell, `python -m app.manage create-admin --username U --name "…"` does the same and
+prints a temporary password once.
+
+The admin then opens **Accounts** and creates the front-desk, doctor and other admin accounts. Each gets a
+temporary password, shown once, to hand over in person or by phone; it must be replaced at the first sign-in.
+A forgotten password is reset there in the same way. Switching an account off ends its sessions immediately.
+
+Not yet possible in the app (coming in the next phases): adding departments, doctors and OPD schedules, and
+editing the hospital information documents, which still describe the demo hospital. The demo reset and the
+demo roles are switched off in this mode.
+
+## 4. Monitoring
 
 * Add a free uptime monitor (e.g. UptimeRobot) on `/api/v1/health` every 30 minutes; alert after two failures.
 * The admin dashboard shows median latency, LLM errors and cost for recent chat turns on the server, and the
@@ -54,7 +86,9 @@ My appointments. `/api/v1/health` should say `"status": "ok"`.
 | --- | --- |
 | The page says it is waking up / first request is slow | Expected after idle (Render or Neon); wait a minute |
 | Chat answers "The assistant is busy right now" | Free LLM quota reached; it recovers within minutes to a day. Check the Groq console |
-| Visitors left messy data | Admin → Dashboard → **Reset demo data** |
+| Visitors left messy data (demo only) | Admin → Dashboard → **Reset demo data** |
+| An admin forgot their password (hospital deployment) | Another admin resets it under **Accounts**. If no admin can sign in, run `DATABASE_URL='<the Neon string>' python -m app.manage reset-password --username U` from a checkout of this repository on any computer; it prints a temporary password once |
+| Someone left or a device was lost | Admin → **Accounts** → switch the account off (its sessions end at once) or reset its password |
 | Database suspended (free limit hit) | Wait for the monthly reset, or create a new Neon project and update `DATABASE_URL` |
 | A deploy broke the demo | Render → the service → **Events** → roll back to the previous deploy |
 | Slots run out on a long-running demo | They should not: the next 21 days are topped up at every start and every 6 hours |
