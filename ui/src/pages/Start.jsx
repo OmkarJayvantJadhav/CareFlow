@@ -34,7 +34,7 @@ const FEATURES = [
 
 /** S1: what CareFlow does, the language, sign-in and sign-up; the demo roles only on the demo deployment. */
 export default function Start() {
-  const { user, config, demo, hospitalName, lang, setLang, signIn, t } = useSession();
+  const { user, config, demo, notice, hospitalName, lang, setLang, signIn, t } = useSession();
   const navigate = useNavigate();
   const location = useLocation();
   const [busy, setBusy] = useState(null);
@@ -102,9 +102,9 @@ export default function Start() {
         {demo && (
           <>
             <div className="divider">
-              <span>{t("orTryDemo")}</span>
+              <span>{t(notice ? "orTryDemo" : "orTryRole")}</span>
             </div>
-            <h3 className="sr-only">{t("chooseRole")}</h3>
+            <h3 className="sr-only">{t(notice ? "chooseRole" : "chooseRoleNeutral")}</h3>
             <div className="roles">
               {ROLES.map(({ role, label, hint, icon: Icon, tone }) => (
                 <button key={role} type="button" className="role" disabled={busy !== null} onClick={() => choose(role)}>
@@ -140,7 +140,7 @@ export default function Start() {
         </div>
         <p className="demo-note">
           <Info size={16} aria-hidden="true" />
-          {t(demo ? "demoNote" : "staffAccountsNote")}
+          {t(demo ? (notice ? "demoNote" : "tryRolesNote") : "staffAccountsNote")}
         </p>
       </section>
     </main>

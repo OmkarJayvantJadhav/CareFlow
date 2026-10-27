@@ -37,7 +37,7 @@ function Body({ text }) {
 /** One document from the information library, in the interface language. */
 export default function LibraryDoc() {
   const { collection, slug } = useParams();
-  const { user, demo, lang, setLang, t } = useSession();
+  const { user, notice, lang, setLang, t } = useSession();
   const [doc, setDoc] = useState(null);
   const [error, setError] = useState(null);
 
@@ -96,7 +96,7 @@ export default function LibraryDoc() {
             </section>
           ))}
           <div className="library-doc-foot">
-            <p className="muted small">{t(demo ? "libraryDisclaimer" : "libraryDisclaimerLive")}</p>
+            <p className="muted small">{t(notice ? "libraryDisclaimer" : "libraryDisclaimerLive")}</p>
             {patient && (
               <div className="row">
                 <Link className="button secondary" to="/chat">

@@ -91,9 +91,9 @@ def build() -> list[KbDoc]:
             (
                 T("Address", "पता", "पत्ता"),
                 T(
-                    "Indravani General Hospital, Hospital Road, Indravani Nagar. The hospital and its address are fictional.",
-                    "इंद्रवाणी जनरल हॉस्पिटल, हॉस्पिटल रोड, इंद्रवाणी नगर। अस्पताल और उसका पता काल्पनिक हैं।",
-                    "इंद्रवाणी जनरल हॉस्पिटल, हॉस्पिटल रोड, इंद्रवाणी नगर. रुग्णालय आणि त्याचा पत्ता काल्पनिक आहेत.",
+                    "Omkar General Hospital, Pune, Maharashtra.",
+                    "ओंकार जनरल हॉस्पिटल, पुणे, महाराष्ट्र।",
+                    "ओंकार जनरल हॉस्पिटल, पुणे, महाराष्ट्र.",
                 ),
             ),
             (

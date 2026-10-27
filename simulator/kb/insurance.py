@@ -160,7 +160,7 @@ def build() -> list[KbDoc]:
         ),
         doc(
             "sahayata-scheme",
-            T("Indravani Sahayata assistance scheme", "इंद्रवाणी सहायता योजना", "इंद्रवाणी सहायता योजना"),
+            T("Omkar Sahayata assistance scheme", "ओंकार सहायता योजना", "ओंकार सहायता योजना"),
             (
                 T("What it is", "यह क्या है", "ही काय आहे"),
                 T(

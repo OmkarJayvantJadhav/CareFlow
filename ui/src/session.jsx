@@ -99,6 +99,8 @@ export function SessionProvider({ children }) {
       user,
       config,
       demo: config?.demo_mode === true,
+      /** Whether the demo says on every page that its hospital is fictional (D-132). */
+      notice: config?.demo_notice === true,
       /** The hospital's name in the interface language; empty until an admin has entered it. */
       hospitalName: config?.hospital?.name?.[lang] ?? "",
       emergencyNote: config?.hospital?.emergency_note?.[lang] ?? "",

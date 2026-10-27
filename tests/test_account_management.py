@@ -171,7 +171,7 @@ def test_first_admin_is_refused_for_a_non_admin_username(world):
 def test_production_mode_hides_the_demo(api, monkeypatch):
     config = api.get("/api/v1/config").json()
     assert config["demo_mode"] is True and config["allow_registration"] is True
-    assert config["hospital"]["name"]["en"] == "Indravani General Hospital"
+    assert config["hospital"]["name"]["en"] == "Omkar General Hospital"
     prompt = system_prompt("patient", "Asha", {1: "Asha Patil"}, "en", NOW)
     assert "fictional; demo" in prompt
     monkeypatch.setattr(get_settings(), "demo_mode", False)
@@ -179,3 +179,24 @@ def test_production_mode_hides_the_demo(api, monkeypatch):
     assert api.post("/api/v1/auth/demo-login", json={"role": "patient"}).status_code == 403
     assert api.post("/api/v1/admin/reset", headers={"Authorization": "Bearer x"}).status_code == 401
     assert "fictional" not in system_prompt("patient", "Asha", {1: "Asha Patil"}, "en", NOW)
+
+
+def test_the_demo_can_run_without_calling_its_hospital_fictional(api, world, monkeypatch):
+    """DEMO_NOTICE=false: the try-a-role buttons stay, nothing says the hospital is fictional (D-132)."""
+    from app.db.models import HospitalProfile
+    from simulator.seed import PREVIOUS_DEMO_NAME, ensure_demo_profile
+
+    assert api.get("/api/v1/config").json()["demo_notice"] is True
+    monkeypatch.setattr(get_settings(), "demo_notice", False)
+    config = api.get("/api/v1/config").json()
+    assert config["demo_mode"] is True and config["demo_notice"] is False
+    assert api.post("/api/v1/auth/demo-login", json={"role": "patient"}).status_code == 200
+    assert api.get("/api/v1/health").json()["banner"] is None
+    assert "fictional" not in system_prompt("patient", "Asha", {1: "Asha Patil"}, "en", NOW)
+
+    # A demo database seeded under the previous name gets the new details; one an admin renamed does not.
+    profile = world.db.get(HospitalProfile, 1)
+    profile.name = {"en": PREVIOUS_DEMO_NAME}
+    assert ensure_demo_profile(world.db) and profile.name["en"] == "Omkar General Hospital"
+    profile.name = {"en": "Sahyadri Care Hospital"}
+    assert not ensure_demo_profile(world.db) and profile.name["en"] == "Sahyadri Care Hospital"

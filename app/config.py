@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     rag_top_k: int = 4
     rag_candidates: int = 12
     demo_mode: bool = True
+    # In demo mode: say on every page that the hospital is fictional (banner, start page, library, the
+    # assistant's prompt). False keeps the demo's features (try-a-role buttons, reset) but labels nothing (D-132).
+    demo_notice: bool = True
 
     # Retrieval models. "auto" uses the neural model when it can be loaded and
     # falls back to the local implementation otherwise; "local" forces the fallback.

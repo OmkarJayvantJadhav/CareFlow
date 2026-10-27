@@ -9,7 +9,7 @@ doc_key: facilities/location-and-directions
 
 ## Address
 
-Indravani General Hospital, Hospital Road, Indravani Nagar. The hospital and its address are fictional.
+Omkar General Hospital, Pune, Maharashtra.
 
 ## Getting here
 

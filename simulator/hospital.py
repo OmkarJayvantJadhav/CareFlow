@@ -4,16 +4,16 @@ from datetime import time
 
 # The hospital's details as an admin would enter them (phase 7B; the app reads them from the database).
 PROFILE = {
-    "name": {"en": "Indravani General Hospital", "hi": "इंद्रावणी जनरल हॉस्पिटल", "mr": "इंद्रावणी जनरल हॉस्पिटल"},
-    "address": "Hospital Road, Indravani Nagar (fictional)",
+    "name": {"en": "Omkar General Hospital", "hi": "ओंकार जनरल हॉस्पिटल", "mr": "ओंकार जनरल हॉस्पिटल"},
+    "address": "Pune, Maharashtra",
     "phone": "",
     "reception_opens": time(8, 0),
     "reception_closes": time(20, 0),
     "emergency_note": {
-        "en": "At Indravani General Hospital the emergency department is on the ground floor near the main gate "
+        "en": "At Omkar General Hospital the emergency department is on the ground floor near the main gate "
         "and is open 24 hours.",
-        "hi": "इंद्रावणी जनरल हॉस्पिटल का इमरजेंसी विभाग मुख्य द्वार के पास भूतल पर है और 24 घंटे खुला रहता है।",
-        "mr": "इंद्रावणी जनरल हॉस्पिटलचा आपत्कालीन विभाग मुख्य प्रवेशद्वाराजवळ तळमजल्यावर आहे आणि 24 तास सुरू असतो.",
+        "hi": "ओंकार जनरल हॉस्पिटल का इमरजेंसी विभाग मुख्य द्वार के पास भूतल पर है और 24 घंटे खुला रहता है।",
+        "mr": "ओंकार जनरल हॉस्पिटलचा आपत्कालीन विभाग मुख्य प्रवेशद्वाराजवळ तळमजल्यावर आहे आणि 24 तास सुरू असतो.",
     },
 }
 

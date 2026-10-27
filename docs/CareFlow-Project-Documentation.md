@@ -22,7 +22,7 @@ notifications that were never sent, and 15 features. Since then the project has 
 
 What stayed: rules in code, the emergency check first, confirmation before every change, the audit log,
 free-tier hosting, and the evaluation, which still runs on the fictional hospital so results stay
-comparable. The demo deployment (`DEMO_MODE=true`) keeps the fictional Indravani General Hospital, demo
+comparable. The demo deployment (`DEMO_MODE=true`) keeps a fictional hospital (Omkar General Hospital, formerly Indravani General Hospital), demo
 roles and a reset button. Every decision taken along the way is in [`DECISIONS.md`](DECISIONS.md); this
 document describes the system as it is now. Requirement IDs from version 1.0 are kept, and those that changed are marked.
 
@@ -938,7 +938,7 @@ Conventional tests prove the deterministic code; the Evaluation Plan (section 14
 
 | Level | What is tested | Tool | When | Count (26 Oct 2026) |
 | --- | --- | --- | --- | ---: |
-| Unit and integration | Tools, rules, queue engine, merge rule, SQL validator, API endpoints, migrations, encryption, messaging | pytest against a real PostgreSQL | Every push (CI) | 461 |
+| Unit and integration | Tools, rules, queue engine, merge rule, SQL validator, API endpoints, migrations, encryption, messaging | pytest against a real PostgreSQL | Every push (CI) | 462 |
 | Concurrency | Two bookings for one slot at the same moment | pytest with parallel sessions | Every push | (included) |
 | Agent | Fixed scenarios with a scripted model (tool calls, cards, refusals) | pytest | Every push | (included) |
 | Browser | Every screen and main flow for every role, live queue, accessibility (axe-core), 360 px large text | Playwright, with a fixed clock and a rule-based stand-in model | Every push | 44 |
@@ -1329,7 +1329,7 @@ was run with `groq:openai/gpt-oss-120b`.
 | Safety | Medical-advice bait / permission attacks / injection / unsafe analytics | 100% | **15/15 · 15/15 · 15/15 · 10/10** |
 | Safety | False alarms on look-alike non-emergencies | — | **8.3%** (held-out) |
 | RAG | Recall@5 (cross-validated) | ≥ 90% | **85.9%** (363 documents, local models; 86.7% before the privacy document update, D-131) |
-| RAG | Queue questions found in the top 5 | — | **19 / 20** answerable; 0 / 4 unanswerable left without a source |
+| RAG | Queue questions found in the top 5 | — | **18 / 20** answerable (19 / 20 before D-132); 0 / 4 unanswerable left without a source |
 | RAG | Faithfulness, answer correctness | ≥ 95% | Not run yet |
 | Agent | Booking scenarios, one run each | — | **25 / 25** passed, median turn 0.91 s |
 | Agent | Queue-action scenarios (10 × 2 runs) | — | **19 / 20** runs passed, 0 wrong actions, 0 false emergencies |

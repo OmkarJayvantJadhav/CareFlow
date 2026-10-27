@@ -101,7 +101,7 @@ def test_admin_sets_the_hospitals_details_and_the_app_uses_them(api, world):
         "patient", "Asha", {}, "en", NOW, hospital.hospital_name(world.db)
     )
     english = message("emergency", "en", **hospital.message_values(world.db, "en"))
-    assert "Gate 2" in english and "Indravani" not in english
+    assert "Gate 2" in english and "Omkar" not in english
     marathi = message("emergency", "mr", **hospital.message_values(world.db, "mr"))
     assert "Gate 2" not in marathi and "112" in marathi  # no English sentence inside a Marathi reply
     assert "07:30–21:00" in message("handoff", "hi", ticket_id=7, **hospital.message_values(world.db, "hi"))
@@ -298,7 +298,7 @@ def test_doctors_are_removed_only_while_nothing_refers_to_them(world):
 def test_setup_page_through_the_api(api, world):
     admin_h = headers(login(api, "admin"))
     page = api.get("/api/v1/admin/hospital", headers=admin_h).json()
-    assert page["profile"]["name"]["en"] == "Indravani General Hospital" and len(page["departments"]) == 8
+    assert page["profile"]["name"]["en"] == "Omkar General Hospital" and len(page["departments"]) == 8
     cardiology = next(d for d in page["departments"] if d["name"] == "Cardiology")
     assert {d["account"] for d in cardiology["doctors"]} == {"dr-kulkarni", "dr-siddiqui", "dr-iyer"}
     made = api.post(

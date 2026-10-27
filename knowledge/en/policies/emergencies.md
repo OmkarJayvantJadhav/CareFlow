@@ -13,4 +13,4 @@ If you have chest pain, difficulty breathing, severe bleeding, signs of a stroke
 
 ## Our emergency department
 
-The emergency department of Indravani General Hospital is on the ground floor near the main gate and is open 24 hours a day, every day. No appointment is needed.
+The emergency department of Omkar General Hospital is on the ground floor near the main gate and is open 24 hours a day, every day. No appointment is needed.

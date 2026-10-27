@@ -1,11 +1,11 @@
 ---
-title: Indravani Sahayata assistance scheme
+title: Omkar Sahayata assistance scheme
 collection: insurance
 language: en
 last_verified: 2026-10-01
 doc_key: insurance/sahayata-scheme
 ---
-# Indravani Sahayata assistance scheme
+# Omkar Sahayata assistance scheme
 
 ## What it is
 

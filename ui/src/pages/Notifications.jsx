@@ -39,7 +39,7 @@ function deliveryLabel(n) {
 
 /** S13: reminders, rebooking offers and other messages; also sent by SMS or e-mail when the hospital does so. */
 export default function Notifications() {
-  const { t, demo } = useSession();
+  const { t, notice } = useSession();
   const { refresh: refreshBadge } = useNotifications();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -71,7 +71,7 @@ export default function Notifications() {
       <div className="page-header">
         <div>
           <h1>{t("notificationsTitle")}</h1>
-          <p className="lead">{demo ? t("notificationsNote") : t("notificationsNoteLive")}</p>
+          <p className="lead">{notice ? t("notificationsNote") : t("notificationsNoteLive")}</p>
         </div>
         {data?.unread > 0 && (
           <button type="button" className="secondary" onClick={() => void markAll()}>

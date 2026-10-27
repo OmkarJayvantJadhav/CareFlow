@@ -349,11 +349,23 @@ def reset_demo(db: Session, today: date, seed: int = 42, days_ahead: int = SEED_
     return {**summary, "own_accounts_kept": len(accounts)}
 
 
+# The demo hospital's name before it was renamed (D-132); a demo database still showing it gets the new details.
+PREVIOUS_DEMO_NAME = "Indravani General Hospital"
+
+
 def ensure_demo_profile(db: Session) -> bool:
-    """The demo hospital's details on a database seeded before they were stored (phase 7B)."""
-    if db.get(HospitalProfile, 1) is not None or not is_seeded(db):
+    """The demo hospital's details on a database seeded before they were stored (phase 7B), or still showing
+    the demo's previous name. Details an admin changed are left alone."""
+    if not is_seeded(db):
         return False
-    db.add(HospitalProfile(id=1, **hospital.PROFILE))
+    profile = db.get(HospitalProfile, 1)
+    if profile is None:
+        db.add(HospitalProfile(id=1, **hospital.PROFILE))
+    elif (profile.name or {}).get("en") == PREVIOUS_DEMO_NAME:
+        for field, value in hospital.PROFILE.items():
+            setattr(profile, field, value)
+    else:
+        return False
     db.flush()
     return True
 

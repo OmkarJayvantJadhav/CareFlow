@@ -1,11 +1,11 @@
 ---
-title: इंद्रवाणी सहायता योजना
+title: ओंकार सहायता योजना
 collection: insurance
 language: mr
 last_verified: 2026-10-01
 doc_key: insurance/sahayata-scheme
 ---
-# इंद्रवाणी सहायता योजना
+# ओंकार सहायता योजना
 
 ## ही काय आहे
 

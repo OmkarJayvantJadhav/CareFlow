@@ -191,7 +191,7 @@ def health() -> JSONResponse:
         "status": "ok" if healthy and providers else ("degraded" if healthy else "down"),
         "checks": checks,
         "demo_mode": get_settings().demo_mode,
-        "banner": DEMO_BANNER if get_settings().demo_mode else None,
+        "banner": DEMO_BANNER if get_settings().demo_mode and get_settings().demo_notice else None,
     }
     return JSONResponse(body, status_code=200 if healthy else 503)
 

@@ -19,6 +19,7 @@ def public_config(db: Session = Depends(get_db)) -> dict:
     settings = get_settings()
     return {
         "demo_mode": settings.demo_mode,
+        "demo_notice": settings.demo_mode and settings.demo_notice,
         "allow_registration": settings.allow_registration,
         "hospital": public_profile(db),
         "policy": policy.current(),  # the rules in force, for texts that state them

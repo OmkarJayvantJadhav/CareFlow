@@ -25,8 +25,4 @@ Under My profile you can download everything CareFlow holds about you, and delet
 
 ## Chatting with the assistant
 
-The chat assistant uses an AI service outside the hospital to understand your messages. Phone numbers are masked before anything is sent, but please do not type medical details you do not want to share. Booking, check-in and every other screen work without the chat.
-
-## About this demo
-
-Indravani General Hospital is fictional and all patient data in this demo is synthetic. It is not for medical use.
+The chat assistant uses an AI service outside the hospital to understand your messages. Phone numbers are masked before anything is sent, but please do not type medical details you do not want to share. Every other part of CareFlow works without the chat.

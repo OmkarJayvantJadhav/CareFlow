@@ -153,6 +153,10 @@ const en = {
   error_UNSAFE_QUERY: "Only read-only questions are allowed here.",
   loading: "Loading…",
   retry: "Try again",
+  orTryRole: "Or explore without an account",
+  chooseRoleNeutral: "Explore as",
+  tryRolesNote: "Explore every role without an account: patient, caregiver, front desk, doctor and administrator.",
+  sampleNoPassword: "This account signs in without a password. Create your own account to set one.",
   navMessaging: "SMS and e-mail",
   msgTitle: "Messages by SMS and e-mail",
   msgIntro:
@@ -976,6 +980,10 @@ const hi = {
   error_UNSAFE_QUERY: "यहाँ केवल पढ़ने वाले सवाल पूछे जा सकते हैं।",
   loading: "लोड हो रहा है…",
   retry: "फिर कोशिश करें",
+  orTryRole: "या बिना खाते के देखें",
+  chooseRoleNeutral: "इस रूप में देखें",
+  tryRolesNote: "बिना खाते के हर भूमिका देखें: मरीज़, देखभालकर्ता, रिसेप्शन, डॉक्टर और एडमिन।",
+  sampleNoPassword: "यह खाता बिना पासवर्ड के साइन इन होता है। पासवर्ड रखने के लिए अपना खाता बनाएँ।",
   navMessaging: "SMS और ई-मेल",
   msgTitle: "SMS और ई-मेल से संदेश",
   msgIntro:
@@ -1797,6 +1805,10 @@ const mr = {
   error_UNSAFE_QUERY: "येथे फक्त वाचन करणारे प्रश्न विचारता येतात.",
   loading: "लोड होत आहे…",
   retry: "पुन्हा प्रयत्न करा",
+  orTryRole: "किंवा खात्याशिवाय पाहा",
+  chooseRoleNeutral: "या रूपात पाहा",
+  tryRolesNote: "खात्याशिवाय प्रत्येक भूमिका पाहा: रुग्ण, काळजीवाहक, रिसेप्शन, डॉक्टर आणि प्रशासक.",
+  sampleNoPassword: "हे खाते पासवर्डशिवाय साइन इन होते. पासवर्ड ठेवण्यासाठी स्वतःचे खाते तयार करा.",
   navMessaging: "SMS आणि ई-मेल",
   msgTitle: "SMS आणि ई-मेलने संदेश",
   msgIntro:

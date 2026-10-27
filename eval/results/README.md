@@ -47,17 +47,18 @@ queue tool); the tool description was then changed and run 2 made. Both runs are
 | False emergencies | 0 |
 | Median turn latency | 0.95 s |
 
-## Retrieval on the current knowledge base (`rag_kb363_privacy.json`, `rag_queue_privacy.json`)
+## Retrieval on the current knowledge base (`rag_kb363_omkar.json`, `rag_queue_omkar.json`)
 
 Retrieval only (no LLM) on the current 363 documents (after the queue documents, D-97, and the privacy
-document update, D-131; earlier runs: `rag_kb363.json`, `rag_queue.json`). The results table above is from
+document update, D-131, and the hospital's new name, D-132; earlier runs: `rag_kb363*.json`, `rag_queue*.json`).
+The results table above is from
 `rag.json` (357 documents). The 24 queue questions were written by the developer after the documents
 (not by a separate author like the original set) and were not used to tune anything.
 
 | Question set | Documents | recall@5 (production) | Cross-validated recall@5 | Unanswerable left without a source |
 | --- | --- | --- | --- | --- |
 | Original questions (150) | 363 | 86.7% | 85.9% | 26.7% |
-| New queue questions (24) | 363 | 95.0% | 95.0% | 0.0% |
+| New queue questions (24) | 363 | 90.0% | 90.0% | 0.0% |
 
 ## Emergency gate after the queue retrain (`emergency_gate_v3.json`)
 

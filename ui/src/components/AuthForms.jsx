@@ -90,7 +90,7 @@ export function LoginForm({ onDone }) {
 /** A new patient account (the server keeps the phone number encrypted and shows it masked), or a caregiver's account, which has no
  * patient record of its own and asks patients for access afterwards. */
 export function RegisterForm({ onDone }) {
-  const { register, demo, lang, t } = useSession();
+  const { register, notice, lang, t } = useSession();
   const [kind, setKind] = useState("patient");
   const [form, setForm] = useState({ name: "", username: "", password: "", birth_year: "", phone: "", language: lang });
   const [answers, setAnswers] = useState({});
@@ -124,7 +124,7 @@ export function RegisterForm({ onDone }) {
 
   return (
     <form onSubmit={submit} aria-label={t("createAccount")}>
-      {demo && <p className="notice warn small">{t("registerNote")}</p>}
+      {notice && <p className="notice warn small">{t("registerNote")}</p>}
       <fieldset className="account-kind">
         <legend>{t("accountFor")}</legend>
         <div className="segmented" role="group">

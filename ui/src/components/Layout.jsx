@@ -159,11 +159,11 @@ function PatientTools() {
 }
 
 export default function Layout() {
-  const { user, demo, signOut, t } = useSession();
+  const { user, notice, signOut, t } = useSession();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  // The demo deployment says so on every page; a hospital's own deployment does not.
-  const banner = demo && (
+  // The demo deployment says so on every page (unless DEMO_NOTICE is off); a hospital's own deployment does not.
+  const banner = notice && (
     <div className="banner" role="note">
       <Info size={15} aria-hidden="true" />
       {t("banner")}

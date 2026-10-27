@@ -388,17 +388,9 @@ def build() -> list[KbDoc]:
             (
                 T("Chatting with the assistant", "सहायक से चैट करना", "सहाय्यकाशी चॅट करणे"),
                 T(
-                    "The chat assistant uses an AI service outside the hospital to understand your messages. Phone numbers are masked before anything is sent, but please do not type medical details you do not want to share. Booking, check-in and every other screen work without the chat.",
-                    "चैट सहायक आपके संदेश समझने के लिए अस्पताल के बाहर की एक AI सेवा का उपयोग करता है। कुछ भी भेजने से पहले फ़ोन नंबर छिपा दिए जाते हैं, फिर भी कृपया वह चिकित्सा जानकारी न लिखें जो आप साझा नहीं करना चाहते। बुकिंग, चेक-इन और बाकी सभी स्क्रीन चैट के बिना भी काम करती हैं।",
-                    "चॅट सहाय्यक तुमचे संदेश समजण्यासाठी रुग्णालयाबाहेरील एका AI सेवेचा वापर करतो. काहीही पाठवण्यापूर्वी फोन नंबर लपवले जातात, तरीही कृपया जी वैद्यकीय माहिती तुम्हाला सांगायची नाही ती लिहू नका. बुकिंग, चेक-इन आणि इतर सर्व स्क्रीन चॅटशिवायही चालतात.",
-                ),
-            ),
-            (
-                T("About this demo", "इस डेमो के बारे में", "या डेमोबद्दल"),
-                T(
-                    "Indravani General Hospital is fictional and all patient data in this demo is synthetic. It is not for medical use.",
-                    "इंद्रावणी जनरल हॉस्पिटल काल्पनिक है और इस डेमो का पूरा मरीज़ डेटा कृत्रिम है। यह चिकित्सा उपयोग के लिए नहीं है।",
-                    "इंद्रावणी जनरल हॉस्पिटल काल्पनिक आहे आणि या डेमोतील सर्व रुग्ण डेटा कृत्रिम आहे. हे वैद्यकीय वापरासाठी नाही.",
+                    "The chat assistant uses an AI service outside the hospital to understand your messages. Phone numbers are masked before anything is sent, but please do not type medical details you do not want to share. Every other part of CareFlow works without the chat.",
+                    "चैट सहायक आपके संदेश समझने के लिए अस्पताल के बाहर की एक AI सेवा का उपयोग करता है। कुछ भी भेजने से पहले फ़ोन नंबर छिपा दिए जाते हैं, फिर भी कृपया वह चिकित्सा जानकारी न लिखें जो आप साझा नहीं करना चाहते। CareFlow का बाकी हर हिस्सा चैट के बिना भी काम करता है।",
+                    "चॅट सहाय्यक तुमचे संदेश समजण्यासाठी रुग्णालयाबाहेरील एका AI सेवेचा वापर करतो. काहीही पाठवण्यापूर्वी फोन नंबर लपवले जातात, तरीही कृपया जी वैद्यकीय माहिती तुम्हाला सांगायची नाही ती लिहू नका. CareFlow चा इतर प्रत्येक भाग चॅटशिवायही चालतो.",
                 ),
             ),
         ),
@@ -440,9 +432,9 @@ def build() -> list[KbDoc]:
             (
                 T("Our emergency department", "हमारा इमरजेंसी विभाग", "आमचा आपत्कालीन विभाग"),
                 T(
-                    "The emergency department of Indravani General Hospital is on the ground floor near the main gate and is open 24 hours a day, every day. No appointment is needed.",
-                    "इंद्रवाणी जनरल हॉस्पिटल का इमरजेंसी विभाग मुख्य द्वार के पास भूतल पर है और हर दिन 24 घंटे खुला रहता है। अपॉइंटमेंट की ज़रूरत नहीं है।",
-                    "इंद्रवाणी जनरल हॉस्पिटलचा आपत्कालीन विभाग मुख्य प्रवेशद्वाराजवळ तळमजल्यावर आहे आणि दररोज 24 तास सुरू असतो. अपॉइंटमेंटची गरज नाही.",
+                    "The emergency department of Omkar General Hospital is on the ground floor near the main gate and is open 24 hours a day, every day. No appointment is needed.",
+                    "ओंकार जनरल हॉस्पिटल का इमरजेंसी विभाग मुख्य द्वार के पास भूतल पर है और हर दिन 24 घंटे खुला रहता है। अपॉइंटमेंट की ज़रूरत नहीं है।",
+                    "ओंकार जनरल हॉस्पिटलचा आपत्कालीन विभाग मुख्य प्रवेशद्वाराजवळ तळमजल्यावर आहे आणि दररोज 24 तास सुरू असतो. अपॉइंटमेंटची गरज नाही.",
                 ),
             ),
         ),

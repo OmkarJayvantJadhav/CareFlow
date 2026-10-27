@@ -79,7 +79,7 @@ def prepare() -> None:
 
         with session_scope() as db:
             if ensure_demo_profile(db):
-                print("Added the demo hospital's details.")
+                print("Added or updated the demo hospital's details.")
     username, password = os.environ.get("INITIAL_ADMIN_USERNAME"), os.environ.get("INITIAL_ADMIN_PASSWORD")
     if username and password:
         with session_scope() as db:

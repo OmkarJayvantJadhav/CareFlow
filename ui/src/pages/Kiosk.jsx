@@ -11,7 +11,7 @@ const RESET_MS = 20000;
 /** S15: a self-service check-in screen at reception (feature 27). Staff open it on a tablet; patients
  * type the code from their receipt. Only the first name, doctor and time are shown, never other data. */
 export default function Kiosk() {
-  const { demo, hospitalName, lang, setLang, t } = useSession();
+  const { notice, hospitalName, lang, setLang, t } = useSession();
   const errorText = useErrorText();
   const [code, setCode] = useState("");
   const [found, setFound] = useState(null);
@@ -64,7 +64,7 @@ export default function Kiosk() {
   const bookable = found && found.today && ["booked", "rescheduled"].includes(found.status);
   return (
     <div className="kiosk">
-      {demo && (
+      {notice && (
         <div className="banner" role="note">
           <Info size={15} aria-hidden="true" />
           {t("banner")}

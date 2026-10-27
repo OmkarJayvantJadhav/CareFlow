@@ -22,8 +22,15 @@ function renderStart(config) {
 
 describe("start page", () => {
   it("offers the demo roles on the demo deployment", async () => {
-    renderStart({ demo_mode: true, allow_registration: true });
+    renderStart({ demo_mode: true, demo_notice: true, allow_registration: true });
     expect(await screen.findByText("Or try the demo without an account")).toBeInTheDocument();
+  });
+
+  it("offers the roles without calling the hospital fictional when the notice is off", async () => {
+    renderStart({ demo_mode: true, demo_notice: false, allow_registration: true });
+    expect(await screen.findByText("Or explore without an account")).toBeInTheDocument();
+    expect(screen.getByText(/Explore every role without an account/)).toBeInTheDocument();
+    expect(screen.queryByText(/Fictional hospital/)).not.toBeInTheDocument();
   });
 
   it("has no demo on a hospital's own deployment", async () => {
