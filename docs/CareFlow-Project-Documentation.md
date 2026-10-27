@@ -938,7 +938,7 @@ Conventional tests prove the deterministic code; the Evaluation Plan (section 14
 
 | Level | What is tested | Tool | When | Count (26 Oct 2026) |
 | --- | --- | --- | --- | ---: |
-| Unit and integration | Tools, rules, queue engine, merge rule, SQL validator, API endpoints, migrations, encryption, messaging | pytest against a real PostgreSQL | Every push (CI) | 460 |
+| Unit and integration | Tools, rules, queue engine, merge rule, SQL validator, API endpoints, migrations, encryption, messaging | pytest against a real PostgreSQL | Every push (CI) | 461 |
 | Concurrency | Two bookings for one slot at the same moment | pytest with parallel sessions | Every push | (included) |
 | Agent | Fixed scenarios with a scripted model (tool calls, cards, refusals) | pytest | Every push | (included) |
 | Browser | Every screen and main flow for every role, live queue, accessibility (axe-core), 360 px large text | Playwright, with a fixed clock and a rule-based stand-in model | Every push | 44 |

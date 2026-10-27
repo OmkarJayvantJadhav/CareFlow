@@ -60,3 +60,18 @@ def test_statements_are_never_prepared_on_the_server(engine):
         for _ in range(8):  # more than psycopg's default threshold of 5
             conn.execute(text("SELECT 1"))
         assert conn.execute(text("SELECT count(*) FROM pg_prepared_statements")).scalar() == 0
+
+
+def test_updates_of_many_rows_never_use_a_pipeline(engine, monkeypatch):
+    """psycopg's executemany() runs in pipeline mode, which broke COMMIT behind Neon's pooler (D-129)."""
+    import psycopg
+
+    def refuse(*args, **kwargs):
+        raise AssertionError("executemany() was used")
+
+    monkeypatch.setattr(psycopg.Cursor, "executemany", refuse)
+    with engine.begin() as conn:
+        conn.execute(text("CREATE TEMP TABLE pipeline_check (id int primary key, v text)"))
+        conn.execute(text("INSERT INTO pipeline_check VALUES (1, 'a'), (2, 'b'), (3, 'c')"))
+        conn.execute(text("UPDATE pipeline_check SET v = :v WHERE id = :id"), [{"id": i, "v": "z"} for i in (1, 2, 3)])
+        assert conn.execute(text("SELECT count(*) FROM pipeline_check WHERE v = 'z'")).scalar() == 3
