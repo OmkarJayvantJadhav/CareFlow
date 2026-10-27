@@ -6,6 +6,7 @@ import {
   Info,
   Languages,
   ListOrdered,
+  MonitorPlay,
   Stethoscope,
   UserRound,
   UsersRound,
@@ -119,6 +120,23 @@ export default function Start() {
                 </button>
               ))}
             </div>
+          </>
+        )}
+        {!demo && config?.demo_site_url && (
+          <>
+            <div className="divider">
+              <span>{t("orTryDemoSite")}</span>
+            </div>
+            <a className="role" href={config.demo_site_url} target="_blank" rel="noopener noreferrer">
+              <span className="icon-tile info" aria-hidden="true">
+                <MonitorPlay size={20} />
+              </span>
+              <span className="role-text">
+                <strong>{t("tryDemoSite")}</strong>
+                <span>{t("tryDemoSiteHint")}</span>
+              </span>
+              <ChevronRight className="chev" size={18} aria-hidden="true" />
+            </a>
           </>
         )}
         {error !== null && <ErrorMessage error={error} />}

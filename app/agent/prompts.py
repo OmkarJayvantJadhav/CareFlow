@@ -39,7 +39,9 @@ def system_prompt(
 ) -> str:
     return SYSTEM_TEMPLATE.format(
         hospital=hospital or "this hospital",
-        demo=" (fictional; demo, not for medical use)" if get_settings().demo_mode and get_settings().demo_notice else "",
+        demo=" (fictional; demo, not for medical use)"
+        if get_settings().demo_mode and get_settings().demo_notice
+        else "",
         today=display_date(now.date(), "en"),
         time=now.strftime("%H:%M"),
         user=f"{display_name} ({role})",

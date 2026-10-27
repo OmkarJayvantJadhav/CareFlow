@@ -869,11 +869,30 @@ tbody tr:hover {
   border-color: var(--primary-line);
 }
 
+/* "Try the demo" on a hospital's deployment: a link that looks like the role buttons. */
+a.role {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  font-weight: inherit;
+}
+
 .role .role-text {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1 1 7rem;
   min-width: 0;
+}
+
+/* Too narrow for the icon and the text side by side (a phone in large-text mode): the text goes below. */
+.role {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 30rem) {
+  .role .chev {
+    display: none;
+  }
 }
 
 .role .role-text span {

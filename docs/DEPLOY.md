@@ -62,6 +62,7 @@ Use a separate Neon project (never the demo's database) and a separate Render se
 | `INITIAL_ADMIN_PASSWORD` | a temporary password of at least 8 characters |
 | `INITIAL_ADMIN_NAME` | their name as shown in the app |
 | `ALLOW_REGISTRATION` | `true` to let patients and caregivers sign up themselves, `false` for desk registration only |
+| `DEMO_SITE_URL` | optional: your demo site's address (e.g. `https://careflow-zy87.onrender.com`); the start page then shows a "Try the demo" button that opens it in a new tab |
 
 At every start the app checks whether an admin can sign in. Only if none can does it create this admin, who
 must choose a new password at the first sign-in. The variables can stay set afterwards; they change nothing

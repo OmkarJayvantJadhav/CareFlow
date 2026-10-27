@@ -200,3 +200,15 @@ def test_the_demo_can_run_without_calling_its_hospital_fictional(api, world, mon
     assert ensure_demo_profile(world.db) and profile.name["en"] == "Omkar General Hospital"
     profile.name = {"en": "Sahyadri Care Hospital"}
     assert not ensure_demo_profile(world.db) and profile.name["en"] == "Sahyadri Care Hospital"
+
+
+def test_a_hospital_deployment_can_link_to_a_demo_site(api, monkeypatch):
+    """DEMO_SITE_URL: a "Try the demo" link on a hospital's own start page, never on the demo itself (D-133)."""
+    settings = get_settings()
+    monkeypatch.setattr(settings, "demo_site_url", "https://careflow-zy87.onrender.com")
+    assert api.get("/api/v1/config").json()["demo_site_url"] is None  # the demo does not link to itself
+    monkeypatch.setattr(settings, "demo_mode", False)
+    assert api.get("/api/v1/config").json()["demo_site_url"] == "https://careflow-zy87.onrender.com"
+    for bad in ("javascript:alert(1)", "careflow-zy87.onrender.com", 'https://x.org/"><script>', ""):
+        monkeypatch.setattr(settings, "demo_site_url", bad)
+        assert api.get("/api/v1/config").json()["demo_site_url"] is None

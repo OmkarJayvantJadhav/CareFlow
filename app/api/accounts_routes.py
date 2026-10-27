@@ -12,6 +12,14 @@ from app.tools.hospital import public_profile
 router = APIRouter(prefix="/api/v1")
 
 
+def _demo_site_url(settings) -> str | None:
+    """The separate demo site a hospital's deployment links to; only a plain http(s) address is passed on."""
+    url = settings.demo_site_url.strip()
+    if settings.demo_mode or not url.startswith(("https://", "http://")) or any(c in url for c in ' "<>'):
+        return None
+    return url
+
+
 @router.get("/config", tags=["auth"])
 def public_config(db: Session = Depends(get_db)) -> dict:
     """What every page needs before sign-in: the hospital's name and emergency directions (null until an admin
@@ -20,6 +28,7 @@ def public_config(db: Session = Depends(get_db)) -> dict:
     return {
         "demo_mode": settings.demo_mode,
         "demo_notice": settings.demo_mode and settings.demo_notice,
+        "demo_site_url": _demo_site_url(settings),
         "allow_registration": settings.allow_registration,
         "hospital": public_profile(db),
         "policy": policy.current(),  # the rules in force, for texts that state them
