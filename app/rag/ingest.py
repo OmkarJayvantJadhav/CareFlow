@@ -43,6 +43,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--if-needed", action="store_true", help="re-embed only documents that changed")
     args = parser.parse_args(argv)
     # The templates in one short transaction; the slow part (fitting and embedding) holds none (D-130).
+    print("knowledge base: loading the documents", flush=True)
     with session_scope() as db:
         load_policy(db)
         templates = sync_templates(db, args.root)

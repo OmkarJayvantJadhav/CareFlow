@@ -15,7 +15,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PORT=7860 \
     MODEL_CACHE_DIR=/home/careflow/models \
     EMBEDDING_BACKEND=local \
-    RERANKER_BACKEND=local
+    RERANKER_BACKEND=local \
+    OMP_NUM_THREADS=1 \
+    OPENBLAS_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1
+# One thread for the numeric libraries (D-138): a free instance has a fraction of one CPU, and a thread per
+# host core only competes for it.
 # The local retriever by default (D-135): it fits a free 512 MB instance and is what the evaluation measured.
 # Left to "auto", a service created without these variables downloaded and ran the neural models at start-up
 # and never opened its port. A service's own environment variables still override them.

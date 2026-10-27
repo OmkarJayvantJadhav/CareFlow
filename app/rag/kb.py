@@ -168,10 +168,14 @@ def reindex_without_holding_a_transaction(
     settings = get_settings()
     with factory() as db:  # closing (not committing) keeps the rows' loaded values
         plan = _plan(db, chunker)
+    # Progress lines, so a deployment log shows where a slow start-up is (D-138).
+    print(f"knowledge base: preparing the search model on {len(plan.texts)} passages", flush=True)
     embedder = choose_embedder(
         settings.embedding_backend, settings.embedding_model, settings.model_cache_dir, plan.texts
     )
+    print("knowledge base: embedding the changed documents", flush=True)
     todo, embedded = _embed(plan, embedder, force)
+    print(f"knowledge base: saving {len(embedded)} passages", flush=True)
     with factory() as db:
         _write(db, plan, todo, embedded, embedder.name)
         db.commit()
