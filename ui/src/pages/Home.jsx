@@ -75,6 +75,12 @@ export default function Home() {
             <BookOpen size={18} aria-hidden="true" />
             {t("homeInfo")}
           </Link>
+          {config?.demo_site_url && (
+            <a href={config.demo_site_url} target="_blank" rel="noopener noreferrer" className="button secondary">
+              <MonitorPlay size={18} aria-hidden="true" />
+              {t("tryDemoSite")}
+            </a>
+          )}
         </div>
       </section>
 

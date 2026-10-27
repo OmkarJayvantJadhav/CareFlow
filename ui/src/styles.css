@@ -3220,6 +3220,13 @@ textarea.doc-body {
   align-items: flex-start;
 }
 
+.home .fact > div,
+.home .dept > div,
+.home .doctor-head > div {
+  min-width: 0; /* long names wrap inside their card on a phone in large text */
+  overflow-wrap: anywhere;
+}
+
 .home .fact h2,
 .home .dept h3,
 .home .doctor h3,

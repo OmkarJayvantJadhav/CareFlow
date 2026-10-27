@@ -49,6 +49,19 @@ describe("home page", () => {
     expect(screen.queryByRole("link", { name: /Try the demo/ })).not.toBeInTheDocument();
   });
 
+  it("links to the demo site from the top of the page and the footer when one is set", async () => {
+    renderRoot({
+      demo_mode: false,
+      allow_registration: true,
+      hospital: HOSPITAL,
+      demo_site_url: "https://demo.example.org",
+    });
+    await screen.findByText("Dr. Meera Joshi");
+    const links = screen.getAllByRole("link", { name: /Try the demo/ });
+    expect(links).toHaveLength(2);
+    for (const link of links) expect(link).toHaveAttribute("href", "https://demo.example.org");
+  });
+
   it("keeps the demo's start page", async () => {
     renderRoot({ demo_mode: true, demo_notice: false, allow_registration: true, hospital: HOSPITAL });
     expect(await screen.findByText("Or explore without an account")).toBeInTheDocument();

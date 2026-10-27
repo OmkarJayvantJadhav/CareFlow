@@ -54,7 +54,8 @@ class Server:
         self.port = free_port()
         self.url = f"http://127.0.0.1:{self.port}"
         args = [sys.executable, "-m", "tests.e2e.server", str(self.port)] + (["--hospital"] if hospital else [])
-        env = {**os.environ, "DEMO_NOTICE": "false"}  # as on the live demo
+        # As on the live sites: no "fictional" labels; the hospital site links to the demo.
+        env = {**os.environ, "DEMO_NOTICE": "false", "DEMO_SITE_URL": "https://careflow-zy87.onrender.com"}
         self.proc = subprocess.Popen(args, cwd=ROOT, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         deadline = time.monotonic() + 240
         while time.monotonic() < deadline:

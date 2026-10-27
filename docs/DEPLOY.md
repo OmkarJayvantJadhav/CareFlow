@@ -65,7 +65,7 @@ Use a separate Neon project (never the demo's database) and a separate Render se
 | `EMBEDDING_BACKEND`, `RERANKER_BACKEND` | `local` (already the image's default; on a free 512 MB instance the neural models stall the start-up) |
 | `GROQ_API_KEY`, `GEMINI_API_KEY` | the assistant's model keys, as for the demo |
 | `DATABASE_URL` | the hospital's own Neon connection string |
-| `DEMO_SITE_URL` | optional: your demo site's address (e.g. `https://careflow-zy87.onrender.com`); the sign-in page and the homepage's footer then show a "Try the demo" link that opens it in a new tab |
+| `DEMO_SITE_URL` | optional: your demo site's address (e.g. `https://careflow-zy87.onrender.com`); the homepage (top and footer) and the sign-in page then show a "Try the demo" link that opens it in a new tab |
 
 At every start the app checks whether an admin can sign in. Only if none can does it create this admin, who
 must choose a new password at the first sign-in. The variables can stay set afterwards; they change nothing

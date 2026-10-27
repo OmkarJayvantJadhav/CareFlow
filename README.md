@@ -475,7 +475,7 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 | `TRACE_DIR` | `traces` | JSON-lines traces of every turn (masked) |
 | `WARM_UP_RETRIEVER` | `true` | Load retrieval at start-up; also starts the slot top-up, reminder and end-of-day threads (the message sender always runs) |
 | `QUEUE_MERGE_RULE` | `slot_order` | `slot_order` (booked keep slot order, walk-ins fill gaps) or `alternate` |
-| `DEMO_SITE_URL` | — | A hospital's own deployment: show "Try the demo" on the sign-in page and the homepage's footer, linking to this demo site |
+| `DEMO_SITE_URL` | — | A hospital's own deployment: show "Try the demo" on the homepage (top and footer) and the sign-in page, linking to this demo site |
 | `DEMO_NOTICE` | `true` | In demo mode, say on every page that the hospital is fictional; `false` keeps the try-a-role buttons without labels (the live site) |
 | `DEMO_MODE`, `SIMULATOR_SEED` | `true`, `42` | `true`: the fictional hospital, demo roles, demo reset and banner; `false`: a hospital's own deployment. Seed for the synthetic data |
 
