@@ -1,9 +1,10 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Layout from "./components/Layout";
 import Account from "./pages/Account";
 import Accounts from "./pages/Accounts";
 import Analytics from "./pages/Analytics";
 import Documents from "./pages/Documents";
+import Home from "./pages/Home";
 import Messaging from "./pages/Messaging";
 import HospitalSetup from "./pages/HospitalSetup";
 import Appointments from "./pages/Appointments";
@@ -38,11 +39,21 @@ export const HOME = {
 
 /** `fullScreen` pages sit outside the layout, which is where a temporary password must be replaced first. */
 function Guard({ roles, fullScreen = false, children }) {
-  const { user } = useSession();
-  if (!user) return <Navigate to="/" replace />;
+  const { user, demo } = useSession();
+  const location = useLocation();
+  // A hospital's deployment sends visitors to log in and back here afterwards; the demo has its roles on "/".
+  if (!user)
+    return demo ? <Navigate to="/" replace /> : <Navigate to="/login" replace state={{ from: location.pathname }} />;
   if (fullScreen && user.must_change_password) return <Navigate to={HOME[user.role]} replace />;
   if (!roles.includes(user.role)) return <Navigate to={HOME[user.role]} replace />;
   return children;
+}
+
+/** "/": a hospital's own deployment shows its homepage to visitors (D-134); the demo keeps its start page. */
+export function Root() {
+  const { user, config, demo } = useSession();
+  if (config === null) return null; // until /config answers
+  return demo || user ? <Start /> : <Home />;
 }
 
 export default function App() {
@@ -59,7 +70,8 @@ export default function App() {
         }
       />
       <Route element={<Layout />}>
-        <Route path="/" element={<Start />} />
+        <Route path="/" element={<Root />} />
+        <Route path="/login" element={<Start />} />
         {/* Hospital information: open to everyone, signed in or not. */}
         <Route path="/library" element={<Library />} />
         <Route path="/library/:collection/:slug" element={<LibraryDoc />} />

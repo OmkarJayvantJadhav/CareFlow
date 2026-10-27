@@ -62,7 +62,7 @@ Use a separate Neon project (never the demo's database) and a separate Render se
 | `INITIAL_ADMIN_PASSWORD` | a temporary password of at least 8 characters |
 | `INITIAL_ADMIN_NAME` | their name as shown in the app |
 | `ALLOW_REGISTRATION` | `true` to let patients and caregivers sign up themselves, `false` for desk registration only |
-| `DEMO_SITE_URL` | optional: your demo site's address (e.g. `https://careflow-zy87.onrender.com`); the start page then shows a "Try the demo" button that opens it in a new tab |
+| `DEMO_SITE_URL` | optional: your demo site's address (e.g. `https://careflow-zy87.onrender.com`); the sign-in page and the homepage's footer then show a "Try the demo" link that opens it in a new tab |
 
 At every start the app checks whether an admin can sign in. Only if none can does it create this admin, who
 must choose a new password at the first sign-in. The variables can stay set afterwards; they change nothing
@@ -76,6 +76,10 @@ is; then each department with its OPD hours, and each doctor with their language
 length. Slots open from the next day. Then **Accounts**: the front-desk, doctor and other admin accounts. Each gets a
 temporary password, shown once, to hand over in person or by phone; it must be replaced at the first sign-in.
 A forgotten password is reset there in the same way. Switching an account off ends its sessions immediately.
+
+The site's address (`/`) is the hospital's homepage, built from these details: departments, doctors, hours,
+address, phone and the emergency note. Everyone signs in at `/login`, linked from the homepage's header and
+footer.
 
 **Patient data and the assistant.** In chat, messages (with phone numbers masked), the names of the patients
 being helped and their appointment details are sent to the LLM provider you configure (Groq and Gemini on the

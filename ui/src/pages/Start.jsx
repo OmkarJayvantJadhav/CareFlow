@@ -42,6 +42,8 @@ export default function Start() {
   const [error, setError] = useState(null);
   const [mode, setMode] = useState("login");
   const signUp = config?.allow_registration !== false;
+  // Back to the page the visitor was heading for (a hospital's homepage sends "Book" here first).
+  const next = (u) => location.state?.from ?? HOME[u.role];
   if (user) return <Navigate to={HOME[user.role]} replace />;
 
   async function choose(role) {
@@ -96,9 +98,9 @@ export default function Start() {
           </div>
         )}
         {mode === "login" || !signUp ? (
-          <LoginForm onDone={(u) => navigate(HOME[u.role])} />
+          <LoginForm onDone={(u) => navigate(next(u))} />
         ) : (
-          <RegisterForm onDone={(u) => navigate(HOME[u.role])} />
+          <RegisterForm onDone={(u) => navigate(next(u))} />
         )}
         {demo && (
           <>

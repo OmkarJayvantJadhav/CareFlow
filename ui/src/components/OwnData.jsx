@@ -9,7 +9,7 @@ import ErrorMessage from "./ErrorMessage";
 
 /** A patient's or caregiver's own data: download it all, or delete the account and personal details. */
 export default function OwnData() {
-  const { user, signOut, t } = useSession();
+  const { user, demo, signOut, t } = useSession();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -38,7 +38,7 @@ export default function OwnData() {
     try {
       await api("/me/erase", { method: "POST", body: { password } });
       signOut();
-      navigate("/", { replace: true, state: { accountDeleted: true } });
+      navigate(demo ? "/" : "/login", { replace: true, state: { accountDeleted: true } });
     } catch (err) {
       setDeleteError(err);
       setBusy(false);

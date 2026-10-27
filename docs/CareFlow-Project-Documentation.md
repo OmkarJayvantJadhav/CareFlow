@@ -765,7 +765,7 @@ groups.
 
 | Group | Paths (under `/api/v1`) | Roles |
 | --- | --- | --- |
-| Health and settings | `GET /health`, `GET /config` (mode, hospital, rules in force, messaging channels) | Public |
+| Health and settings | `GET /health`, `GET /config` (mode, hospital, rules in force, messaging channels), `GET /directory` (departments, doctors, reception hours for the homepage) | Public |
 | Sign-in and account | `/auth/login`, `/auth/register`, `/auth/demo-login`, `/me`, `/me/password` | Public / signed in |
 | Chat | `POST /chat` (reply, citations, confirmation card, hand-off) | Patient, caregiver |
 | Doctors and booking | `/departments`, `/doctors`, `/doctors/{id}/slots`, `/recommendations`, `/appointments` (POST, PATCH, DELETE), `/appointments/{id}/receipt`, `/patients/{id}/appointments`, `/waiting-list` | Patient, caregiver, staff |
@@ -853,7 +853,7 @@ usable on a phone for every role). Every change is visible and confirmed.
 
 | ID | Screen | Route | Who |
 | --- | --- | --- | --- |
-| S1 | Start: language, sign-in, sign-up (patient or caregiver), demo roles in demo mode | `/` | Everyone |
+| S1 | Start: language, sign-in, sign-up (patient or caregiver), demo roles in demo mode | `/` (demo), `/login` | Everyone |
 | S2 | Chat with the assistant, citation chips, confirmation cards, "Talk to a person" | `/chat` | Patient, caregiver |
 | S3 | My appointments: upcoming and past, receipt, reschedule, cancel, rebook | `/appointments` | Patient, caregiver |
 | S4 | Queue status: token, people ahead, estimate and range, doctor status, check in, join online, leave | `/queue` | Patient, caregiver |
@@ -879,6 +879,7 @@ usable on a phone for every role). Every change is visible and confirmed.
 | S24 | Patients: search, record, correct, show number, erase | `/patients` | Staff, admin |
 | S25 | Documents: edit, add, translate, hide, restore, undo | `/documents` | Admin |
 | S26 | SMS and e-mail: provider status, sending on/off, kinds, test, last 7 days, failures | `/messaging` | Admin |
+| S27 | Hospital homepage (hospital deployment only): hours, address, phone, departments, doctors, how it works, information links, emergency strip | `/` | Visitors not signed in |
 
 ### Key flows
 

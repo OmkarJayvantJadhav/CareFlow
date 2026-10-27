@@ -79,6 +79,28 @@ def message_values(db: Session, language: str) -> dict[str, str]:
     return {"note": f" {note}" if note else "", "hours": (", " if language == "en" else " ") + hours if hours else ""}
 
 
+def public_directory(db: Session, today: date) -> dict:
+    """What a hospital's homepage shows anyone (D-134): reception hours, departments with their OPD hours,
+    and the doctors who still hold OPD, with their languages and OPD days. No patient data."""
+    departments = []
+    for dept in db.scalars(select(Department).order_by(Department.name)):
+        doctors = [
+            {"name": d.name, "languages": list(d.languages), "opd_days": sorted(d.opd_days)}
+            for d in sorted(dept.doctors, key=lambda d: d.name)
+            if d.last_day is None or d.last_day >= today
+        ]
+        departments.append(
+            {
+                "name": dept.name,
+                "floor": dept.floor,
+                "opd_start": dept.opd_start.strftime("%H:%M"),
+                "opd_end": dept.opd_end.strftime("%H:%M"),
+                "doctors": doctors,
+            }
+        )
+    return {"reception_hours": reception_hours(db), "departments": departments}
+
+
 def public_profile(db: Session) -> dict | None:
     """What anyone may see: the name, address, phone and emergency directions."""
     profile = get_profile(db)

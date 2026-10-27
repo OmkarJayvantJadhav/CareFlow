@@ -135,6 +135,7 @@ A recorded walk-through with the real language model is in [`docs/demo/careflow-
 | **Live queue** | Your token, people ahead and "about 35 min (25–50)", updated over a WebSocket in under 2 seconds; a message if the doctor is delayed by an emergency, and your new token if you are moved to another doctor. |
 | **Reminders and messages** | The day before and two hours before, in your language, in a notification list with an unread badge — and by SMS or e-mail when the hospital sends them; you choose SMS, e-mail or only in the app. |
 | **Profile and privacy** | Edit your details, change your password, switch reminders and reuse of your details on or off, approve or remove caregivers, download all your data, or delete your account. |
+| **Hospital homepage** | On a hospital's own site, visitors land on its homepage: hours, address and map, phone, departments, doctors with their languages and OPD days, how booking works, links to the hospital information, and an emergency strip — all from Hospital setup. |
 | **Accounts** | Create an account with a password — for yourself, or as a caregiver for a family member — or try the demo roles without one. |
 
 ### 🧾 For the front desk
@@ -328,7 +329,7 @@ At start-up the first admin is created only if no admin can sign in yet, and mus
 first sign-in. That admin enters the hospital's details, departments, doctors and OPD timetables under
 **Hospital setup**, then creates the front-desk, doctor and other admin accounts under **Accounts**. Each new
 account gets a temporary password shown once, which must be replaced at its first sign-in. Patients and
-caregivers sign up on the start page or are registered at the desk. With a shell you can also run
+caregivers sign up at `/login` or are registered at the desk. Visitors land on the hospital's homepage at `/`. With a shell you can also run
 `python -m app.manage create-admin --username U --name "…"` or `reset-password --username U`.
 
 > To send reminders and other messages by SMS or e-mail, set `SMS_PROVIDER` and/or `EMAIL_PROVIDER` and their
@@ -442,7 +443,7 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 | `TRACE_DIR` | `traces` | JSON-lines traces of every turn (masked) |
 | `WARM_UP_RETRIEVER` | `true` | Load retrieval at start-up; also starts the slot top-up, reminder and end-of-day threads (the message sender always runs) |
 | `QUEUE_MERGE_RULE` | `slot_order` | `slot_order` (booked keep slot order, walk-ins fill gaps) or `alternate` |
-| `DEMO_SITE_URL` | — | A hospital's own deployment: show "Try the demo" on the start page, linking to this demo site |
+| `DEMO_SITE_URL` | — | A hospital's own deployment: show "Try the demo" on the sign-in page and the homepage's footer, linking to this demo site |
 | `DEMO_NOTICE` | `true` | In demo mode, say on every page that the hospital is fictional; `false` keeps the try-a-role buttons without labels (the live site) |
 | `DEMO_MODE`, `SIMULATOR_SEED` | `true`, `42` | `true`: the fictional hospital, demo roles, demo reset and banner; `false`: a hospital's own deployment. Seed for the synthetic data |
 
@@ -572,7 +573,7 @@ docs/         specification, decisions, deployment guide, screenshots
 | Document | Contents |
 | --- | --- |
 | [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md) | The specification (version 2.0): problem, requirements (FR-01–FR-74), architecture, database, API, screens, tests, roadmap, security, operations, risks and evaluation |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-133), with the reason |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-134), with the reason |
 | [`docs/DEPLOY.md`](docs/DEPLOY.md) | Free deployment on Render and Neon, monitoring and runbook |
 | [`eval/README.md`](eval/README.md) | How the evaluation works and how to run it |
 | [`eval/results/README.md`](eval/results/README.md) | The generated results table with sample sizes |

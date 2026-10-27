@@ -1,6 +1,8 @@
 """Phase 7A: admins manage accounts; temporary passwords must be replaced; switched-off accounts and old
 sign-ins stop working; caregivers sign up themselves; the first admin comes from the environment."""
 
+from datetime import timedelta
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
@@ -212,3 +214,25 @@ def test_a_hospital_deployment_can_link_to_a_demo_site(api, monkeypatch):
     for bad in ("javascript:alert(1)", "careflow-zy87.onrender.com", 'https://x.org/"><script>', ""):
         monkeypatch.setattr(settings, "demo_site_url", bad)
         assert api.get("/api/v1/config").json()["demo_site_url"] is None
+
+
+def test_a_hospitals_homepage_lists_its_departments_and_doctors_without_sign_in(api, world):
+    """/directory feeds a hospital's public homepage (D-134): hours, departments, current doctors; no patients."""
+    from app.db.models import Doctor
+
+    leaving = world.db.scalars(select(Doctor).order_by(Doctor.id)).first()
+    leaving.last_day = NOW.date() - timedelta(days=1)
+    world.db.commit()
+    body = api.get("/api/v1/directory")
+    assert body.status_code == 200
+    directory = body.json()
+    assert directory["reception_hours"]
+    names = [doc["name"] for dept in directory["departments"] for doc in dept["doctors"]]
+    current = {d.name for d in world.db.scalars(select(Doctor)) if d.last_day is None or d.last_day >= NOW.date()}
+    assert set(names) == current and leaving.name not in names
+    for dept in directory["departments"]:
+        assert set(dept) == {"name", "floor", "opd_start", "opd_end", "doctors"}
+        for doc in dept["doctors"]:
+            assert set(doc) == {"name", "languages", "opd_days"} and doc["opd_days"] == sorted(doc["opd_days"])
+    text = body.text.lower()
+    assert "asha" not in text and "patient" not in text and "phone" not in text

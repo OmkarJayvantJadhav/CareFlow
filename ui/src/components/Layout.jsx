@@ -17,6 +17,7 @@ import {
   Network,
   Scale,
   Send,
+  Siren,
   ListOrdered,
   LogOut,
   UserCog,
@@ -159,7 +160,7 @@ function PatientTools() {
 }
 
 export default function Layout() {
-  const { user, notice, signOut, t } = useSession();
+  const { user, demo, notice, signOut, t } = useSession();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   // The demo deployment says so on every page (unless DEMO_NOTICE is off); a hospital's own deployment does not.
@@ -181,8 +182,21 @@ export default function Layout() {
               <BookOpen size={18} aria-hidden="true" />
               {t("navLibrary")}
             </NavLink>
-            {/* The start page has its own language picker; the library pages need one here. */}
-            <Preferences languages={pathname !== "/"} />
+            {/* The start page has its own language picker; the other pages need one here. */}
+            <Preferences languages={!(pathname === "/login" || (pathname === "/" && demo))} />
+            {!demo && (
+              <span className="top-actions">
+                <a href="tel:112" className="button danger">
+                  <Siren size={16} aria-hidden="true" />
+                  {t("homeCall112")}
+                </a>
+                {pathname !== "/login" && (
+                  <NavLink to="/login" className="button">
+                    {t("logIn")}
+                  </NavLink>
+                )}
+              </span>
+            )}
           </span>
         </header>
         <Outlet />
