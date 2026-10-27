@@ -4,7 +4,9 @@
 * a clock that starts at 08:00 IST that day and then runs normally;
 * a rule-based stand-in for the LLM, so the flows are repeatable and need no API key.
 
-    python -m tests.e2e.server <port>
+    python -m tests.e2e.server <port> [--hospital]
+
+``--hospital`` runs it as a hospital's own site (DEMO_MODE=false) with the same data, for the homepage.
 
 Everything else - tools, rules, cards, safety gate, queue engine, WebSocket, the built UI - is the
 production code.
@@ -18,10 +20,9 @@ import time
 from datetime import datetime
 
 DATABASE_URL = os.environ.get("E2E_DATABASE_URL", "postgresql+psycopg://careflow:careflow@localhost:5432/careflow_e2e")
-_keys = {k: os.environ.get(k, "") for k in ("GROQ_API_KEY", "GEMINI_API_KEY")} if "--real-llm" in sys.argv else {}
 os.environ.update(
     DATABASE_URL=DATABASE_URL,
-    DEMO_MODE="true",
+    DEMO_MODE="false" if "--hospital" in sys.argv else "true",
     WARM_UP_RETRIEVER="false",
     EMBEDDING_BACKEND="local",
     RERANKER_BACKEND="local",
@@ -33,7 +34,6 @@ os.environ.update(
     SMS_PROVIDER="log",  # messages are written to the server log; sending stays off until a test turns it on
     EMAIL_PROVIDER="log",
 )
-os.environ.update(_keys)
 
 from app.agent.llm import LLMResponse, ToolCall  # noqa: E402
 from app.timeutil import HOSPITAL_TZ  # noqa: E402
@@ -134,10 +134,11 @@ def prepare() -> None:
         get_retriever(db)  # load retrieval before serving, as production does at start-up
 
 
-def main(port: int, real_llm: bool = False) -> None:
+def main(port: int) -> None:
     import uvicorn
 
     import app.agent.tracing
+    import app.api.accounts_routes
     import app.api.admin_routes
     import app.api.auth
     import app.api.care_routes
@@ -147,18 +148,16 @@ def main(port: int, real_llm: bool = False) -> None:
     import app.timeutil
 
     for module in (app.timeutil, app.agent.tracing, app.api.auth, app.api.queue_routes, app.api.routes,
-                   app.api.admin_routes, app.api.care_routes, app.api.registration_routes):  # fmt: skip
+                   app.api.admin_routes, app.api.care_routes, app.api.registration_routes, app.api.accounts_routes):  # fmt: skip
         module.now_ist = clock
     prepare()
     from app.api.deps import get_llm
     from app.api.main import app as api
 
-    if not real_llm:
-        llm = RuleLLM()
-        api.dependency_overrides[get_llm] = lambda: llm
+    llm = RuleLLM()
+    api.dependency_overrides[get_llm] = lambda: llm
     uvicorn.run(api, host="127.0.0.1", port=port, log_level="warning")
 
 
 if __name__ == "__main__":
-    # --real-llm keeps the production providers (Groq, then Gemini) - used to record the demo video.
-    main(int(sys.argv[1]), real_llm="--real-llm" in sys.argv)
+    main(int(sys.argv[1]))

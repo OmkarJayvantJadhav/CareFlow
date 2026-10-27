@@ -1,193 +1,224 @@
 <div align="center">
 
+<img src="docs/gifs/homepage.gif" alt="A hospital's homepage built with CareFlow: departments, doctors, hours and an emergency strip" width="100%">
+
 # 🏥 CareFlow
 
-**An OPD system for a hospital — appointments, information, check-in, the live queue and messages to
-patients — in English, हिन्दी and मराठी.**
+### Your OPD visit, without the wait
 
-Book, reschedule and cancel appointments by chat or in a few taps, get answers cited from the hospital's
-own documents, check in from your phone or a kiosk, join a queue online and watch your token move in real
-time, with reminders in the app, by SMS or by e-mail. Doctors and the front desk run, balance and
-coordinate every queue, and the hospital's admins keep its people, timetables, rules and documents.
+**Appointments, hospital information, check-in, a live queue and messages to patients — in English, हिन्दी and मराठी.**
 
-[![Live demo](https://img.shields.io/badge/live%20demo-careflow--zy87.onrender.com-0f766e?style=for-the-badge)](https://careflow-zy87.onrender.com)
+[![Live demo](https://img.shields.io/badge/▶%20live%20demo-careflow--zy87.onrender.com-0f766e?style=for-the-badge)](https://careflow-zy87.onrender.com)
+[![Hospital site](https://img.shields.io/badge/🏥%20hospital%20site-omkar--general--hospital-1e40af?style=for-the-badge)](https://omkar-general-hospital.onrender.com)
 
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.148-009688?logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-463%20Python%20·%2044%20browser-15803d)
+![Tests](https://img.shields.io/badge/tests-464%20Python%20·%2044%20browser%20·%2012%20UI-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
-> ⚠️ **Portfolio project. The live site runs a fictional hospital, "Omkar General Hospital", with synthetic data: it is not a real hospital and not for medical use.**
-> A hospital runs its own copy with `DEMO_MODE=false`: its own accounts, departments, doctors, rules and documents,
-> no demo roles or reset ([production setup](#running-it-for-a-real-hospital)). Phone numbers and e-mail addresses
-> are encrypted at rest and shown masked.
+[Features](#-features-in-action) •
+[How it works](#️-how-it-works) •
+[Results](#-measured-results) •
+[Quick start](#-quick-start) •
+[Real hospital](#running-it-for-a-real-hospital) •
+[Docs](#-documentation)
 
 </div>
 
-<p align="center">
-  <img src="docs/screenshots/chat.png" alt="The assistant proposing a booking on a confirmation card" width="49%">
-  <img src="docs/screenshots/book.png" alt="Booking page with ranked, explained time recommendations" width="49%">
-</p>
+> [!NOTE]
+> **Portfolio project.** Both sites run a fictional hospital, "Omkar General Hospital", with synthetic data — not a
+> real hospital and not for medical use. The **demo** lets you try every role without an account; the **hospital
+> site** (`DEMO_MODE=false`) is how a real hospital would run it: its own homepage, accounts, departments, doctors,
+> rules and documents.
 
 ---
 
-## Contents
+## ✨ Why CareFlow
 
-- [Why CareFlow](#why-careflow)
-- [Screenshots](#screenshots)
-- [Features](#features)
-- [How it works](#how-it-works)
-- [Measured results](#measured-results)
-- [Quick start](#quick-start)
-- [Development and tests](#development-and-tests)
-- [Configuration](#configuration)
-- [Business rules](#business-rules)
-- [Project structure](#project-structure)
-- [Limitations](#limitations)
-- [Documentation](#documentation)
-
----
-
-## Why CareFlow
-
-Outpatient departments lose hours to phone queues, double bookings and crowded waiting rooms. CareFlow puts
-the whole visit in one place — booking, information, check-in, the queue and messages — and is built
-around four principles:
-
-| | Principle | In practice |
-| :---: | --- | --- |
-| 🛡️ | **Rules live in code, not in the model** | The language model can only *propose* a booking. CareFlow checks it, shows a confirmation card and acts only on an explicit "yes". Policy windows, duplicates and permissions are enforced inside every tool. |
-| 🚑 | **Safety first** | Every message is checked for emergencies *before* the model sees it. An emergency gets fixed guidance (call 112 / 108) and nothing is written. Medicine names and doses never reach the user. |
-| 🏥 | **The hospital's own** | Nothing about the hospital is hardcoded: its admins manage the accounts, departments, doctors, timetables, booking and queue rules, information documents and which messages are sent. Patient contact details are encrypted, and patients can download or erase their data. |
-| 📏 | **Measured, not assumed** | An evaluation suite with held-out test sets measures safety, retrieval and the agent. Every number below comes from a real run and states its sample size. |
-
----
-
-## Screenshots
+Outpatient departments lose hours to phone queues, double bookings and crowded waiting rooms. CareFlow puts the
+whole visit in one place and is built around four principles:
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/start.png" alt="Start page with sign-in, sign-up and demo roles"><br><sub><b>Start</b> — sign in, create an account or try a demo role</sub></td>
-    <td width="50%"><img src="docs/screenshots/receipt.png" alt="Printable receipt with a signed QR code"><br><sub><b>Receipt</b> — signed reference code and QR code for check-in</sub></td>
+    <td width="50%" valign="top">
+      <h4>🛡️ Rules live in code, not in the model</h4>
+      The language model can only <i>propose</i> a change. CareFlow checks it, shows a confirmation card and acts
+      only on an explicit "yes". Policy windows, duplicates and permissions are enforced in every tool.
+    </td>
+    <td width="50%" valign="top">
+      <h4>🚑 Safety first</h4>
+      Every message is checked for emergencies <i>before</i> the model sees it. An emergency gets fixed guidance
+      (call 112 / 108) and nothing is written. Medicine names and doses never reach the user.
+    </td>
   </tr>
   <tr>
-    <td><img src="docs/screenshots/front-desk.png" alt="Front desk with code check-in, live queue and bookings"><br><sub><b>Front desk</b> — code check-in, live queue, categories, check-in times</sub></td>
-    <td><img src="docs/screenshots/dashboard.png" alt="Admin dashboard with headline numbers and a department chart"><br><sub><b>Admin dashboard</b> — today's numbers, utilization and evaluation results</sub></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/doctor-queue.png" alt="A doctor's own queue with the patient in the room and requests from the front desk"><br><sub><b>Doctor</b> — own queue, forward a patient, authorize priority requests</sub></td>
-    <td><img src="docs/screenshots/coordination.png" alt="Department coordination board with expected finish times and balancing suggestions"><br><sub><b>Coordination</b> — every doctor's queue side by side, with balancing moves</sub></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/accounts.png" alt="Accounts page with a new account's temporary password shown once"><br><sub><b>Accounts</b> — admins add staff and doctors; the temporary password is shown once</sub></td>
-    <td><img src="docs/screenshots/start-hospital.png" alt="Start page of a hospital's own deployment, without demo roles"><br><sub><b>A hospital's own deployment</b> — sign-in and sign-up, no demo</sub></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/patients.png" alt="A patient's record at the front desk with the full number shown on request"><br><sub><b>Patient records</b> — correct details, see visits, show the number when calling</sub></td>
-    <td><p align="center"><img src="docs/screenshots/phone-password-gate.png" alt="Choosing one's own password on a phone" width="46%"></p><sub><b>First sign-in</b> — a temporary password must be replaced</sub></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/documents.png" alt="Editing an information document with rule placeholders"><br><sub><b>Documents</b> — edit what the library shows and the assistant cites</sub></td>
-    <td><img src="docs/screenshots/rules.png" alt="The hospital's booking and queue rules"><br><sub><b>Rules</b> — the hospital's own cut-offs and windows</sub></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/hospital-setup.png" alt="Hospital setup: a changed timetable keeps its bookings and lists those outside it"><br><sub><b>Hospital setup</b> — a changed timetable keeps every booking and lists those to call</sub></td>
-    <td><p align="center"><img src="docs/screenshots/phone-add-doctor.png" alt="Adding a doctor on a phone in large text" width="46%"></p><sub><b>Phone</b> — every admin screen also works at 360 px in large text</sub></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/messaging.png" alt="The SMS and e-mail page: provider status, the sending switch and the kinds of message"><br><sub><b>SMS and e-mail</b> — off until an admin turns it on; choose which messages go out</sub></td>
-    <td><p align="center"><img src="docs/screenshots/phone-contact-choice.png" alt="A patient choosing SMS, e-mail or only in the app on a phone" width="46%"></p><sub><b>The patient's choice</b> — SMS, e-mail or only in the app</sub></td>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/kiosk.png" alt="Self check-in kiosk"><br><sub><b>Kiosk</b> — self check-in at reception, first name only</sub></td>
-    <td>
-      <p align="center">
-        <img src="docs/screenshots/phone-chat.png" alt="Chat on a phone" width="46%">
-        <img src="docs/screenshots/phone-appointments.png" alt="My appointments on a phone" width="46%">
-      </p>
-      <sub><b>Phone</b> — bottom tab bar, large-text mode, 44 px tap targets</sub>
+    <td valign="top">
+      <h4>🏥 The hospital's own</h4>
+      Nothing about the hospital is hardcoded: admins manage accounts, departments, doctors, timetables, rules,
+      documents and messages. Contact details are encrypted; patients can download or erase their data.
+    </td>
+    <td valign="top">
+      <h4>📏 Measured, not assumed</h4>
+      An evaluation suite with held-out sets measures safety, retrieval and the agent. Every number in this
+      README comes from a real run and states its sample size.
     </td>
   </tr>
 </table>
 
-A recorded walk-through with the real language model is in [`docs/demo/careflow-demo.webm`](docs/demo/careflow-demo.webm)
-(recorded before the interface redesign).
+---
+
+## 🎬 Features in action
+
+Every clip below is the real app, recorded by a browser script
+([`tests/e2e/record_gifs.py`](tests/e2e/record_gifs.py)); the chat uses the test server's rule-based stand-in for
+the language model so the clips are repeatable.
+
+### 🧑‍⚕️ Patients and caregivers
+
+#### 💬 Book by chat — with a confirmation card
+Ask in plain language. The assistant finds the doctor and time, then shows exactly what will happen; nothing
+changes until you tap **Confirm** (cards expire after 5 minutes). Reschedule, cancel, join a waiting list, check
+in or join a queue the same way — or tap **Talk to a person**.
+
+<img src="docs/gifs/chat-booking.gif" alt="Booking a Marathi-speaking cardiologist by chat, confirming the card and seeing it in My appointments" width="100%">
+
+#### 📚 Answers with sources
+Policies, insurance, test preparation and facilities are answered from the hospital's own documents, with
+source chips that open the passage. When the documents don't say, the assistant says "I couldn't find that".
+
+<img src="docs/gifs/cited-answer.gif" alt="Asking about fasting before a lipid profile and opening the cited source" width="100%">
+
+#### 🚑 Emergencies come first
+"My father collapsed" never reaches the model: a fixed panel with 112 / 108 takes over the chat, and nothing is
+booked or changed.
+
+<img src="docs/gifs/emergency.gif" alt="An emergency message replaced by the emergency guidance panel" width="100%">
+
+#### 📅 Book without chatting — times ranked and explained
+Choose a department, doctor, language, dates and time of day. Each suggestion says why it is there — *Soonest*,
+*Speaks your language*, *Doctor you have seen*, *Quieter day*. Every booking gets a printable receipt with a signed
+QR code.
+
+<img src="docs/gifs/book-and-receipt.gif" alt="Finding ranked ENT times, confirming a booking and opening the receipt with its QR code" width="100%">
+
+#### ⏱️ Check in online and watch the live queue
+Check in from an hour before the slot; your token appears at once. The queue page shows people ahead and
+"about 65 min (60–100)", pushed over a WebSocket in under 2 seconds — here the doctor starts running late.
+
+<img src="docs/gifs/check-in-live-queue.gif" alt="Checking in from My appointments, then the queue page updating live when the doctor runs late" width="100%">
+
+#### 📱 Join a doctor's queue online
+No appointment? Join a queue today from your phone, come in when your turn is near, or leave if plans change.
+Caregivers do it for the family members they look after.
+
+<img src="docs/gifs/join-queue-online.gif" alt="A caregiver joining an ENT doctor's queue online and getting token V01" width="100%">
+
+#### 📖 Hospital information, open to everyone
+All 121 topics the assistant answers from, in three languages, searchable without signing in.
+
+<img src="docs/gifs/hospital-information.gif" alt="Searching the hospital information, opening a document and switching it to Hindi and Marathi" width="100%">
+
+#### 🌐 English, हिन्दी and मराठी everywhere
+Every screen, date and message in the patient's language; large-text mode and 44 px tap targets.
+
+<img src="docs/gifs/languages.gif" alt="Switching the whole interface between English, Hindi and Marathi" width="100%">
+
+#### 🔐 Profile, privacy and caregivers
+Edit your details and password, choose SMS, e-mail or in-app messages, switch reminders on or off, approve or
+remove caregivers, download all your data or delete your account.
+
+<img src="docs/gifs/profile-privacy.gif" alt="Approving a caregiver's request on the profile page" width="100%">
+
+<table>
+  <tr>
+    <td width="40%" align="center"><img src="docs/gifs/phone.gif" alt="CareFlow on a phone: joining a queue by chat, the live token and My appointments" width="300"></td>
+    <td width="60%" valign="middle">
+      <h4>📲 Made for phones</h4>
+      A bottom tab bar, large-text mode and 44 px tap targets. Every screen is checked automatically at 360 px wide
+      in large text, and with <b>axe-core</b> for WCAG A/AA issues.
+    </td>
+  </tr>
+</table>
+
+### 🧾 Front desk and doctors
+
+#### 🗂️ The front desk's day
+Every doctor on duty with their bookings, check-ins, late arrivals and patient categories. Check in by receipt
+code or QR, register walk-ins (duplicates are detected), and run the queue — call next, start, end, missed turn —
+with every change pushed live to patients.
+
+<img src="docs/gifs/front-desk.gif" alt="Checking in a booked patient, registering a walk-in and calling the next patient" width="100%">
+
+#### 🖥️ Self check-in kiosk
+A full-screen kiosk for reception: type or scan the receipt code, see only your first name, check in, and it
+resets itself.
+
+<img src="docs/gifs/kiosk.gif" alt="A patient checking in at the kiosk with their receipt code" width="100%">
+
+#### 🩺 The doctor's own queue
+Only their patients: who is in the room, who is waiting, and requests from the desk. Doctors approve or decline
+priority changes, call, start and end visits, forward patients and record breaks or delays.
+
+<img src="docs/gifs/doctor-queue.gif" alt="A doctor approving a priority request, calling the patient and ending the visit" width="100%">
+
+#### ⚖️ Coordination across doctors
+Every doctor's queue in a department side by side, with expected finish times and balancing moves suggested and
+confirmed one by one. Moved patients keep their check-in time and get a new token.
+
+<img src="docs/gifs/coordination.gif" alt="The cardiology coordination board suggesting and making a balancing move" width="100%">
+
+### 📊 Administrators
+
+#### 📈 Dashboard and analytics in plain language
+Today's numbers, utilization, attendance and no-show rates, and the latest evaluation results. Questions in plain
+language are answered with one validated, read-only SQL query — shown, with CSV export; requests to change data
+are refused before any model call.
+
+<img src="docs/gifs/dashboard-analytics.gif" alt="The OPD dashboard, then an analytics question answered with a table and the generated SQL" width="100%">
+
+#### 🏗️ Hospital setup
+Name and address in three languages, reception hours, emergency directions, booking and queue rules, departments,
+doctors and OPD timetables. Changes apply from tomorrow and never cancel a booking.
+
+<img src="docs/gifs/hospital-setup.gif" alt="Adding a Neurology department and a doctor" width="100%">
+
+#### 📝 Information documents
+Edit, add, translate, hide or restore what the library shows and the assistant cites. Rule numbers are
+placeholders such as `{{cancel_hours}}`, so the documents always match the rules in force.
+
+<img src="docs/gifs/documents.gif" alt="Opening the cancellation policy in the document editor with its placeholders" width="100%">
+
+#### 👥 Accounts
+Front-desk, doctor and admin accounts with a one-time temporary password that must be replaced at the first
+sign-in. Switch accounts off and on, or reset a forgotten password.
+
+<img src="docs/gifs/accounts.gif" alt="Creating a front-desk account and seeing its temporary password once" width="100%">
+
+#### ✉️ SMS and e-mail
+Off until an admin turns it on. Choose which messages go out (reminders, changes, queue updates, waiting-list
+offers), send a test, and see what was sent or failed. Twilio, your own SMS gateway or any SMTP server.
+
+<img src="docs/gifs/messaging.gif" alt="Turning on SMS and e-mail and sending a test message" width="100%">
+
+<details>
+<summary><b>📋 Every feature, in one list</b></summary>
+
+| Who | Features |
+| --- | --- |
+| **Patients and caregivers** | Assistant chat with confirmation cards and "Talk to a person" · booking with ranked, explained times · cited answers · hospital information without signing in · My appointments (receipt, reschedule, cancel, rebook) · signed QR receipts · online check-in · joining a queue online · live queue with estimate and range · reminders in the app, by SMS or e-mail · profile, consent, caregivers, data download and account deletion · the hospital's homepage |
+| **Front desk** | Today at a glance · check-in by code or QR · kiosk · walk-ins with duplicate detection · queue control · priority requests to the doctor · moving patients between doctors and departments · coordination and balancing · patient records (masked numbers, each look recorded) · doctor calendar and leave · doctor status (break, delay, emergency, unavailable) |
+| **Doctors** | Own queue · call, start, end, missed turn, forward · clinical priority and approving requests · own status |
+| **Administrators** | Dashboard · priority rules by patient category · analytics in plain language · registration questions · evaluation results · hospital setup and timetables · booking and queue rules · SMS and e-mail · information documents · accounts · demo reset (demo only) |
+| **Everyone** | English, हिन्दी and मराठी · large-text mode · 44 px tap targets · keyboard and screen-reader support · checked with axe-core and at 360 px |
+
+</details>
 
 ---
 
-## Features
-
-### 🧑‍⚕️ For patients and caregivers
-
-| Feature | What you get |
-| --- | --- |
-| **Assistant chat** | Book, reschedule, cancel or join a waiting list, check in, join a doctor's queue online or leave it — in plain language; a confirmation card (with a countdown) before anything changes; "Talk to a person" at any time. |
-| **Book without chatting** | Choose a department, doctor, language, dates and time of day; times are ranked and each says why — *Soonest*, *Speaks your language*, *Doctor you have seen*, *Quieter day*. |
-| **Cited answers** | Policies, insurance, test preparation and facilities answered from the hospital's documents, with source chips that open the full document; "I couldn't find that" when the documents don't say. |
-| **Hospital information** | Every document the assistant answers from — 121 topics in English, हिन्दी and मराठी — readable and searchable by anyone, without signing in. |
-| **My appointments** | Upcoming and past visits, receipt, reschedule, cancel and rebook — every change confirmed in a dialog; actions close automatically inside the policy windows. |
-| **Receipts** | A printable receipt with a signed reference code and QR code. |
-| **Online check-in** | From an hour before the slot until 15 minutes after it starts; the token appears at once. |
-| **Join a queue online** | No appointment? Join a doctor's queue today from your phone (from an hour before OPD opens), come in when your turn is near, or leave the queue if plans change. |
-| **Live queue** | Your token, people ahead and "about 35 min (25–50)", updated over a WebSocket in under 2 seconds; a message if the doctor is delayed by an emergency, and your new token if you are moved to another doctor. |
-| **Reminders and messages** | The day before and two hours before, in your language, in a notification list with an unread badge — and by SMS or e-mail when the hospital sends them; you choose SMS, e-mail or only in the app. |
-| **Profile and privacy** | Edit your details, change your password, switch reminders and reuse of your details on or off, approve or remove caregivers, download all your data, or delete your account. |
-| **Hospital homepage** | On a hospital's own site, visitors land on its homepage: hours, address and map, phone, departments, doctors with their languages and OPD days, how booking works, links to the hospital information, and an emergency strip — all from Hospital setup. |
-| **Accounts** | Create an account with a password — for yourself, or as a caregiver for a family member — or try the demo roles without one. |
-
-### 🧾 For the front desk
-
-| Feature | What you get |
-| --- | --- |
-| **Today at a glance** | Every doctor on duty, their bookings, check-in and check-out times, late arrivals and patient categories (senior, child, pregnant, disability). |
-| **Check-in by code** | Type or scan the receipt's QR code; the signature is verified before anything is looked up. |
-| **Kiosk** | A full-screen self check-in screen that shows only the first name, doctor and time and resets itself. |
-| **Walk-ins** | Registration with duplicate detection; an existing record is reused only with the patient's consent. |
-| **Queue control** | Call next, start, end, missed turn, returned, arrived (online patients), left without being seen — every change pushed live to patients. |
-| **Priority requests** | Ask the patient's doctor to raise a priority, with a reason; the queue changes only when the doctor approves. |
-| **Move patients** | Reassign a waiting patient to another doctor in the department or transfer them to another department; they keep their check-in time and get a new token. When a doctor becomes unavailable, their waiting patients can go to colleagues. |
-| **Coordination** | Every doctor's queue in a department side by side, with expected finish times, overtime warnings and balancing suggestions confirmed one by one. |
-| **Patient records** | Find a patient by name, full mobile number or record number; correct their details with them; see their visits; show the full number when calling (each look is recorded). |
-| **Doctor calendar** | Block or reopen slots, record leave (booked patients are told and can rebook free), expected visit length per doctor. |
-| **Doctor status** | Breaks, delays, emergencies and "unavailable today" — estimates shift, positions never jump, waiting patients are told. |
-
-### 🩺 For doctors
-
-| Feature | What you get |
-| --- | --- |
-| **My queue** | Only your own patients: who is in the room, who is waiting with their estimates and categories, and who missed their turn. |
-| **Run the room** | Call next, start, end or mark a missed turn, and forward a patient to another doctor or department. |
-| **Clinical priority** | Set a patient's priority yourself, and approve or decline the front desk's requests. |
-| **Your status** | Record a break, a delay or an emergency; waiting patients are told and keep their place. |
-
-### 📊 For administrators
-
-| Feature | What you get |
-| --- | --- |
-| **Dashboard** | Booked, waiting, no-shows, left without being seen and doctors away; appointments by department; slot utilization, attendance, no-show and abandonment rates; latency and cost of recent chat turns. |
-| **Priority rules** | Choose how much priority seniors, children, pregnant patients and people with a disability get; every open queue is reordered at once. |
-| **Analytics in plain language** | Questions answered with one validated, read-only SQL query (shown, with CSV export); requests to change data are refused before any model call. |
-| **Registration form** | Add extra registration questions in three languages — asked at sign-up and at the desk, checked by the server. |
-| **Evaluation results** | The latest results shipped with the build, each with its sample size. |
-| **Hospital setup** | The hospital's name in three languages, address, reception hours and emergency directions; the booking and queue rules (cut-offs, windows, online queue cap); add, edit and remove departments and doctors and their OPD timetables. Changes apply from tomorrow and never cancel a booking; a departing doctor gets a last day and later patients are told and rebook free. |
-| **SMS and e-mail** | Turn sending on and choose which kinds of message go out (reminders, changes to a visit, queue updates, waiting-list offers); send a test; see what was sent, what failed and why, and send failed ones again. Providers (Twilio, your own SMS gateway, any SMTP mail server) are set on the server; nothing is sent until an admin turns it on. |
-| **Information documents** | Edit, add, translate, hide or restore the documents the library shows and the assistant answers from; rule numbers are placeholders that always match the rules in force. Saved changes are searchable at once. |
-| **Accounts** | Create front-desk, doctor, admin and caregiver accounts with a one-time temporary password; switch accounts off and on; reset forgotten passwords. Switching off or resetting ends that person's sessions at once. |
-| **Demo reset** | Back to the seed data in one click (people's own accounts and consent are kept; demo deployment only). |
-
-### ♿ Accessibility and languages
-
-- Every screen in **English, हिन्दी and मराठी**, including dates in local formats.
-- **Large-text mode** (double size), **44 px tap targets**, full keyboard use and screen-reader labels.
-- Checked automatically with **axe-core** on every screen (no serious or critical WCAG A/AA issues) and at
-  **360 px** wide in large-text mode.
-
----
-
-## How it works
+## ⚙️ How it works
 
 ```mermaid
 flowchart LR
@@ -249,7 +280,7 @@ flowchart LR
 
 ---
 
-## Measured results
+## 📏 Measured results
 
 All numbers come from real runs; details and sample sizes are in [`eval/results/`](eval/results/README.md).
 
@@ -292,7 +323,7 @@ False alarms on look-alike non-emergencies: **8.3%** (held-out).
 
 ---
 
-## Quick start
+## 🚀 Quick start
 
 **With Docker** — you need Docker with Compose and a free Groq or Gemini key for the chat.
 
@@ -364,7 +395,7 @@ curl -s -X POST localhost:8000/api/v1/auth/login -H 'content-type: application/j
 
 ---
 
-## Development and tests
+## 🧪 Development and tests
 
 You need Python 3.11+, Node 22 and PostgreSQL 16 with pgvector (the Compose `db` service is easiest).
 
@@ -390,7 +421,7 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 463 tests
+pytest                                     # 464 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
 pytest -m e2e tests/e2e                    # 44 browser tests, including accessibility and 360 px
@@ -415,12 +446,13 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 | `python -m app.manage create-admin --username U [--name N]` | A new admin with a temporary password, printed once |
 | `python -m app.manage reset-password --username U` | A temporary password for any account, printed once |
 | `python -m app.manage new-data-key` | A random `DATA_KEY` for encrypting phone numbers |
+| `python -m tests.e2e.record_gifs [name …]` | Re-record the README's GIFs into `docs/gifs/` (needs ffmpeg and a built UI) |
 
 </details>
 
 ---
 
-## Configuration
+## 🔧 Configuration
 
 <details>
 <summary><b>Environment variables</b> (see <code>.env.example</code>)</summary>
@@ -451,7 +483,7 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 
 ---
 
-## Business rules
+## 📜 Business rules
 
 Enforced in code ([`app/tools/policy.py`](app/tools/policy.py)); the booking, rescheduling, cancellation and
 waiting-list rules are also stated, with the same numbers, in the hospital's documents.
@@ -474,7 +506,7 @@ waiting-list rules are also stated, with the same numbers, in the hospital's doc
 
 ---
 
-## Project structure
+## 🗂️ Project structure
 
 ```
 app/
@@ -496,8 +528,8 @@ simulator/    the fictional hospital, seed data, day replay, knowledge-base gene
 knowledge/    generated knowledge base: <language>/<collection>/<document>.md
 eval/         evaluation suites, datasets, run logs and results
 ui/           React app: src/pages/ (screens), src/components/, src/i18n.js (all text, 3 languages)
-tests/        pytest suite; tests/e2e/ browser tests and the demo recorder
-docs/         specification, decisions, deployment guide, screenshots
+tests/        pytest suite; tests/e2e/ browser tests and the GIF recorder
+docs/         specification, decisions, deployment guide, gifs/ (the README's clips)
 ```
 
 <details>
@@ -542,7 +574,7 @@ docs/         specification, decisions, deployment guide, screenshots
 
 ---
 
-## Limitations
+## ⚠️ Limitations
 
 - **Measured on synthetic data.** The demo and the evaluation use the simulated hospital, whose parameters are
   assumptions ([`docs/DECISIONS.md`](docs/DECISIONS.md), D-21); the wait-time model learned from simulated days
@@ -554,7 +586,7 @@ docs/         specification, decisions, deployment guide, screenshots
 - **Chat and real patient data** (D-117): chat messages (numbers masked), patient names and appointment details
   go to the configured LLM provider. A hospital must decide whether that is acceptable, use a provider it has an
   agreement with, or run a local model with Ollama.
-- **Evaluation is incomplete** (see [Measured results](#measured-results)); retrieval was measured with the local
+- **Evaluation is incomplete** (see [Measured results](#-measured-results)); retrieval was measured with the local
   models, which handle Marathi inflections less well than the neural ones.
 - **Messages** — sent by SMS or e-mail only once a hospital sets up a provider and turns sending on (never in
   the demo). Reminders are in the patient's language; the other notices are in English. Indian commercial SMS
@@ -568,12 +600,12 @@ docs/         specification, decisions, deployment guide, screenshots
 
 ---
 
-## Documentation
+## 📚 Documentation
 
 | Document | Contents |
 | --- | --- |
 | [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md) | The specification (version 2.0): problem, requirements (FR-01–FR-74), architecture, database, API, screens, tests, roadmap, security, operations, risks and evaluation |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-136), with the reason |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-137), with the reason |
 | [`docs/DEPLOY.md`](docs/DEPLOY.md) | Free deployment on Render and Neon, monitoring and runbook |
 | [`eval/README.md`](eval/README.md) | How the evaluation works and how to run it |
 | [`eval/results/README.md`](eval/results/README.md) | The generated results table with sample sizes |
