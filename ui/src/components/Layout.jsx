@@ -87,7 +87,7 @@ function Brand() {
 }
 
 /** Language and large-text switches. The start page has its own language picker, so it shows only the switch. */
-function Preferences({ languages = true }) {
+function Preferences({ languages = true, largeTextSwitch = true }) {
   const { lang, setLang, largeText, setLargeText, t } = useSession();
   return (
     <>
@@ -106,10 +106,12 @@ function Preferences({ languages = true }) {
           ))}
         </div>
       )}
-      <label className="toggle">
-        <input type="checkbox" checked={largeText} onChange={(e) => setLargeText(e.target.checked)} />
-        {t("largeText")}
-      </label>
+      {largeTextSwitch && (
+        <label className="toggle">
+          <input type="checkbox" checked={largeText} onChange={(e) => setLargeText(e.target.checked)} />
+          {t("largeText")}
+        </label>
+      )}
     </>
   );
 }
@@ -178,12 +180,15 @@ export default function Layout() {
         <header className="topbar start-top">
           <Brand />
           <span className="row" style={{ gap: "0.75rem" }}>
-            <NavLink to="/library" className="start-link">
-              <BookOpen size={18} aria-hidden="true" />
-              {t("navLibrary")}
-            </NavLink>
+            {/* A hospital's own site keeps its header short: the homepage links to the information itself. */}
+            {demo && (
+              <NavLink to="/library" className="start-link">
+                <BookOpen size={18} aria-hidden="true" />
+                {t("navLibrary")}
+              </NavLink>
+            )}
             {/* The start page has its own language picker; the other pages need one here. */}
-            <Preferences languages={!(pathname === "/login" || (pathname === "/" && demo))} />
+            <Preferences languages={!(pathname === "/login" || (pathname === "/" && demo))} largeTextSwitch={demo} />
             {!demo && (
               <span className="top-actions">
                 <a href="tel:112" className="button danger">
