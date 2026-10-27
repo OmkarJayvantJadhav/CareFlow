@@ -136,7 +136,7 @@ assistant's behaviour is checked by an automated evaluation suite.
   injection and unsafe-analytics attacks all refused (measured: all passed; see section 14).
 - Agent: booking tasks completed correctly in at least 90% of scenarios and reliably (pass^5) in at least
   75% (targets; partly measured, see section 14).
-- Retrieval: the right source in the top five for at least 90% of questions (target; measured 86.7%).
+- Retrieval: the right source in the top five for at least 90% of questions (target; measured 85.9%).
 - Wait-time predictions beat both simple baselines on mean absolute error (met: 17.9 vs 29.4 minutes).
 - Usable by the people it serves: three languages, phone-first, large text, screen readers (checked on
   every screen by automated accessibility tests).
@@ -1328,7 +1328,7 @@ was run with `groq:openai/gpt-oss-120b`.
 | Safety | Emergency redirect, final held-out set | 100% | **60 / 60** (the code gate alone caught 58) |
 | Safety | Medical-advice bait / permission attacks / injection / unsafe analytics | 100% | **15/15 · 15/15 · 15/15 · 10/10** |
 | Safety | False alarms on look-alike non-emergencies | — | **8.3%** (held-out) |
-| RAG | Recall@5 (cross-validated) | ≥ 90% | **86.7%** (363 documents, local models) |
+| RAG | Recall@5 (cross-validated) | ≥ 90% | **85.9%** (363 documents, local models; 86.7% before the privacy document update, D-131) |
 | RAG | Queue questions found in the top 5 | — | **19 / 20** answerable; 0 / 4 unanswerable left without a source |
 | RAG | Faithfulness, answer correctness | ≥ 95% | Not run yet |
 | Agent | Booking scenarios, one run each | — | **25 / 25** passed, median turn 0.91 s |

@@ -1,0 +1,4130 @@
+{
+  "header": {
+    "run_at": "2026-10-27T08:29:37+00:00",
+    "eval_clock": "2026-10-19T08:00:00+05:30",
+    "embedding_backend": "local",
+    "reranker_backend": "local",
+    "git_commit": "8527f93",
+    "uncommitted_code_changes": true,
+    "questions": 24,
+    "question_files": [
+      "eval/datasets/rag_questions_queue.jsonl"
+    ],
+    "top_k": 5
+  },
+  "retrieval": {
+    "structure": {
+      "dense": {
+        "recall_at_5": 0.95,
+        "mrr_at_5": 0.7392,
+        "recall_by_language": {
+          "en": 0.9,
+          "hi": 1.0,
+          "mr": 1.0
+        },
+        "recall_by_collection": {
+          "policies": 0.95
+        },
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0,
+        "median_latency_ms": 50.6,
+        "questions": 24,
+        "rows": [
+          {
+            "id": "rag-q01",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:en",
+              "policies/online-check-in#0:en",
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#1:en",
+              "policies/booking-appointments#1:en"
+            ],
+            "latency_ms": 51.4
+          },
+          {
+            "id": "rag-q02",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:en",
+              "policies/online-check-in#0:en",
+              "policies/join-queue-online#0:en",
+              "policies/cancellation-policy#0:en",
+              "policies/online-check-in#2:en"
+            ],
+            "latency_ms": 72.4
+          },
+          {
+            "id": "rag-q03",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:en",
+              "policies/online-check-in#0:en",
+              "policies/cancellation-policy#1:en",
+              "doctors/kavita-joshi#2:en",
+              "doctors/imran-shaikh#2:en"
+            ],
+            "latency_ms": 51.2
+          },
+          {
+            "id": "rag-q04",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/rescheduling-policy#0:en",
+              "policies/booking-appointments#2:en",
+              "policies/opd-queue-and-tokens#0:en"
+            ],
+            "latency_ms": 50.3
+          },
+          {
+            "id": "rag-q05",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#1:en",
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/join-queue-online#2:en"
+            ],
+            "latency_ms": 51.0
+          },
+          {
+            "id": "rag-q06",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/walk-in-patients#1:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/waiting-list#1:en",
+              "policies/privacy-and-your-data#0:en"
+            ],
+            "latency_ms": 49.8
+          },
+          {
+            "id": "rag-q07",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/booking-appointments#0:en"
+            ],
+            "latency_ms": 43.6
+          },
+          {
+            "id": "rag-q08",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/late-arrival-and-missed-turn#3:en",
+              "policies/join-queue-online#2:en",
+              "policies/opd-queue-and-tokens#2:en"
+            ],
+            "latency_ms": 43.9
+          },
+          {
+            "id": "rag-q09",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/doctor-unavailable#1:en",
+              "policies/rescheduling-policy#2:en",
+              "policies/waiting-list#2:en"
+            ],
+            "latency_ms": 42.2
+          },
+          {
+            "id": "rag-q10",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#3:en",
+              "policies/late-arrival-and-missed-turn#2:en",
+              "policies/waiting-list#0:en",
+              "policies/waiting-list#2:en",
+              "policies/waiting-list#1:en"
+            ],
+            "latency_ms": 40.4
+          },
+          {
+            "id": "rag-q11",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:hi",
+              "policies/join-queue-online#1:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/rescheduling-policy#0:hi",
+              "policies/online-check-in#2:hi"
+            ],
+            "latency_ms": 39.2
+          },
+          {
+            "id": "rag-q12",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#1:hi",
+              "policies/walk-in-patients#0:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/opd-queue-and-tokens#1:hi",
+              "policies/rescheduling-policy#0:hi"
+            ],
+            "latency_ms": 35.1
+          },
+          {
+            "id": "rag-q13",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 4,
+            "returned": 5,
+            "top": [
+              "policies/emergencies#0:hi",
+              "policies/emergencies#1:hi",
+              "facilities/emergency-department#0:hi",
+              "policies/opd-queue-and-tokens#4:hi",
+              "insurance/cashless-treatment#1:hi"
+            ],
+            "latency_ms": 41.5
+          },
+          {
+            "id": "rag-q14",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "test_preparation/thyroid-profile#1:hi",
+              "policies/doctor-unavailable#0:hi",
+              "policies/join-queue-online#1:hi",
+              "test_preparation/morning-cortisol#1:hi",
+              "policies/medical-advice-limits#0:hi"
+            ],
+            "latency_ms": 51.2
+          },
+          {
+            "id": "rag-q15",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#2:hi",
+              "policies/walk-in-patients#1:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/late-arrival-and-missed-turn#3:hi",
+              "policies/join-queue-online#1:hi"
+            ],
+            "latency_ms": 57.5
+          },
+          {
+            "id": "rag-q16",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/walk-in-patients#1:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/opd-queue-and-tokens#0:mr"
+            ],
+            "latency_ms": 57.5
+          },
+          {
+            "id": "rag-q17",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#2:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/online-check-in#0:mr",
+              "policies/online-check-in#1:mr",
+              "policies/doctor-unavailable#0:mr"
+            ],
+            "latency_ms": 54.5
+          },
+          {
+            "id": "rag-q18",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/join-queue-online#1:mr",
+              "policies/online-check-in#2:mr",
+              "policies/doctor-unavailable#0:mr"
+            ],
+            "latency_ms": 59.6
+          },
+          {
+            "id": "rag-q19",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#2:mr",
+              "policies/doctor-unavailable#0:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/walk-in-patients#1:mr"
+            ],
+            "latency_ms": 53.6
+          },
+          {
+            "id": "rag-q20",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#1:mr",
+              "policies/late-arrival-and-missed-turn#3:mr",
+              "policies/late-arrival-and-missed-turn#2:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/late-arrival-and-missed-turn#0:mr"
+            ],
+            "latency_ms": 48.0
+          },
+          {
+            "id": "rag-q21",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#2:en",
+              "policies/online-check-in#2:en",
+              "policies/join-queue-online#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/walk-in-patients#1:en"
+            ],
+            "latency_ms": 49.2
+          },
+          {
+            "id": "rag-q22",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#2:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/privacy-and-your-data#0:en",
+              "policies/language-support#1:en"
+            ],
+            "latency_ms": 292.2
+          },
+          {
+            "id": "rag-q23",
+            "language": "hi",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/doctor-unavailable#1:hi",
+              "policies/opd-queue-and-tokens#3:hi",
+              "policies/caregiver-accounts#0:hi"
+            ],
+            "latency_ms": 112.2
+          },
+          {
+            "id": "rag-q24",
+            "language": "mr",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:mr",
+              "test_preparation/vitamin-b12#0:mr",
+              "test_preparation/vitamin-d#0:mr",
+              "policies/opd-queue-and-tokens#3:mr",
+              "policies/opd-queue-and-tokens#0:mr"
+            ],
+            "latency_ms": 43.3
+          }
+        ]
+      },
+      "bm25": {
+        "recall_at_5": 0.9,
+        "mrr_at_5": 0.6392,
+        "recall_by_language": {
+          "en": 1.0,
+          "hi": 0.6,
+          "mr": 1.0
+        },
+        "recall_by_collection": {
+          "policies": 0.9
+        },
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0,
+        "median_latency_ms": 3.0,
+        "questions": 24,
+        "rows": [
+          {
+            "id": "rag-q01",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 4,
+            "returned": 5,
+            "top": [
+              "policies/cancellation-policy#2:en",
+              "policies/walk-in-patients#1:en",
+              "policies/privacy-and-your-data#4:en",
+              "policies/online-check-in#0:en",
+              "policies/join-queue-online#0:en"
+            ],
+            "latency_ms": 3.4
+          },
+          {
+            "id": "rag-q02",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/online-check-in#1:en",
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/online-check-in#0:en"
+            ],
+            "latency_ms": 3.9
+          },
+          {
+            "id": "rag-q03",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:en",
+              "policies/online-check-in#0:en",
+              "departments/orthopaedics#4:en",
+              "departments/paediatrics#4:en",
+              "departments/cardiology#4:en"
+            ],
+            "latency_ms": 1.9
+          },
+          {
+            "id": "rag-q04",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/rescheduling-policy#1:en",
+              "policies/booking-appointments#2:en",
+              "test_preparation/ct-scan#2:en"
+            ],
+            "latency_ms": 4.2
+          },
+          {
+            "id": "rag-q05",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 4,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#1:en",
+              "policies/join-queue-online#2:en",
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en"
+            ],
+            "latency_ms": 1.9
+          },
+          {
+            "id": "rag-q06",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#2:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "facilities/location-and-directions#0:en"
+            ],
+            "latency_ms": 1.9
+          },
+          {
+            "id": "rag-q07",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#2:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/online-check-in#2:en",
+              "test_preparation/urine-culture#1:en",
+              "doctors/ayesha-khan#2:en"
+            ],
+            "latency_ms": 2.5
+          },
+          {
+            "id": "rag-q08",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#2:en",
+              "doctors/imran-shaikh#1:en",
+              "policies/join-queue-online#0:en",
+              "policies/caregiver-accounts#0:en",
+              "policies/opd-queue-and-tokens#0:en"
+            ],
+            "latency_ms": 4.3
+          },
+          {
+            "id": "rag-q09",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/doctor-unavailable#1:en",
+              "policies/opd-queue-and-tokens#4:en",
+              "policies/opd-queue-and-tokens#0:en"
+            ],
+            "latency_ms": 3.4
+          },
+          {
+            "id": "rag-q10",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/emergencies#0:en",
+              "facilities/laboratory#1:en",
+              "policies/late-arrival-and-missed-turn#3:en",
+              "policies/late-arrival-and-missed-turn#2:en",
+              "test_preparation/complete-blood-count#1:en"
+            ],
+            "latency_ms": 4.2
+          },
+          {
+            "id": "rag-q11",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:hi",
+              "policies/online-check-in#2:hi",
+              "policies/online-check-in#1:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/rescheduling-policy#0:hi"
+            ],
+            "latency_ms": 2.9
+          },
+          {
+            "id": "rag-q12",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#1:hi",
+              "policies/walk-in-patients#0:hi",
+              "policies/booking-appointments#1:hi",
+              "policies/waiting-list#2:hi",
+              "policies/booking-appointments#2:hi"
+            ],
+            "latency_ms": 4.5
+          },
+          {
+            "id": "rag-q13",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#3:hi",
+              "policies/join-queue-online#2:hi",
+              "policies/late-arrival-and-missed-turn#1:hi",
+              "policies/emergencies#1:hi",
+              "policies/emergencies#0:hi"
+            ],
+            "latency_ms": 3.0
+          },
+          {
+            "id": "rag-q14",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 4,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:hi",
+              "test_preparation/thyroid-profile#1:hi",
+              "policies/join-queue-online#1:hi",
+              "policies/doctor-unavailable#0:hi",
+              "test_preparation/vitamin-b12#1:hi"
+            ],
+            "latency_ms": 3.7
+          },
+          {
+            "id": "rag-q15",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/walk-in-patients#1:hi",
+              "policies/opd-queue-and-tokens#4:hi"
+            ],
+            "latency_ms": 2.0
+          },
+          {
+            "id": "rag-q16",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#1:mr",
+              "policies/join-queue-online#1:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/rescheduling-policy#0:mr",
+              "policies/cancellation-policy#0:mr"
+            ],
+            "latency_ms": 2.6
+          },
+          {
+            "id": "rag-q17",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#2:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/online-check-in#1:mr",
+              "policies/online-check-in#0:mr",
+              "policies/doctor-unavailable#0:mr"
+            ],
+            "latency_ms": 2.5
+          },
+          {
+            "id": "rag-q18",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#2:mr",
+              "doctors/nitin-chavan#1:mr",
+              "policies/online-check-in#2:mr",
+              "doctors/ayesha-khan#2:mr"
+            ],
+            "latency_ms": 2.9
+          },
+          {
+            "id": "rag-q19",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#2:mr",
+              "policies/privacy-and-your-data#0:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#0:mr"
+            ],
+            "latency_ms": 2.2
+          },
+          {
+            "id": "rag-q20",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#3:mr",
+              "policies/late-arrival-and-missed-turn#1:mr",
+              "insurance/estimates-and-deposits#1:mr",
+              "policies/cancellation-policy#1:mr",
+              "policies/late-arrival-and-missed-turn#2:mr"
+            ],
+            "latency_ms": 3.0
+          },
+          {
+            "id": "rag-q21",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#2:en",
+              "policies/join-queue-online#2:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#0:en"
+            ],
+            "latency_ms": 2.7
+          },
+          {
+            "id": "rag-q22",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "insurance/senior-citizen-benefits#0:en",
+              "policies/privacy-and-your-data#0:en",
+              "policies/language-support#1:en",
+              "policies/privacy-and-your-data#1:en",
+              "policies/join-queue-online#2:en"
+            ],
+            "latency_ms": 3.2
+          },
+          {
+            "id": "rag-q23",
+            "language": "hi",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/caregiver-accounts#1:hi",
+              "policies/caregiver-accounts#0:hi",
+              "policies/doctor-unavailable#0:hi",
+              "facilities/reports-collection#1:hi",
+              "policies/doctor-unavailable#1:hi"
+            ],
+            "latency_ms": 4.0
+          },
+          {
+            "id": "rag-q24",
+            "language": "mr",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#2:mr",
+              "insurance/estimates-and-deposits#0:mr",
+              "policies/privacy-and-your-data#0:mr",
+              "policies/waiting-list#0:mr",
+              "facilities/floor-guide#1:mr"
+            ],
+            "latency_ms": 2.5
+          }
+        ]
+      },
+      "hybrid": {
+        "recall_at_5": 1.0,
+        "mrr_at_5": 0.7625,
+        "recall_by_language": {
+          "en": 1.0,
+          "hi": 1.0,
+          "mr": 1.0
+        },
+        "recall_by_collection": {
+          "policies": 1.0
+        },
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0,
+        "median_latency_ms": 46.6,
+        "questions": 24,
+        "rows": [
+          {
+            "id": "rag-q01",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:en",
+              "policies/walk-in-patients#1:en",
+              "policies/cancellation-policy#2:en",
+              "policies/join-queue-online#0:en",
+              "policies/online-check-in#1:en"
+            ],
+            "latency_ms": 46.2
+          },
+          {
+            "id": "rag-q02",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:en",
+              "policies/join-queue-online#0:en",
+              "policies/online-check-in#0:en",
+              "policies/cancellation-policy#0:en",
+              "policies/opd-queue-and-tokens#0:en"
+            ],
+            "latency_ms": 45.9
+          },
+          {
+            "id": "rag-q03",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:en",
+              "policies/online-check-in#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/cancellation-policy#1:en",
+              "departments/orthopaedics#4:en"
+            ],
+            "latency_ms": 43.9
+          },
+          {
+            "id": "rag-q04",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/booking-appointments#2:en",
+              "policies/rescheduling-policy#0:en",
+              "policies/cancellation-policy#0:en"
+            ],
+            "latency_ms": 46.1
+          },
+          {
+            "id": "rag-q05",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#1:en",
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#2:en",
+              "policies/opd-queue-and-tokens#0:en"
+            ],
+            "latency_ms": 44.0
+          },
+          {
+            "id": "rag-q06",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#2:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/walk-in-patients#1:en",
+              "policies/waiting-list#1:en"
+            ],
+            "latency_ms": 44.5
+          },
+          {
+            "id": "rag-q07",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/join-queue-online#2:en",
+              "doctors/ayesha-khan#2:en",
+              "doctors/sunita-patwardhan#2:en",
+              "doctors/joseph-mathew#2:en"
+            ],
+            "latency_ms": 45.8
+          },
+          {
+            "id": "rag-q08",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/join-queue-online#2:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/late-arrival-and-missed-turn#3:en"
+            ],
+            "latency_ms": 51.4
+          },
+          {
+            "id": "rag-q09",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/doctor-unavailable#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "test_preparation/colonoscopy#3:en"
+            ],
+            "latency_ms": 49.9
+          },
+          {
+            "id": "rag-q10",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#3:en",
+              "policies/late-arrival-and-missed-turn#2:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/walk-in-patients#0:en",
+              "policies/emergencies#0:en"
+            ],
+            "latency_ms": 51.8
+          },
+          {
+            "id": "rag-q11",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:hi",
+              "policies/online-check-in#2:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/online-check-in#1:hi",
+              "policies/rescheduling-policy#0:hi"
+            ],
+            "latency_ms": 50.0
+          },
+          {
+            "id": "rag-q12",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#1:hi",
+              "policies/walk-in-patients#0:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/booking-appointments#2:hi",
+              "policies/booking-appointments#1:hi"
+            ],
+            "latency_ms": 46.7
+          },
+          {
+            "id": "rag-q13",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/emergencies#0:hi",
+              "policies/emergencies#1:hi",
+              "policies/opd-queue-and-tokens#4:hi",
+              "policies/join-queue-online#2:hi",
+              "facilities/emergency-department#0:hi"
+            ],
+            "latency_ms": 44.5
+          },
+          {
+            "id": "rag-q14",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "test_preparation/thyroid-profile#1:hi",
+              "policies/doctor-unavailable#0:hi",
+              "policies/join-queue-online#1:hi",
+              "policies/join-queue-online#0:hi",
+              "test_preparation/fasting-insulin#1:hi"
+            ],
+            "latency_ms": 45.0
+          },
+          {
+            "id": "rag-q15",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 4,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:hi",
+              "policies/join-queue-online#1:hi",
+              "policies/walk-in-patients#1:hi",
+              "policies/join-queue-online#2:hi",
+              "policies/opd-queue-and-tokens#0:hi"
+            ],
+            "latency_ms": 44.7
+          },
+          {
+            "id": "rag-q16",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:mr",
+              "policies/walk-in-patients#1:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/opd-queue-and-tokens#0:mr"
+            ],
+            "latency_ms": 46.3
+          },
+          {
+            "id": "rag-q17",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#2:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/online-check-in#0:mr",
+              "policies/online-check-in#1:mr",
+              "policies/doctor-unavailable#0:mr"
+            ],
+            "latency_ms": 47.1
+          },
+          {
+            "id": "rag-q18",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/online-check-in#2:mr",
+              "doctors/lakshmi-rao#2:mr",
+              "doctors/neha-kapoor#2:mr"
+            ],
+            "latency_ms": 49.8
+          },
+          {
+            "id": "rag-q19",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#2:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/privacy-and-your-data#0:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/opd-queue-and-tokens#0:mr"
+            ],
+            "latency_ms": 51.6
+          },
+          {
+            "id": "rag-q20",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#1:mr",
+              "policies/late-arrival-and-missed-turn#3:mr",
+              "policies/late-arrival-and-missed-turn#2:mr",
+              "policies/late-arrival-and-missed-turn#0:mr",
+              "policies/join-queue-online#2:mr"
+            ],
+            "latency_ms": 46.9
+          },
+          {
+            "id": "rag-q21",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#2:en",
+              "policies/online-check-in#2:en",
+              "policies/join-queue-online#0:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/walk-in-patients#1:en"
+            ],
+            "latency_ms": 46.8
+          },
+          {
+            "id": "rag-q22",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/privacy-and-your-data#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#2:en",
+              "policies/language-support#1:en",
+              "policies/doctor-unavailable#0:en"
+            ],
+            "latency_ms": 46.5
+          },
+          {
+            "id": "rag-q23",
+            "language": "hi",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "policies/caregiver-accounts#0:hi",
+              "policies/caregiver-accounts#1:hi",
+              "policies/doctor-unavailable#1:hi",
+              "policies/opd-queue-and-tokens#0:hi"
+            ],
+            "latency_ms": 57.6
+          },
+          {
+            "id": "rag-q24",
+            "language": "mr",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#3:mr",
+              "test_preparation/vitamin-b12#0:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/opd-queue-and-tokens#2:mr",
+              "facilities/floor-guide#1:mr"
+            ],
+            "latency_ms": 56.6
+          }
+        ]
+      },
+      "hybrid+rerank (no threshold)": {
+        "recall_at_5": 0.95,
+        "mrr_at_5": 0.7217,
+        "recall_by_language": {
+          "en": 0.9,
+          "hi": 1.0,
+          "mr": 1.0
+        },
+        "recall_by_collection": {
+          "policies": 0.95
+        },
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0,
+        "median_latency_ms": 45.7,
+        "questions": 24,
+        "rows": [
+          {
+            "id": "rag-q01",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "departments/ent#4:en",
+              "policies/join-queue-online#0:en",
+              "policies/cancellation-policy#2:en",
+              "policies/walk-in-patients#1:en",
+              "policies/online-check-in#0:en"
+            ],
+            "latency_ms": 57.5
+          },
+          {
+            "id": "rag-q02",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/online-check-in#1:en",
+              "policies/cancellation-policy#0:en"
+            ],
+            "latency_ms": 58.3
+          },
+          {
+            "id": "rag-q03",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:en",
+              "policies/online-check-in#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "departments/orthopaedics#4:en",
+              "departments/paediatrics#4:en"
+            ],
+            "latency_ms": 55.0
+          },
+          {
+            "id": "rag-q04",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/booking-appointments#2:en",
+              "test_preparation/echocardiogram#1:en",
+              "policies/rescheduling-policy#1:en"
+            ],
+            "latency_ms": 59.3
+          },
+          {
+            "id": "rag-q05",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/join-queue-online#2:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/walk-in-patients#1:en",
+              "policies/join-queue-online#1:en"
+            ],
+            "latency_ms": 55.1
+          },
+          {
+            "id": "rag-q06",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#2:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/walk-in-patients#1:en",
+              "policies/opd-queue-and-tokens#1:en"
+            ],
+            "latency_ms": 50.6
+          },
+          {
+            "id": "rag-q07",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/join-queue-online#2:en",
+              "doctors/ayesha-khan#2:en",
+              "doctors/sunita-patwardhan#2:en",
+              "doctors/joseph-mathew#2:en"
+            ],
+            "latency_ms": 45.6
+          },
+          {
+            "id": "rag-q08",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/late-arrival-and-missed-turn#3:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/join-queue-online#1:en"
+            ],
+            "latency_ms": 46.9
+          },
+          {
+            "id": "rag-q09",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/doctor-unavailable#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/opd-queue-and-tokens#4:en"
+            ],
+            "latency_ms": 46.3
+          },
+          {
+            "id": "rag-q10",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#3:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/emergencies#0:en",
+              "policies/late-arrival-and-missed-turn#2:en",
+              "policies/waiting-list#0:en"
+            ],
+            "latency_ms": 46.5
+          },
+          {
+            "id": "rag-q11",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:hi",
+              "policies/online-check-in#0:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/rescheduling-policy#0:hi",
+              "policies/cancellation-policy#0:hi"
+            ],
+            "latency_ms": 45.7
+          },
+          {
+            "id": "rag-q12",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#1:hi",
+              "policies/walk-in-patients#0:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/booking-appointments#2:hi",
+              "policies/booking-appointments#1:hi"
+            ],
+            "latency_ms": 48.4
+          },
+          {
+            "id": "rag-q13",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#2:hi",
+              "policies/late-arrival-and-missed-turn#3:hi",
+              "policies/opd-queue-and-tokens#4:hi",
+              "policies/late-arrival-and-missed-turn#1:hi",
+              "facilities/opd-hours#1:hi"
+            ],
+            "latency_ms": 265.5
+          },
+          {
+            "id": "rag-q14",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "test_preparation/thyroid-profile#1:hi",
+              "test_preparation/fasting-insulin#1:hi",
+              "test_preparation/vitamin-b12#1:hi",
+              "policies/join-queue-online#1:hi"
+            ],
+            "latency_ms": 43.1
+          },
+          {
+            "id": "rag-q15",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#2:hi",
+              "policies/late-arrival-and-missed-turn#3:hi",
+              "policies/join-queue-online#1:hi",
+              "policies/opd-queue-and-tokens#4:hi",
+              "policies/join-queue-online#0:hi"
+            ],
+            "latency_ms": 40.8
+          },
+          {
+            "id": "rag-q16",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#2:mr",
+              "policies/opd-queue-and-tokens#3:mr",
+              "policies/cancellation-policy#0:mr",
+              "policies/rescheduling-policy#0:mr",
+              "policies/join-queue-online#1:mr"
+            ],
+            "latency_ms": 42.7
+          },
+          {
+            "id": "rag-q17",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#2:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/doctor-unavailable#0:mr",
+              "policies/opd-queue-and-tokens#3:mr",
+              "policies/online-check-in#0:mr"
+            ],
+            "latency_ms": 43.1
+          },
+          {
+            "id": "rag-q18",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/online-check-in#2:mr",
+              "doctors/lakshmi-rao#2:mr",
+              "doctors/neha-kapoor#2:mr"
+            ],
+            "latency_ms": 43.2
+          },
+          {
+            "id": "rag-q19",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#2:mr",
+              "policies/privacy-and-your-data#0:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/doctor-unavailable#0:mr"
+            ],
+            "latency_ms": 42.1
+          },
+          {
+            "id": "rag-q20",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#3:mr",
+              "policies/late-arrival-and-missed-turn#2:mr",
+              "policies/late-arrival-and-missed-turn#1:mr",
+              "policies/late-arrival-and-missed-turn#0:mr",
+              "policies/join-queue-online#2:mr"
+            ],
+            "latency_ms": 42.0
+          },
+          {
+            "id": "rag-q21",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#2:en",
+              "policies/online-check-in#2:en",
+              "policies/opd-queue-and-tokens#4:en"
+            ],
+            "latency_ms": 44.3
+          },
+          {
+            "id": "rag-q22",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/privacy-and-your-data#0:en",
+              "insurance/senior-citizen-benefits#0:en",
+              "policies/join-queue-online#2:en",
+              "policies/language-support#1:en",
+              "test_preparation/ct-scan-contrast#1:en"
+            ],
+            "latency_ms": 42.4
+          },
+          {
+            "id": "rag-q23",
+            "language": "hi",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "policies/doctor-unavailable#1:hi",
+              "policies/caregiver-accounts#1:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/opd-queue-and-tokens#2:hi"
+            ],
+            "latency_ms": 43.1
+          },
+          {
+            "id": "rag-q24",
+            "language": "mr",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/privacy-and-your-data#0:mr",
+              "policies/opd-queue-and-tokens#3:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/opd-queue-and-tokens#2:mr",
+              "policies/walk-in-patients#1:mr"
+            ],
+            "latency_ms": 41.1
+          }
+        ]
+      },
+      "hybrid+rerank": {
+        "recall_at_5": 0.95,
+        "mrr_at_5": 0.7217,
+        "recall_by_language": {
+          "en": 0.9,
+          "hi": 1.0,
+          "mr": 1.0
+        },
+        "recall_by_collection": {
+          "policies": 0.95
+        },
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0,
+        "median_latency_ms": 42.5,
+        "questions": 24,
+        "rows": [
+          {
+            "id": "rag-q01",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "departments/ent#4:en",
+              "policies/join-queue-online#0:en",
+              "policies/cancellation-policy#2:en",
+              "policies/walk-in-patients#1:en",
+              "policies/online-check-in#0:en"
+            ],
+            "latency_ms": 41.4
+          },
+          {
+            "id": "rag-q02",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/online-check-in#1:en",
+              "policies/cancellation-policy#0:en"
+            ],
+            "latency_ms": 42.1
+          },
+          {
+            "id": "rag-q03",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:en",
+              "policies/online-check-in#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "departments/orthopaedics#4:en",
+              "departments/paediatrics#4:en"
+            ],
+            "latency_ms": 40.0
+          },
+          {
+            "id": "rag-q04",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 3,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/booking-appointments#2:en"
+            ],
+            "latency_ms": 42.7
+          },
+          {
+            "id": "rag-q05",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/join-queue-online#2:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/walk-in-patients#1:en",
+              "policies/join-queue-online#1:en"
+            ],
+            "latency_ms": 41.8
+          },
+          {
+            "id": "rag-q06",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#2:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/walk-in-patients#1:en",
+              "policies/opd-queue-and-tokens#1:en"
+            ],
+            "latency_ms": 40.5
+          },
+          {
+            "id": "rag-q07",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 2,
+            "top": [
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/join-queue-online#2:en"
+            ],
+            "latency_ms": 41.3
+          },
+          {
+            "id": "rag-q08",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/late-arrival-and-missed-turn#3:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/join-queue-online#1:en"
+            ],
+            "latency_ms": 43.4
+          },
+          {
+            "id": "rag-q09",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/doctor-unavailable#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/opd-queue-and-tokens#4:en"
+            ],
+            "latency_ms": 40.9
+          },
+          {
+            "id": "rag-q10",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 3,
+            "top": [
+              "policies/late-arrival-and-missed-turn#3:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/emergencies#0:en"
+            ],
+            "latency_ms": 40.6
+          },
+          {
+            "id": "rag-q11",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:hi",
+              "policies/online-check-in#0:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/rescheduling-policy#0:hi",
+              "policies/cancellation-policy#0:hi"
+            ],
+            "latency_ms": 40.8
+          },
+          {
+            "id": "rag-q12",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#1:hi",
+              "policies/walk-in-patients#0:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/booking-appointments#2:hi",
+              "policies/booking-appointments#1:hi"
+            ],
+            "latency_ms": 41.9
+          },
+          {
+            "id": "rag-q13",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 4,
+            "top": [
+              "policies/join-queue-online#2:hi",
+              "policies/late-arrival-and-missed-turn#3:hi",
+              "policies/opd-queue-and-tokens#4:hi",
+              "policies/late-arrival-and-missed-turn#1:hi"
+            ],
+            "latency_ms": 41.6
+          },
+          {
+            "id": "rag-q14",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "test_preparation/thyroid-profile#1:hi",
+              "test_preparation/fasting-insulin#1:hi",
+              "test_preparation/vitamin-b12#1:hi",
+              "policies/join-queue-online#1:hi"
+            ],
+            "latency_ms": 47.0
+          },
+          {
+            "id": "rag-q15",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#2:hi",
+              "policies/late-arrival-and-missed-turn#3:hi",
+              "policies/join-queue-online#1:hi",
+              "policies/opd-queue-and-tokens#4:hi",
+              "policies/join-queue-online#0:hi"
+            ],
+            "latency_ms": 53.8
+          },
+          {
+            "id": "rag-q16",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#2:mr",
+              "policies/opd-queue-and-tokens#3:mr",
+              "policies/cancellation-policy#0:mr",
+              "policies/rescheduling-policy#0:mr",
+              "policies/join-queue-online#1:mr"
+            ],
+            "latency_ms": 53.7
+          },
+          {
+            "id": "rag-q17",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#2:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/doctor-unavailable#0:mr",
+              "policies/opd-queue-and-tokens#3:mr",
+              "policies/online-check-in#0:mr"
+            ],
+            "latency_ms": 67.6
+          },
+          {
+            "id": "rag-q18",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/online-check-in#2:mr",
+              "doctors/lakshmi-rao#2:mr",
+              "doctors/neha-kapoor#2:mr"
+            ],
+            "latency_ms": 42.3
+          },
+          {
+            "id": "rag-q19",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#2:mr",
+              "policies/privacy-and-your-data#0:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/doctor-unavailable#0:mr"
+            ],
+            "latency_ms": 50.2
+          },
+          {
+            "id": "rag-q20",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#3:mr",
+              "policies/late-arrival-and-missed-turn#2:mr",
+              "policies/late-arrival-and-missed-turn#1:mr",
+              "policies/late-arrival-and-missed-turn#0:mr",
+              "policies/join-queue-online#2:mr"
+            ],
+            "latency_ms": 44.0
+          },
+          {
+            "id": "rag-q21",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#2:en",
+              "policies/online-check-in#2:en",
+              "policies/opd-queue-and-tokens#4:en"
+            ],
+            "latency_ms": 52.2
+          },
+          {
+            "id": "rag-q22",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/privacy-and-your-data#0:en",
+              "insurance/senior-citizen-benefits#0:en",
+              "policies/join-queue-online#2:en",
+              "policies/language-support#1:en",
+              "test_preparation/ct-scan-contrast#1:en"
+            ],
+            "latency_ms": 51.6
+          },
+          {
+            "id": "rag-q23",
+            "language": "hi",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "policies/doctor-unavailable#1:hi",
+              "policies/caregiver-accounts#1:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/opd-queue-and-tokens#2:hi"
+            ],
+            "latency_ms": 55.4
+          },
+          {
+            "id": "rag-q24",
+            "language": "mr",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/privacy-and-your-data#0:mr",
+              "policies/opd-queue-and-tokens#3:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/opd-queue-and-tokens#2:mr",
+              "policies/walk-in-patients#1:mr"
+            ],
+            "latency_ms": 54.9
+          }
+        ]
+      }
+    },
+    "fixed": {
+      "dense": {
+        "recall_at_5": 0.9,
+        "mrr_at_5": 0.8167,
+        "recall_by_language": {
+          "en": 0.9,
+          "hi": 1.0,
+          "mr": 0.8
+        },
+        "recall_by_collection": {
+          "policies": 0.9
+        },
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0,
+        "median_latency_ms": 46.4,
+        "questions": 24,
+        "rows": [
+          {
+            "id": "rag-q01",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:en",
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/cancellation-policy#0:en",
+              "departments/cardiology#2:en"
+            ],
+            "latency_ms": 47.7
+          },
+          {
+            "id": "rag-q02",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:en",
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/online-check-in#1:en",
+              "policies/booking-appointments#0:en"
+            ],
+            "latency_ms": 46.2
+          },
+          {
+            "id": "rag-q03",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:en",
+              "policies/online-check-in#1:en",
+              "policies/late-arrival-and-missed-turn#0:en",
+              "policies/cancellation-policy#0:en",
+              "facilities/reports-collection#0:en"
+            ],
+            "latency_ms": 46.7
+          },
+          {
+            "id": "rag-q04",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/booking-appointments#0:en",
+              "policies/rescheduling-policy#0:en",
+              "policies/waiting-list#0:en"
+            ],
+            "latency_ms": 45.7
+          },
+          {
+            "id": "rag-q05",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/join-queue-online#2:en"
+            ],
+            "latency_ms": 45.8
+          },
+          {
+            "id": "rag-q06",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/waiting-list#0:en",
+              "policies/rescheduling-policy#0:en"
+            ],
+            "latency_ms": 44.4
+          },
+          {
+            "id": "rag-q07",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/medical-advice-limits#0:en",
+              "policies/join-queue-online#0:en"
+            ],
+            "latency_ms": 44.8
+          },
+          {
+            "id": "rag-q08",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/rescheduling-policy#0:en",
+              "policies/late-arrival-and-missed-turn#1:en"
+            ],
+            "latency_ms": 45.1
+          },
+          {
+            "id": "rag-q09",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/doctor-unavailable#1:en",
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "test_preparation/treadmill-stress-test#1:en"
+            ],
+            "latency_ms": 45.5
+          },
+          {
+            "id": "rag-q10",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#1:en",
+              "policies/late-arrival-and-missed-turn#2:en",
+              "policies/waiting-list#0:en",
+              "policies/late-arrival-and-missed-turn#0:en",
+              "policies/waiting-list#1:en"
+            ],
+            "latency_ms": 50.4
+          },
+          {
+            "id": "rag-q11",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/online-check-in#1:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/join-queue-online#1:hi"
+            ],
+            "latency_ms": 55.8
+          },
+          {
+            "id": "rag-q12",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#0:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/rescheduling-policy#0:hi",
+              "policies/booking-appointments#0:hi"
+            ],
+            "latency_ms": 57.0
+          },
+          {
+            "id": "rag-q13",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#3:hi",
+              "policies/emergencies#0:hi",
+              "facilities/emergency-department#0:hi",
+              "policies/opd-queue-and-tokens#2:hi",
+              "policies/join-queue-online#1:hi"
+            ],
+            "latency_ms": 46.5
+          },
+          {
+            "id": "rag-q14",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "policies/join-queue-online#0:hi",
+              "test_preparation/thyroid-profile#0:hi",
+              "test_preparation/vitamin-b12#0:hi",
+              "test_preparation/fasting-insulin#0:hi"
+            ],
+            "latency_ms": 45.9
+          },
+          {
+            "id": "rag-q15",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#2:hi",
+              "policies/join-queue-online#1:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/late-arrival-and-missed-turn#1:hi",
+              "policies/walk-in-patients#0:hi"
+            ],
+            "latency_ms": 49.5
+          },
+          {
+            "id": "rag-q16",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/walk-in-patients#0:mr"
+            ],
+            "latency_ms": 46.8
+          },
+          {
+            "id": "rag-q17",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/online-check-in#0:mr",
+              "doctors/ayesha-khan#1:mr",
+              "doctors/lakshmi-rao#1:mr"
+            ],
+            "latency_ms": 46.9
+          },
+          {
+            "id": "rag-q18",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#1:mr",
+              "doctors/nitin-chavan#1:mr",
+              "policies/join-queue-online#0:mr",
+              "doctors/lakshmi-rao#1:mr"
+            ],
+            "latency_ms": 45.6
+          },
+          {
+            "id": "rag-q19",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#1:mr",
+              "policies/privacy-and-your-data#0:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#1:mr",
+              "test_preparation/bone-density-dexa#1:mr"
+            ],
+            "latency_ms": 45.0
+          },
+          {
+            "id": "rag-q20",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#2:mr",
+              "policies/late-arrival-and-missed-turn#1:mr",
+              "policies/late-arrival-and-missed-turn#0:mr",
+              "policies/join-queue-online#1:mr",
+              "policies/join-queue-online#2:mr"
+            ],
+            "latency_ms": 45.2
+          },
+          {
+            "id": "rag-q21",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/online-check-in#1:en",
+              "policies/join-queue-online#2:en",
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#0:en"
+            ],
+            "latency_ms": 46.3
+          },
+          {
+            "id": "rag-q22",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/privacy-and-your-data#0:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/privacy-and-your-data#1:en",
+              "facilities/location-and-directions#0:en"
+            ],
+            "latency_ms": 51.5
+          },
+          {
+            "id": "rag-q23",
+            "language": "hi",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "policies/doctor-unavailable#1:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/rescheduling-policy#0:hi",
+              "policies/opd-queue-and-tokens#1:hi"
+            ],
+            "latency_ms": 48.7
+          },
+          {
+            "id": "rag-q24",
+            "language": "mr",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:mr",
+              "test_preparation/vitamin-d#0:mr",
+              "policies/walk-in-patients#0:mr",
+              "insurance/opd-insurance-cover#0:mr",
+              "test_preparation/vitamin-b12#0:mr"
+            ],
+            "latency_ms": 48.1
+          }
+        ]
+      },
+      "bm25": {
+        "recall_at_5": 0.9,
+        "mrr_at_5": 0.645,
+        "recall_by_language": {
+          "en": 0.9,
+          "hi": 1.0,
+          "mr": 0.8
+        },
+        "recall_by_collection": {
+          "policies": 0.9
+        },
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0,
+        "median_latency_ms": 2.8,
+        "questions": 24,
+        "rows": [
+          {
+            "id": "rag-q01",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 4,
+            "returned": 5,
+            "top": [
+              "policies/cancellation-policy#0:en",
+              "policies/join-queue-online#0:en",
+              "policies/privacy-and-your-data#3:en",
+              "policies/online-check-in#0:en",
+              "policies/walk-in-patients#0:en"
+            ],
+            "latency_ms": 2.7
+          },
+          {
+            "id": "rag-q02",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/online-check-in#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/join-queue-online#1:en",
+              "doctors/kavita-joshi#0:en"
+            ],
+            "latency_ms": 3.6
+          },
+          {
+            "id": "rag-q03",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:en",
+              "departments/paediatrics#2:en",
+              "policies/online-check-in#1:en",
+              "departments/ent#2:en",
+              "departments/cardiology#2:en"
+            ],
+            "latency_ms": 2.1
+          },
+          {
+            "id": "rag-q04",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/rescheduling-policy#0:en",
+              "test_preparation/ct-scan#1:en",
+              "policies/walk-in-patients#0:en",
+              "policies/waiting-list#0:en"
+            ],
+            "latency_ms": 4.5
+          },
+          {
+            "id": "rag-q05",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/walk-in-patients#0:en",
+              "policies/join-queue-online#2:en",
+              "policies/opd-queue-and-tokens#0:en"
+            ],
+            "latency_ms": 1.8
+          },
+          {
+            "id": "rag-q06",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/rescheduling-policy#0:en",
+              "policies/cancellation-policy#0:en"
+            ],
+            "latency_ms": 1.6
+          },
+          {
+            "id": "rag-q07",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "test_preparation/urine-culture#0:en",
+              "doctors/prakash-shinde#1:en",
+              "doctors/ritu-agarwal#1:en"
+            ],
+            "latency_ms": 1.8
+          },
+          {
+            "id": "rag-q08",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/join-queue-online#0:en",
+              "policies/join-queue-online#2:en",
+              "policies/join-queue-online#1:en"
+            ],
+            "latency_ms": 3.1
+          },
+          {
+            "id": "rag-q09",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/doctor-unavailable#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/opd-queue-and-tokens#2:en"
+            ],
+            "latency_ms": 2.8
+          },
+          {
+            "id": "rag-q10",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#1:en",
+              "policies/emergencies#0:en",
+              "policies/online-check-in#1:en",
+              "policies/walk-in-patients#0:en",
+              "facilities/laboratory#0:en"
+            ],
+            "latency_ms": 2.8
+          },
+          {
+            "id": "rag-q11",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/online-check-in#1:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/privacy-and-your-data#3:hi"
+            ],
+            "latency_ms": 1.9
+          },
+          {
+            "id": "rag-q12",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#0:hi",
+              "policies/booking-appointments#0:hi",
+              "policies/privacy-and-your-data#3:hi",
+              "policies/waiting-list#1:hi",
+              "policies/booking-appointments#1:hi"
+            ],
+            "latency_ms": 3.8
+          },
+          {
+            "id": "rag-q13",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 4,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#1:hi",
+              "policies/join-queue-online#1:hi",
+              "policies/late-arrival-and-missed-turn#2:hi",
+              "policies/opd-queue-and-tokens#3:hi",
+              "policies/late-arrival-and-missed-turn#0:hi"
+            ],
+            "latency_ms": 3.4
+          },
+          {
+            "id": "rag-q14",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "test_preparation/thyroid-profile#0:hi",
+              "test_preparation/fasting-insulin#0:hi",
+              "policies/doctor-unavailable#0:hi"
+            ],
+            "latency_ms": 3.0
+          },
+          {
+            "id": "rag-q15",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:hi",
+              "policies/join-queue-online#1:hi",
+              "policies/walk-in-patients#0:hi",
+              "policies/opd-queue-and-tokens#3:hi",
+              "policies/join-queue-online#2:hi"
+            ],
+            "latency_ms": 1.7
+          },
+          {
+            "id": "rag-q16",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#0:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/join-queue-online#1:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/opd-queue-and-tokens#0:mr"
+            ],
+            "latency_ms": 2.4
+          },
+          {
+            "id": "rag-q17",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/online-check-in#0:mr",
+              "policies/doctor-unavailable#0:mr",
+              "departments/gynaecology#2:mr"
+            ],
+            "latency_ms": 2.9
+          },
+          {
+            "id": "rag-q18",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#1:mr",
+              "doctors/nitin-chavan#0:mr",
+              "doctors/joseph-mathew#1:mr",
+              "doctors/meera-iyer#1:mr"
+            ],
+            "latency_ms": 2.8
+          },
+          {
+            "id": "rag-q19",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/privacy-and-your-data#0:mr",
+              "policies/opd-queue-and-tokens#1:mr",
+              "policies/join-queue-online#1:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/opd-queue-and-tokens#0:mr"
+            ],
+            "latency_ms": 1.9
+          },
+          {
+            "id": "rag-q20",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#2:mr",
+              "policies/late-arrival-and-missed-turn#1:mr",
+              "policies/late-arrival-and-missed-turn#0:mr",
+              "insurance/estimates-and-deposits#0:mr",
+              "policies/cancellation-policy#0:mr"
+            ],
+            "latency_ms": 2.5
+          },
+          {
+            "id": "rag-q21",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/online-check-in#1:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/join-queue-online#0:en"
+            ],
+            "latency_ms": 2.4
+          },
+          {
+            "id": "rag-q22",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/privacy-and-your-data#0:en",
+              "insurance/senior-citizen-benefits#0:en",
+              "policies/privacy-and-your-data#1:en",
+              "policies/language-support#0:en"
+            ],
+            "latency_ms": 3.2
+          },
+          {
+            "id": "rag-q23",
+            "language": "hi",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/caregiver-accounts#0:hi",
+              "policies/doctor-unavailable#0:hi",
+              "policies/opd-queue-and-tokens#1:hi",
+              "policies/doctor-unavailable#1:hi",
+              "policies/opd-queue-and-tokens#2:hi"
+            ],
+            "latency_ms": 3.3
+          },
+          {
+            "id": "rag-q24",
+            "language": "mr",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/privacy-and-your-data#0:mr",
+              "test_preparation/dilated-eye-examination#0:mr",
+              "test_preparation/colonoscopy#0:mr",
+              "test_preparation/upper-gi-endoscopy#0:mr",
+              "policies/opd-queue-and-tokens#1:mr"
+            ],
+            "latency_ms": 1.8
+          }
+        ]
+      },
+      "hybrid": {
+        "recall_at_5": 0.9,
+        "mrr_at_5": 0.7625,
+        "recall_by_language": {
+          "en": 0.9,
+          "hi": 1.0,
+          "mr": 0.8
+        },
+        "recall_by_collection": {
+          "policies": 0.9
+        },
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0,
+        "median_latency_ms": 50.2,
+        "questions": 24,
+        "rows": [
+          {
+            "id": "rag-q01",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/online-check-in#0:en",
+              "policies/cancellation-policy#0:en",
+              "policies/walk-in-patients#0:en",
+              "departments/cardiology#2:en"
+            ],
+            "latency_ms": 54.6
+          },
+          {
+            "id": "rag-q02",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:en",
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/rescheduling-policy#0:en"
+            ],
+            "latency_ms": 51.5
+          },
+          {
+            "id": "rag-q03",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:en",
+              "policies/online-check-in#1:en",
+              "policies/late-arrival-and-missed-turn#0:en",
+              "departments/ent#2:en",
+              "departments/paediatrics#2:en"
+            ],
+            "latency_ms": 48.4
+          },
+          {
+            "id": "rag-q04",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/rescheduling-policy#0:en",
+              "policies/waiting-list#0:en",
+              "test_preparation/ct-scan#1:en"
+            ],
+            "latency_ms": 52.2
+          },
+          {
+            "id": "rag-q05",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/walk-in-patients#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/join-queue-online#2:en"
+            ],
+            "latency_ms": 47.3
+          },
+          {
+            "id": "rag-q06",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/join-queue-online#0:en",
+              "policies/rescheduling-policy#0:en",
+              "policies/cancellation-policy#0:en"
+            ],
+            "latency_ms": 47.9
+          },
+          {
+            "id": "rag-q07",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "test_preparation/urine-culture#0:en",
+              "doctors/meera-iyer#1:en",
+              "doctors/suresh-pawar#1:en"
+            ],
+            "latency_ms": 53.8
+          },
+          {
+            "id": "rag-q08",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#2:en",
+              "policies/join-queue-online#0:en"
+            ],
+            "latency_ms": 50.5
+          },
+          {
+            "id": "rag-q09",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 4,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/doctor-unavailable#1:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/opd-queue-and-tokens#0:en"
+            ],
+            "latency_ms": 46.8
+          },
+          {
+            "id": "rag-q10",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#1:en",
+              "policies/late-arrival-and-missed-turn#2:en",
+              "policies/walk-in-patients#0:en",
+              "policies/late-arrival-and-missed-turn#0:en",
+              "policies/emergencies#0:en"
+            ],
+            "latency_ms": 52.0
+          },
+          {
+            "id": "rag-q11",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/online-check-in#1:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/rescheduling-policy#0:hi"
+            ],
+            "latency_ms": 128.2
+          },
+          {
+            "id": "rag-q12",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#0:hi",
+              "policies/booking-appointments#0:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/privacy-and-your-data#3:hi"
+            ],
+            "latency_ms": 53.5
+          },
+          {
+            "id": "rag-q13",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#3:hi",
+              "policies/join-queue-online#1:hi",
+              "policies/emergencies#0:hi",
+              "facilities/emergency-department#0:hi",
+              "policies/late-arrival-and-missed-turn#0:hi"
+            ],
+            "latency_ms": 54.2
+          },
+          {
+            "id": "rag-q14",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:hi",
+              "policies/doctor-unavailable#0:hi",
+              "test_preparation/thyroid-profile#0:hi",
+              "test_preparation/fasting-insulin#0:hi",
+              "test_preparation/vitamin-b12#0:hi"
+            ],
+            "latency_ms": 53.0
+          },
+          {
+            "id": "rag-q15",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:hi",
+              "policies/join-queue-online#1:hi",
+              "policies/join-queue-online#2:hi",
+              "policies/walk-in-patients#0:hi",
+              "policies/late-arrival-and-missed-turn#1:hi"
+            ],
+            "latency_ms": 48.9
+          },
+          {
+            "id": "rag-q16",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/walk-in-patients#0:mr",
+              "policies/join-queue-online#2:mr",
+              "policies/opd-queue-and-tokens#0:mr"
+            ],
+            "latency_ms": 49.9
+          },
+          {
+            "id": "rag-q17",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/online-check-in#0:mr",
+              "doctors/lakshmi-rao#1:mr",
+              "doctors/meera-iyer#1:mr"
+            ],
+            "latency_ms": 47.9
+          },
+          {
+            "id": "rag-q18",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#1:mr",
+              "doctors/lakshmi-rao#1:mr",
+              "doctors/meera-iyer#1:mr",
+              "doctors/nitin-chavan#0:mr"
+            ],
+            "latency_ms": 47.2
+          },
+          {
+            "id": "rag-q19",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#1:mr",
+              "policies/privacy-and-your-data#0:mr",
+              "policies/join-queue-online#1:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#0:mr"
+            ],
+            "latency_ms": 44.8
+          },
+          {
+            "id": "rag-q20",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#2:mr",
+              "policies/late-arrival-and-missed-turn#1:mr",
+              "policies/late-arrival-and-missed-turn#0:mr",
+              "policies/join-queue-online#1:mr",
+              "policies/join-queue-online#2:mr"
+            ],
+            "latency_ms": 326.0
+          },
+          {
+            "id": "rag-q21",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/online-check-in#1:en",
+              "policies/join-queue-online#0:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/join-queue-online#2:en"
+            ],
+            "latency_ms": 59.8
+          },
+          {
+            "id": "rag-q22",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/privacy-and-your-data#0:en",
+              "policies/privacy-and-your-data#1:en",
+              "policies/doctor-unavailable#0:en",
+              "insurance/senior-citizen-benefits#0:en"
+            ],
+            "latency_ms": 41.7
+          },
+          {
+            "id": "rag-q23",
+            "language": "hi",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "policies/doctor-unavailable#1:hi",
+              "policies/caregiver-accounts#0:hi",
+              "policies/opd-queue-and-tokens#1:hi",
+              "policies/rescheduling-policy#0:hi"
+            ],
+            "latency_ms": 41.5
+          },
+          {
+            "id": "rag-q24",
+            "language": "mr",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#0:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/privacy-and-your-data#0:mr",
+              "policies/opd-queue-and-tokens#2:mr",
+              "policies/doctor-unavailable#0:mr"
+            ],
+            "latency_ms": 45.6
+          }
+        ]
+      },
+      "hybrid+rerank (no threshold)": {
+        "recall_at_5": 0.85,
+        "mrr_at_5": 0.635,
+        "recall_by_language": {
+          "en": 0.8,
+          "hi": 1.0,
+          "mr": 0.8
+        },
+        "recall_by_collection": {
+          "policies": 0.85
+        },
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0,
+        "median_latency_ms": 59.1,
+        "questions": 24,
+        "rows": [
+          {
+            "id": "rag-q01",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/cancellation-policy#0:en",
+              "policies/privacy-and-your-data#3:en",
+              "policies/booking-appointments#1:en",
+              "policies/walk-in-patients#0:en"
+            ],
+            "latency_ms": 42.7
+          },
+          {
+            "id": "rag-q02",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/online-check-in#0:en",
+              "doctors/kavita-joshi#0:en",
+              "policies/rescheduling-policy#0:en"
+            ],
+            "latency_ms": 45.9
+          },
+          {
+            "id": "rag-q03",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:en",
+              "policies/online-check-in#1:en",
+              "policies/late-arrival-and-missed-turn#0:en",
+              "departments/ent#2:en",
+              "departments/paediatrics#2:en"
+            ],
+            "latency_ms": 40.4
+          },
+          {
+            "id": "rag-q04",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/rescheduling-policy#0:en",
+              "test_preparation/ct-scan#1:en",
+              "test_preparation/mri-scan#1:en",
+              "test_preparation/ultrasound-whole-abdomen#1:en"
+            ],
+            "latency_ms": 42.3
+          },
+          {
+            "id": "rag-q05",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/join-queue-online#2:en"
+            ],
+            "latency_ms": 40.2
+          },
+          {
+            "id": "rag-q06",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/rescheduling-policy#0:en"
+            ],
+            "latency_ms": 40.3
+          },
+          {
+            "id": "rag-q07",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "test_preparation/urine-culture#0:en",
+              "policies/medical-advice-limits#0:en",
+              "policies/join-queue-online#0:en"
+            ],
+            "latency_ms": 43.6
+          },
+          {
+            "id": "rag-q08",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/caregiver-accounts#0:en",
+              "policies/rescheduling-policy#0:en",
+              "policies/join-queue-online#1:en"
+            ],
+            "latency_ms": 58.9
+          },
+          {
+            "id": "rag-q09",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/doctor-unavailable#1:en",
+              "policies/opd-queue-and-tokens#2:en"
+            ],
+            "latency_ms": 49.3
+          },
+          {
+            "id": "rag-q10",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/emergencies#0:en",
+              "policies/late-arrival-and-missed-turn#1:en",
+              "policies/walk-in-patients#0:en",
+              "facilities/laboratory#0:en"
+            ],
+            "latency_ms": 60.1
+          },
+          {
+            "id": "rag-q11",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:hi",
+              "policies/online-check-in#0:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/rescheduling-policy#0:hi",
+              "policies/online-check-in#1:hi"
+            ],
+            "latency_ms": 59.7
+          },
+          {
+            "id": "rag-q12",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/privacy-and-your-data#3:hi",
+              "policies/walk-in-patients#0:hi",
+              "policies/waiting-list#0:hi",
+              "policies/booking-appointments#1:hi",
+              "policies/join-queue-online#0:hi"
+            ],
+            "latency_ms": 65.8
+          },
+          {
+            "id": "rag-q13",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:hi",
+              "policies/late-arrival-and-missed-turn#1:hi",
+              "policies/opd-queue-and-tokens#3:hi",
+              "policies/late-arrival-and-missed-turn#0:hi",
+              "policies/join-queue-online#2:hi"
+            ],
+            "latency_ms": 60.5
+          },
+          {
+            "id": "rag-q14",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "policies/join-queue-online#0:hi",
+              "test_preparation/thyroid-profile#0:hi",
+              "test_preparation/fasting-insulin#0:hi",
+              "test_preparation/vitamin-b12#0:hi"
+            ],
+            "latency_ms": 63.4
+          },
+          {
+            "id": "rag-q15",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:hi",
+              "policies/join-queue-online#2:hi",
+              "policies/late-arrival-and-missed-turn#1:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/walk-in-patients#0:hi"
+            ],
+            "latency_ms": 59.4
+          },
+          {
+            "id": "rag-q16",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#0:mr",
+              "policies/waiting-list#1:mr",
+              "policies/online-check-in#1:mr",
+              "policies/cancellation-policy#0:mr",
+              "policies/join-queue-online#1:mr"
+            ],
+            "latency_ms": 60.8
+          },
+          {
+            "id": "rag-q17",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/online-check-in#0:mr",
+              "doctors/lakshmi-rao#1:mr",
+              "doctors/meera-iyer#1:mr"
+            ],
+            "latency_ms": 60.0
+          },
+          {
+            "id": "rag-q18",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#1:mr",
+              "doctors/nitin-chavan#0:mr",
+              "doctors/lakshmi-rao#1:mr",
+              "doctors/meera-iyer#1:mr"
+            ],
+            "latency_ms": 60.0
+          },
+          {
+            "id": "rag-q19",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#1:mr",
+              "policies/privacy-and-your-data#0:mr",
+              "policies/join-queue-online#1:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#0:mr"
+            ],
+            "latency_ms": 59.8
+          },
+          {
+            "id": "rag-q20",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#2:mr",
+              "policies/late-arrival-and-missed-turn#1:mr",
+              "policies/late-arrival-and-missed-turn#0:mr",
+              "policies/join-queue-online#1:mr",
+              "policies/join-queue-online#2:mr"
+            ],
+            "latency_ms": 331.4
+          },
+          {
+            "id": "rag-q21",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/online-check-in#1:en",
+              "policies/opd-queue-and-tokens#3:en",
+              "policies/join-queue-online#0:en"
+            ],
+            "latency_ms": 56.2
+          },
+          {
+            "id": "rag-q22",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/privacy-and-your-data#0:en",
+              "insurance/senior-citizen-benefits#0:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/join-queue-online#0:en"
+            ],
+            "latency_ms": 111.0
+          },
+          {
+            "id": "rag-q23",
+            "language": "hi",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "policies/opd-queue-and-tokens#1:hi",
+              "policies/doctor-unavailable#1:hi",
+              "policies/caregiver-accounts#0:hi",
+              "policies/rescheduling-policy#0:hi"
+            ],
+            "latency_ms": 55.5
+          },
+          {
+            "id": "rag-q24",
+            "language": "mr",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/privacy-and-your-data#0:mr",
+              "policies/walk-in-patients#0:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/opd-queue-and-tokens#2:mr",
+              "policies/doctor-unavailable#0:mr"
+            ],
+            "latency_ms": 52.2
+          }
+        ]
+      },
+      "hybrid+rerank": {
+        "recall_at_5": 0.85,
+        "mrr_at_5": 0.635,
+        "recall_by_language": {
+          "en": 0.8,
+          "hi": 1.0,
+          "mr": 0.8
+        },
+        "recall_by_collection": {
+          "policies": 0.85
+        },
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0,
+        "median_latency_ms": 56.5,
+        "questions": 24,
+        "rows": [
+          {
+            "id": "rag-q01",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/cancellation-policy#0:en",
+              "policies/privacy-and-your-data#3:en",
+              "policies/booking-appointments#1:en",
+              "policies/walk-in-patients#0:en"
+            ],
+            "latency_ms": 50.7
+          },
+          {
+            "id": "rag-q02",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/online-check-in#0:en",
+              "doctors/kavita-joshi#0:en",
+              "policies/rescheduling-policy#0:en"
+            ],
+            "latency_ms": 46.7
+          },
+          {
+            "id": "rag-q03",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#0:en",
+              "policies/online-check-in#1:en",
+              "policies/late-arrival-and-missed-turn#0:en",
+              "departments/ent#2:en",
+              "departments/paediatrics#2:en"
+            ],
+            "latency_ms": 42.1
+          },
+          {
+            "id": "rag-q04",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/rescheduling-policy#0:en",
+              "test_preparation/ct-scan#1:en",
+              "test_preparation/mri-scan#1:en",
+              "test_preparation/ultrasound-whole-abdomen#1:en"
+            ],
+            "latency_ms": 44.8
+          },
+          {
+            "id": "rag-q05",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/walk-in-patients#0:en",
+              "policies/join-queue-online#2:en"
+            ],
+            "latency_ms": 45.0
+          },
+          {
+            "id": "rag-q06",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/join-queue-online#0:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/rescheduling-policy#0:en"
+            ],
+            "latency_ms": 56.9
+          },
+          {
+            "id": "rag-q07",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "test_preparation/urine-culture#0:en",
+              "policies/medical-advice-limits#0:en",
+              "policies/join-queue-online#0:en"
+            ],
+            "latency_ms": 64.5
+          },
+          {
+            "id": "rag-q08",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/caregiver-accounts#0:en",
+              "policies/rescheduling-policy#0:en",
+              "policies/join-queue-online#1:en"
+            ],
+            "latency_ms": 67.9
+          },
+          {
+            "id": "rag-q09",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 5,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/opd-queue-and-tokens#1:en",
+              "policies/opd-queue-and-tokens#0:en",
+              "policies/doctor-unavailable#1:en",
+              "policies/opd-queue-and-tokens#2:en"
+            ],
+            "latency_ms": 61.4
+          },
+          {
+            "id": "rag-q10",
+            "language": "en",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 4,
+            "top": [
+              "policies/opd-queue-and-tokens#2:en",
+              "policies/emergencies#0:en",
+              "policies/late-arrival-and-missed-turn#1:en",
+              "policies/walk-in-patients#0:en"
+            ],
+            "latency_ms": 60.5
+          },
+          {
+            "id": "rag-q11",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#0:hi",
+              "policies/online-check-in#0:hi",
+              "policies/opd-queue-and-tokens#0:hi",
+              "policies/rescheduling-policy#0:hi",
+              "policies/online-check-in#1:hi"
+            ],
+            "latency_ms": 55.8
+          },
+          {
+            "id": "rag-q12",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 2,
+            "returned": 5,
+            "top": [
+              "policies/privacy-and-your-data#3:hi",
+              "policies/walk-in-patients#0:hi",
+              "policies/waiting-list#0:hi",
+              "policies/booking-appointments#1:hi",
+              "policies/join-queue-online#0:hi"
+            ],
+            "latency_ms": 62.8
+          },
+          {
+            "id": "rag-q13",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 3,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:hi",
+              "policies/late-arrival-and-missed-turn#1:hi",
+              "policies/opd-queue-and-tokens#3:hi",
+              "policies/late-arrival-and-missed-turn#0:hi",
+              "policies/join-queue-online#2:hi"
+            ],
+            "latency_ms": 56.2
+          },
+          {
+            "id": "rag-q14",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 2,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "policies/join-queue-online#0:hi"
+            ],
+            "latency_ms": 63.4
+          },
+          {
+            "id": "rag-q15",
+            "language": "hi",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:hi",
+              "policies/join-queue-online#2:hi",
+              "policies/late-arrival-and-missed-turn#1:hi",
+              "policies/join-queue-online#0:hi",
+              "policies/walk-in-patients#0:hi"
+            ],
+            "latency_ms": 53.4
+          },
+          {
+            "id": "rag-q16",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/walk-in-patients#0:mr",
+              "policies/waiting-list#1:mr",
+              "policies/online-check-in#1:mr",
+              "policies/cancellation-policy#0:mr",
+              "policies/join-queue-online#1:mr"
+            ],
+            "latency_ms": 69.7
+          },
+          {
+            "id": "rag-q17",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/online-check-in#1:mr",
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/online-check-in#0:mr",
+              "doctors/lakshmi-rao#1:mr",
+              "doctors/meera-iyer#1:mr"
+            ],
+            "latency_ms": 57.8
+          },
+          {
+            "id": "rag-q18",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 3,
+            "top": [
+              "policies/opd-queue-and-tokens#0:mr",
+              "policies/join-queue-online#1:mr",
+              "doctors/nitin-chavan#0:mr"
+            ],
+            "latency_ms": 66.8
+          },
+          {
+            "id": "rag-q19",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 4,
+            "top": [
+              "policies/opd-queue-and-tokens#1:mr",
+              "policies/privacy-and-your-data#0:mr",
+              "policies/join-queue-online#1:mr",
+              "policies/opd-queue-and-tokens#0:mr"
+            ],
+            "latency_ms": 51.9
+          },
+          {
+            "id": "rag-q20",
+            "language": "mr",
+            "collection": "policies",
+            "answerable": true,
+            "hit_rank": 1,
+            "returned": 5,
+            "top": [
+              "policies/late-arrival-and-missed-turn#2:mr",
+              "policies/late-arrival-and-missed-turn#1:mr",
+              "policies/late-arrival-and-missed-turn#0:mr",
+              "policies/join-queue-online#1:mr",
+              "policies/join-queue-online#2:mr"
+            ],
+            "latency_ms": 55.2
+          },
+          {
+            "id": "rag-q21",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 4,
+            "top": [
+              "policies/doctor-unavailable#0:en",
+              "policies/join-queue-online#1:en",
+              "policies/online-check-in#1:en",
+              "policies/opd-queue-and-tokens#3:en"
+            ],
+            "latency_ms": 58.8
+          },
+          {
+            "id": "rag-q22",
+            "language": "en",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/join-queue-online#1:en",
+              "policies/privacy-and-your-data#0:en",
+              "insurance/senior-citizen-benefits#0:en",
+              "policies/doctor-unavailable#0:en",
+              "policies/join-queue-online#0:en"
+            ],
+            "latency_ms": 58.0
+          },
+          {
+            "id": "rag-q23",
+            "language": "hi",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/doctor-unavailable#0:hi",
+              "policies/opd-queue-and-tokens#1:hi",
+              "policies/doctor-unavailable#1:hi",
+              "policies/caregiver-accounts#0:hi",
+              "policies/rescheduling-policy#0:hi"
+            ],
+            "latency_ms": 50.9
+          },
+          {
+            "id": "rag-q24",
+            "language": "mr",
+            "collection": null,
+            "answerable": false,
+            "hit_rank": null,
+            "returned": 5,
+            "top": [
+              "policies/privacy-and-your-data#0:mr",
+              "policies/walk-in-patients#0:mr",
+              "policies/join-queue-online#0:mr",
+              "policies/opd-queue-and-tokens#2:mr",
+              "policies/doctor-unavailable#0:mr"
+            ],
+            "latency_ms": 47.9
+          }
+        ]
+      }
+    },
+    "threshold_cv": {
+      "reranker": "lexical-v1",
+      "grid": [
+        0.2,
+        0.225,
+        0.25,
+        0.275,
+        0.3,
+        0.325,
+        0.35,
+        0.375,
+        0.4,
+        0.425,
+        0.45,
+        0.475,
+        0.5,
+        0.525,
+        0.55,
+        0.575,
+        0.6
+      ],
+      "chosen_per_fold": [
+        0.2,
+        0.2,
+        0.2,
+        0.2,
+        0.2
+      ],
+      "chosen_on_all_questions": 0.2,
+      "cross_validated": {
+        "accuracy": 0.7917,
+        "recall_at_5": 0.95,
+        "unanswerable_no_source": 0.0
+      }
+    },
+    "models": {
+      "embedder": "local-lsa-v1:31404e0ee5eb",
+      "reranker": "lexical-v1"
+    }
+  },
+  "summary": {
+    "structure": {
+      "dense": {
+        "recall_at_5": 0.95,
+        "mrr_at_5": 0.7392,
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0
+      },
+      "bm25": {
+        "recall_at_5": 0.9,
+        "mrr_at_5": 0.6392,
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0
+      },
+      "hybrid": {
+        "recall_at_5": 1.0,
+        "mrr_at_5": 0.7625,
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0
+      },
+      "hybrid+rerank (no threshold)": {
+        "recall_at_5": 0.95,
+        "mrr_at_5": 0.7217,
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0
+      },
+      "hybrid+rerank": {
+        "recall_at_5": 0.95,
+        "mrr_at_5": 0.7217,
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0
+      }
+    },
+    "fixed": {
+      "dense": {
+        "recall_at_5": 0.9,
+        "mrr_at_5": 0.8167,
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0
+      },
+      "bm25": {
+        "recall_at_5": 0.9,
+        "mrr_at_5": 0.645,
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0
+      },
+      "hybrid": {
+        "recall_at_5": 0.9,
+        "mrr_at_5": 0.7625,
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0
+      },
+      "hybrid+rerank (no threshold)": {
+        "recall_at_5": 0.85,
+        "mrr_at_5": 0.635,
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0
+      },
+      "hybrid+rerank": {
+        "recall_at_5": 0.85,
+        "mrr_at_5": 0.635,
+        "unanswerable_no_source": 0.0,
+        "answerable_no_source": 0.0
+      }
+    }
+  }
+}

@@ -146,7 +146,7 @@ def build() -> str:
             f"| Median turn latency | {q.get('median_turn_latency_s')} s |",
             "",
         ]
-    rag_now, rag_queue = load("rag_kb363.json"), load("rag_queue.json")
+    rag_now, rag_queue = load("rag_kb363_privacy.json"), load("rag_queue_privacy.json")
     if rag_now or rag_queue:
         lines = ["| Question set | Documents | recall@5 (production) | Cross-validated recall@5 | Unanswerable left without a source |",
                  "| --- | --- | --- | --- | --- |"]  # fmt: skip
@@ -158,9 +158,10 @@ def build() -> str:
             lines.append(f"| {label} ({d['header']['questions']}) | 363 | {pct(prod['recall_at_5'])} | "
                          f"{pct(cv['recall_at_5'])} | {pct(prod['unanswerable_no_source'])} |")  # fmt: skip
         parts += [
-            "## Retrieval after the queue documents (`rag_kb363.json`, `rag_queue.json`)",
+            "## Retrieval on the current knowledge base (`rag_kb363_privacy.json`, `rag_queue_privacy.json`)",
             "",
-            "Retrieval only (no LLM) on the 363-document knowledge base. The results table above is from",
+            "Retrieval only (no LLM) on the current 363 documents (after the queue documents, D-97, and the privacy",
+            "document update, D-131; earlier runs: `rag_kb363.json`, `rag_queue.json`). The results table above is from",
             "`rag.json` (357 documents). The 24 queue questions were written by the developer after the documents",
             "(not by a separate author like the original set) and were not used to tune anything.",
             "",

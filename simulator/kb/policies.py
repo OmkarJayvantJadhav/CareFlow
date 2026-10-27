@@ -352,25 +352,53 @@ def build() -> list[KbDoc]:
             (
                 T("What we keep", "हम क्या रखते हैं", "आम्ही काय ठेवतो"),
                 T(
-                    "CareFlow keeps only what it needs to manage appointments: your name, birth year, preferred language and a masked phone number. Phone numbers are never shown in full in logs or messages.",
-                    "CareFlow अपॉइंटमेंट संभालने के लिए सिर्फ़ ज़रूरी जानकारी रखता है: आपका नाम, जन्म वर्ष, पसंदीदा भाषा और छिपाया हुआ (मास्क्ड) फ़ोन नंबर। लॉग या संदेशों में फ़ोन नंबर कभी पूरा नहीं दिखाया जाता।",
-                    "CareFlow अपॉइंटमेंट सांभाळण्यासाठी फक्त आवश्यक माहिती ठेवतो: तुमचे नाव, जन्मवर्ष, आवडती भाषा आणि लपवलेला (मास्क्ड) फोन नंबर. लॉग किंवा संदेशांमध्ये फोन नंबर कधीही पूर्ण दाखवला जात नाही.",
+                    "CareFlow keeps only what it needs to manage your visits: your name, birth year, preferred language and mobile number, an e-mail address if you add one, and the answers to the hospital's registration questions. Staff may also note whether you are pregnant or have a disability, which the hospital may use to give you priority in the queue. Your mobile number and e-mail address are stored encrypted; screens, logs and messages show only a masked form, such as +91 98XXXXXX12. Staff see your full number only when they need to call you, and each time is recorded.",
+                    "CareFlow आपकी मुलाक़ातें संभालने के लिए सिर्फ़ ज़रूरी जानकारी रखता है: आपका नाम, जन्म वर्ष, पसंदीदा भाषा और मोबाइल नंबर, आप जोड़ें तो ई-मेल पता, और अस्पताल के पंजीकरण सवालों के जवाब। स्टाफ़ यह भी दर्ज कर सकता है कि आप गर्भवती हैं या आपको कोई दिव्यांगता है, जिसके आधार पर अस्पताल आपको कतार में प्राथमिकता दे सकता है। आपका मोबाइल नंबर और ई-मेल पता एन्क्रिप्ट करके रखे जाते हैं; स्क्रीन, लॉग और संदेशों में सिर्फ़ छिपाया हुआ (मास्क्ड) रूप दिखता है, जैसे +91 98XXXXXX12। स्टाफ़ आपका पूरा नंबर सिर्फ़ तब देखता है जब उसे आपको फ़ोन करना हो, और हर बार यह दर्ज होता है।",
+                    "CareFlow तुमच्या भेटी सांभाळण्यासाठी फक्त आवश्यक माहिती ठेवतो: तुमचे नाव, जन्मवर्ष, आवडती भाषा आणि मोबाइल नंबर, तुम्ही जोडल्यास ई-मेल पत्ता, आणि रुग्णालयाच्या नोंदणी प्रश्नांची उत्तरे. तुम्ही गर्भवती आहात का किंवा तुम्हाला अपंगत्व आहे का हेही कर्मचारी नोंदवू शकतात, ज्याच्या आधारे रुग्णालय तुम्हाला रांगेत प्राधान्य देऊ शकते. तुमचा मोबाइल नंबर आणि ई-मेल पत्ता एन्क्रिप्ट करून ठेवले जातात; स्क्रीन, लॉग आणि संदेशांमध्ये फक्त लपवलेले (मास्क्ड) रूप दिसते, जसे +91 98XXXXXX12. कर्मचारी तुमचा पूर्ण नंबर फक्त तुम्हाला फोन करायचा असेल तेव्हाच पाहतात, आणि प्रत्येक वेळी त्याची नोंद होते.",
                 ),
             ),
             (
                 T("Who can see your appointments", "आपकी अपॉइंटमेंट कौन देख सकता है", "तुमच्या अपॉइंटमेंट कोण पाहू शकतो"),
                 T(
-                    "Only you, a caregiver you have verified, and hospital staff. Every change to an appointment is recorded with who made it and when.",
-                    "सिर्फ़ आप, आपका सत्यापित देखभालकर्ता और अस्पताल का स्टाफ़। अपॉइंटमेंट में हर बदलाव इस जानकारी के साथ दर्ज होता है कि किसने और कब किया।",
-                    "फक्त तुम्ही, तुम्ही पडताळलेला काळजीवाहक आणि रुग्णालयाचे कर्मचारी. अपॉइंटमेंटमधील प्रत्येक बदल कोणी आणि केव्हा केला यासह नोंदवला जातो.",
+                    "Only you, a caregiver you have approved, and hospital staff. Every change to an appointment is recorded with who made it and when.",
+                    "सिर्फ़ आप, वह देखभालकर्ता जिसे आपने मंज़ूरी दी है, और अस्पताल का स्टाफ़। अपॉइंटमेंट में हर बदलाव इस जानकारी के साथ दर्ज होता है कि किसने और कब किया।",
+                    "फक्त तुम्ही, तुम्ही मंजुरी दिलेला काळजीवाहक आणि रुग्णालयाचे कर्मचारी. अपॉइंटमेंटमधील प्रत्येक बदल कोणी आणि केव्हा केला यासह नोंदवला जातो.",
+                ),
+            ),
+            (
+                T("Messages from the hospital", "अस्पताल से संदेश", "रुग्णालयाकडून संदेश"),
+                T(
+                    "Every message, such as a reminder or a change to your visit, is shown in CareFlow under Messages. If the hospital also sends messages by SMS or e-mail, you choose under My profile: SMS, e-mail or only in the app. You can switch reminders off in your privacy settings.",
+                    "हर संदेश, जैसे याद दिलाना या आपकी मुलाक़ात में बदलाव, CareFlow में संदेश के अंतर्गत दिखता है। अगर अस्पताल SMS या ई-मेल से भी संदेश भेजता है, तो आप मेरी प्रोफ़ाइल में चुनते हैं: SMS, ई-मेल या सिर्फ़ ऐप में। याद दिलाने वाले संदेश आप अपनी गोपनीयता सेटिंग में बंद कर सकते हैं।",
+                    "प्रत्येक संदेश, जसे आठवण किंवा तुमच्या भेटीतील बदल, CareFlow मध्ये संदेश या विभागात दिसतो. रुग्णालय SMS किंवा ई-मेलनेही संदेश पाठवत असल्यास, तुम्ही माझी प्रोफाइल येथे निवडता: SMS, ई-मेल किंवा फक्त ॲपमध्ये. आठवणीचे संदेश तुम्ही तुमच्या गोपनीयता सेटिंगमध्ये बंद करू शकता.",
+                ),
+            ),
+            (
+                T(
+                    "Downloading or deleting your data",
+                    "अपना डेटा डाउनलोड करना या मिटाना",
+                    "तुमचा डेटा डाउनलोड करणे किंवा हटवणे",
+                ),
+                T(
+                    "Under My profile you can download everything CareFlow holds about you, and delete your account. Deleting cancels your upcoming appointments and removes your personal details, messages and sign-in; the hospital keeps anonymous visit records for its statistics, and its log of who changed what. You can also ask the hospital to do this for you.",
+                    "मेरी प्रोफ़ाइल में आप CareFlow के पास मौजूद अपनी पूरी जानकारी डाउनलोड कर सकते हैं और अपना खाता मिटा सकते हैं। खाता मिटाने से आपकी आने वाली अपॉइंटमेंट रद्द हो जाती हैं और आपकी निजी जानकारी, संदेश और साइन-इन हट जाते हैं; अस्पताल आँकड़ों के लिए बिना नाम वाले मुलाक़ात रिकॉर्ड और किसने क्या बदला इसका लॉग रखता है। आप अस्पताल से भी यह करने के लिए कह सकते हैं।",
+                    "माझी प्रोफाइल येथे तुम्ही CareFlow कडे असलेली तुमची सर्व माहिती डाउनलोड करू शकता आणि तुमचे खाते हटवू शकता. खाते हटवल्याने तुमच्या येणाऱ्या अपॉइंटमेंट रद्द होतात आणि तुमची वैयक्तिक माहिती, संदेश आणि साइन-इन काढले जातात; रुग्णालय आकडेवारीसाठी नाव नसलेल्या भेटींच्या नोंदी आणि कोणी काय बदलले याचा लॉग ठेवते. हे करण्यासाठी तुम्ही रुग्णालयालाही सांगू शकता.",
+                ),
+            ),
+            (
+                T("Chatting with the assistant", "सहायक से चैट करना", "सहाय्यकाशी चॅट करणे"),
+                T(
+                    "The chat assistant uses an AI service outside the hospital to understand your messages. Phone numbers are masked before anything is sent, but please do not type medical details you do not want to share. Booking, check-in and every other screen work without the chat.",
+                    "चैट सहायक आपके संदेश समझने के लिए अस्पताल के बाहर की एक AI सेवा का उपयोग करता है। कुछ भी भेजने से पहले फ़ोन नंबर छिपा दिए जाते हैं, फिर भी कृपया वह चिकित्सा जानकारी न लिखें जो आप साझा नहीं करना चाहते। बुकिंग, चेक-इन और बाकी सभी स्क्रीन चैट के बिना भी काम करती हैं।",
+                    "चॅट सहाय्यक तुमचे संदेश समजण्यासाठी रुग्णालयाबाहेरील एका AI सेवेचा वापर करतो. काहीही पाठवण्यापूर्वी फोन नंबर लपवले जातात, तरीही कृपया जी वैद्यकीय माहिती तुम्हाला सांगायची नाही ती लिहू नका. बुकिंग, चेक-इन आणि इतर सर्व स्क्रीन चॅटशिवायही चालतात.",
                 ),
             ),
             (
                 T("About this demo", "इस डेमो के बारे में", "या डेमोबद्दल"),
                 T(
                     "Indravani General Hospital is fictional and all patient data in this demo is synthetic. It is not for medical use.",
-                    "इंद्रवाणी जनरल हॉस्पिटल काल्पनिक है और इस डेमो का पूरा मरीज़ डेटा कृत्रिम है। यह चिकित्सा उपयोग के लिए नहीं है।",
-                    "इंद्रवाणी जनरल हॉस्पिटल काल्पनिक आहे आणि या डेमोतील सर्व रुग्ण डेटा कृत्रिम आहे. हे वैद्यकीय वापरासाठी नाही.",
+                    "इंद्रावणी जनरल हॉस्पिटल काल्पनिक है और इस डेमो का पूरा मरीज़ डेटा कृत्रिम है। यह चिकित्सा उपयोग के लिए नहीं है।",
+                    "इंद्रावणी जनरल हॉस्पिटल काल्पनिक आहे आणि या डेमोतील सर्व रुग्ण डेटा कृत्रिम आहे. हे वैद्यकीय वापरासाठी नाही.",
                 ),
             ),
         ),
