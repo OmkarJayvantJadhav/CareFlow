@@ -96,6 +96,23 @@ def _send_reminders(stop: threading.Event) -> None:
         stop.wait(600)
 
 
+def _expire_waitlist_offers(stop: threading.Event) -> None:
+    """Waiting-list offers whose hold lapsed go back to the list and the slot is offered to the next patient
+    (D-08, D-136); checked every 5 minutes."""
+    from app.tools.waiting_list import expire_waitlist_offers
+
+    while not stop.is_set():
+        try:
+            with session_factory()() as db:
+                lapsed = expire_waitlist_offers(db, now_ist())
+                db.commit()
+                if lapsed:
+                    log.info("%d waiting-list offers lapsed", lapsed)
+        except Exception:  # noqa: BLE001 - try again next time
+            log.exception("expiring waiting-list offers failed")
+        stop.wait(300)
+
+
 def _deliver_messages(stop: threading.Event) -> None:
     """Messages by SMS and e-mail (phase 7E): the outbox is checked every 20 seconds."""
     from app.tools.messaging import deliver_due
@@ -132,6 +149,7 @@ async def lifespan(_: FastAPI):
         threading.Thread(target=_keep_slots_open, args=(stop,), name="slot-top-up", daemon=True).start()
         threading.Thread(target=_send_reminders, args=(stop,), name="reminders", daemon=True).start()
         threading.Thread(target=_close_past_days, args=(stop,), name="close-past-days", daemon=True).start()
+        threading.Thread(target=_expire_waitlist_offers, args=(stop,), name="waitlist-offers", daemon=True).start()
     threading.Thread(target=_deliver_messages, args=(stop,), name="message-delivery", daemon=True).start()
     yield
     stop.set()

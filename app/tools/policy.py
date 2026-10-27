@@ -3,7 +3,7 @@
 The numbers are the hospital's to set (phase 7D): an admin changes them on the setup page, they are stored
 in ``policy_setting`` and applied here, in this process, at start-up and on every change. The rest of the
 code reads them as ``policy.CANCEL_CUTOFF`` and so on at the moment it needs them. The knowledge-base
-documents state the same numbers through placeholders such as ``{{cancel_hours}}`` (``placeholders()``), so
+documents state the same numbers through placeholders such as ``{{cancel_hours}}`` (filled by ``app.rag.chunking.render``), so
 the documents and the code cannot disagree.
 """
 
@@ -72,11 +72,6 @@ def apply(values: dict[str, int] | None = None) -> dict[str, int]:
 
 def current() -> dict[str, int]:
     return dict(_current)
-
-
-def placeholders() -> dict[str, str]:
-    """``{{key}}`` -> the number in force, for the knowledge-base documents."""
-    return {f"{{{{{key}}}}}": str(value) for key, value in _current.items()}
 
 
 def check(values: dict[str, int]) -> dict[str, int]:

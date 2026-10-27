@@ -3,7 +3,7 @@ app/tools/policy.py, so the documents and the code cannot disagree."""
 
 from simulator.kb.common import KbDoc, T, bullets
 
-# Placeholders filled with the numbers in force (app.tools.policy.placeholders) wherever a document is shown or
+# Placeholders filled with the numbers in force (app.rag.chunking.render) wherever a document is shown or
 # indexed, so an admin who changes a rule changes every document that states it.
 RESCHEDULE_H = "{{reschedule_hours}}"
 CANCEL_H = "{{cancel_hours}}"
