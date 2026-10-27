@@ -13,7 +13,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PORT=7860 \
-    MODEL_CACHE_DIR=/home/careflow/models
+    MODEL_CACHE_DIR=/home/careflow/models \
+    EMBEDDING_BACKEND=local \
+    RERANKER_BACKEND=local
+# The local retriever by default (D-135): it fits a free 512 MB instance and is what the evaluation measured.
+# Left to "auto", a service created without these variables downloaded and ran the neural models at start-up
+# and never opened its port. A service's own environment variables still override them.
 
 # LightGBM needs the OpenMP runtime, which the slim image does not ship.
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
@@ -38,7 +43,7 @@ COPY --chown=careflow:careflow --from=ui /ui/dist ./ui/dist
 USER careflow
 # The demo uses the local retriever (render.yaml, D-67). To serve the neural embedding and
 # re-ranking models instead, bake them in with --build-arg PRELOAD_MODELS=true so cold starts
-# do not download them.
+# do not download them, and set EMBEDDING_BACKEND and RERANKER_BACKEND to auto on the service.
 ARG PRELOAD_MODELS=false
 RUN if [ "$PRELOAD_MODELS" = "true" ]; then python -m app.rag.preload; fi
 

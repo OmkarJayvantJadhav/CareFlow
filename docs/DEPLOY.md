@@ -62,6 +62,9 @@ Use a separate Neon project (never the demo's database) and a separate Render se
 | `INITIAL_ADMIN_PASSWORD` | a temporary password of at least 8 characters |
 | `INITIAL_ADMIN_NAME` | their name as shown in the app |
 | `ALLOW_REGISTRATION` | `true` to let patients and caregivers sign up themselves, `false` for desk registration only |
+| `EMBEDDING_BACKEND`, `RERANKER_BACKEND` | `local` (already the image's default; on a free 512 MB instance the neural models stall the start-up) |
+| `GROQ_API_KEY`, `GEMINI_API_KEY` | the assistant's model keys, as for the demo |
+| `DATABASE_URL` | the hospital's own Neon connection string |
 | `DEMO_SITE_URL` | optional: your demo site's address (e.g. `https://careflow-zy87.onrender.com`); the sign-in page and the homepage's footer then show a "Try the demo" link that opens it in a new tab |
 
 At every start the app checks whether an admin can sign in. Only if none can does it create this admin, who
@@ -135,6 +138,7 @@ offers). Nothing is sent until both are done, and the real providers never send 
 | The page says it is waking up / first request is slow | Expected after idle (Render or Neon); wait a minute |
 | Chat answers "The assistant is busy right now" | Free LLM quota reached; it recovers within minutes to a day. Check the Groq console |
 | Visitors left messy data (demo only) | Admin → Dashboard → **Reset demo data** |
+| Deploy "Timed Out" with "No open ports detected", nothing logged after the admin line | The start-up is still loading the knowledge base. Make sure the service uses the local retriever (`EMBEDDING_BACKEND=local`, `RERANKER_BACKEND=local`, the image's default since D-135; remove any `auto` values) and redeploy |
 | An admin forgot their password (hospital deployment) | Another admin resets it under **Accounts**. If no admin can sign in, run `DATABASE_URL='<the Neon string>' python -m app.manage reset-password --username U` from a checkout of this repository on any computer; it prints a temporary password once |
 | Someone left or a device was lost | Admin → **Accounts** → switch the account off (its sessions end at once) or reset its password |
 | A patient asks for their data to be deleted | Admin → **Patients** → find them → **Erase this patient's details**, with the reason. Patients with an account can also do it themselves from their profile |
