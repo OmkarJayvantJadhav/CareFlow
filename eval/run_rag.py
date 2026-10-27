@@ -32,7 +32,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 import app.rag.retriever as retriever_module
 from app.config import get_settings
-from app.db.session import CONNECT_ARGS, normalize_url, without_pipelines
+from app.db.session import CONNECT_ARGS, normalize_url
 from app.rag.chunking import load_documents
 from app.rag.embeddings import choose_embedder
 from app.rag.ingest import DEFAULT_ROOT, build_chunks, ingest
@@ -124,9 +124,7 @@ def fixed_database() -> sessionmaker:
     cfg = Config("alembic.ini")
     cfg.set_main_option("sqlalchemy.url", normalize_url(url))
     command.upgrade(cfg, "head")
-    factory = sessionmaker(
-        bind=without_pipelines(create_engine(normalize_url(url), connect_args=CONNECT_ARGS)), expire_on_commit=False
-    )
+    factory = sessionmaker(bind=create_engine(normalize_url(url), connect_args=CONNECT_ARGS), expire_on_commit=False)
     with factory() as db:
         stored = db.scalar(text("SELECT count(*) FROM kb_chunk"))
         if stored != len(build_chunks(load_documents(DEFAULT_ROOT), "fixed")):

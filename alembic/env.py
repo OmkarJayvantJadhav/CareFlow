@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.config import get_settings
 from app.db.models import Base
-from app.db.session import CONNECT_ARGS, normalize_url, without_pipelines
+from app.db.session import CONNECT_ARGS, normalize_url
 
 config = context.config
 if config.config_file_name is not None:
@@ -25,13 +25,11 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    connectable = without_pipelines(
-        engine_from_config(
-            config.get_section(config.config_ini_section, {}),
-            prefix="sqlalchemy.",
-            poolclass=pool.NullPool,
-            connect_args=CONNECT_ARGS,
-        )
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section, {}),
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+        connect_args=CONNECT_ARGS,
     )
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)

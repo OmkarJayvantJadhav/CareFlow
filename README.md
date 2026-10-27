@@ -570,7 +570,7 @@ docs/         specification, decisions, deployment guide, screenshots
 | Document | Contents |
 | --- | --- |
 | [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md) | The specification (version 2.0): problem, requirements (FR-01–FR-74), architecture, database, API, screens, tests, roadmap, security, operations, risks and evaluation |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-129), with the reason |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-130), with the reason |
 | [`docs/DEPLOY.md`](docs/DEPLOY.md) | Free deployment on Render and Neon, monitoring and runbook |
 | [`eval/README.md`](eval/README.md) | How the evaluation works and how to run it |
 | [`eval/results/README.md`](eval/results/README.md) | The generated results table with sample sizes |

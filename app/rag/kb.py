@@ -9,10 +9,11 @@ everything when the embedder itself changed (the local LSA embedder is fitted on
 
 import time
 from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 
 from sqlalchemy import delete, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import get_settings
 from app.db.models import KbChunk, KbDocument
@@ -59,6 +60,84 @@ def sync_templates(db: Session, root: Path = DEFAULT_ROOT) -> dict:
     return {"added": added, "updated": updated, "removed": removed}
 
 
+@dataclass
+class _Plan:
+    """What re-indexing needs from the database, read in one go."""
+
+    rows: list[KbDocument]
+    visible: list[tuple[KbDocument, Document, list]]
+    hidden: list[int]
+    stored: dict[int, set[str]]
+
+    @property
+    def texts(self) -> list[str]:
+        return [c.text for _, _, chunks in self.visible for c in chunks] or ["∅"]
+
+
+def _plan(db: Session, chunker: str) -> _Plan:
+    split = CHUNKERS[chunker]
+    rows = list(db.scalars(select(KbDocument).order_by(KbDocument.source_path)))
+    visible = []
+    for row in rows:
+        if row.hidden_at is None and row.template is not None:
+            doc = parse_document(render(row.template), row.source_path)
+            visible.append((row, doc, split(doc)))
+    stored: dict[int, set[str]] = defaultdict(set)
+    for doc_id, model in db.execute(select(KbChunk.document_id, KbChunk.embedding_model).distinct()):
+        stored[doc_id].add(model)
+    return _Plan(rows, visible, [r.id for r in rows if r.hidden_at is not None], stored)
+
+
+def _embed(plan: _Plan, embedder, force: bool) -> tuple[list, list]:
+    """The documents to re-index and their chunks' vectors. No database access: this is the slow part."""
+    todo = [
+        (row, doc, chunks)
+        for row, doc, chunks in plan.visible
+        if force or row.content_hash != doc.content_hash or plan.stored.get(row.id) != {embedder.name}
+    ]
+    pending = [(row.id, chunk) for row, _, chunks in todo for chunk in chunks]
+    vectors = []
+    # Large batches: the LSA embedder has a high fixed cost per call.
+    for start in range(0, len(pending), BATCH):
+        vectors.extend(embedder.embed_documents([chunk.text for _, chunk in pending[start : start + BATCH]]))
+    return todo, list(zip(pending, vectors, strict=True))
+
+
+def _write(db: Session, plan: _Plan, todo: list, embedded: list, embedder_name: str) -> None:
+    if plan.hidden:
+        db.execute(delete(KbChunk).where(KbChunk.document_id.in_(plan.hidden)))
+    if todo:
+        db.execute(delete(KbChunk).where(KbChunk.document_id.in_([row.id for row, _, _ in todo])))
+        db.add_all(
+            KbChunk(
+                document_id=doc_id,
+                chunk_index=chunk.index,
+                section=chunk.section[:200],
+                text=chunk.text,
+                embedding=vector.tolist(),
+                embedding_model=embedder_name,
+            )
+            for (doc_id, chunk), vector in embedded
+        )
+        for row, doc, _ in todo:
+            row = row if row in db else db.get(KbDocument, row.id)
+            _describe(row, doc)
+            row.content_hash = doc.content_hash
+    db.flush()
+
+
+def _result(plan: _Plan, todo: list, embedder_name: str, started: float) -> dict:
+    if todo or plan.hidden:
+        reset_retriever()
+    return {
+        "documents": len(plan.visible),
+        "reindexed": len(todo),
+        "chunks": sum(len(c) for _, _, c in plan.visible),
+        "embedder": embedder_name,
+        "seconds": round(time.perf_counter() - started, 1),
+    }
+
+
 def reindex(db: Session, chunker: str = "structure", force: bool = False, refit: bool = True) -> dict:
     """Chunk and embed every visible document whose text (as readers see it) or embedder changed.
 
@@ -67,59 +146,33 @@ def reindex(db: Session, chunker: str = "structure", force: bool = False, refit:
     from every chunk. The ingest step at the next deployment refits on the whole corpus."""
     started = time.perf_counter()
     settings = get_settings()
-    split = CHUNKERS[chunker]
-    rows = list(db.scalars(select(KbDocument).order_by(KbDocument.source_path)))
-    hidden = [r.id for r in rows if r.hidden_at is not None]
-    if hidden:
-        db.execute(delete(KbChunk).where(KbChunk.document_id.in_(hidden)))
-    visible = []
-    for row in rows:
-        if row.hidden_at is None and row.template is not None:
-            doc = parse_document(render(row.template), row.source_path)
-            visible.append((row, doc, split(doc)))
-    texts = [c.text for _, _, chunks in visible for c in chunks] or ["∅"]
-    stored: dict[int, set[str]] = defaultdict(set)
-    for doc_id, model in db.execute(select(KbChunk.document_id, KbChunk.embedding_model).distinct()):
-        stored[doc_id].add(model)
-    args = (settings.embedding_backend, settings.embedding_model, settings.model_cache_dir, texts)
+    plan = _plan(db, chunker)
+    args = (settings.embedding_backend, settings.embedding_model, settings.model_cache_dir, plan.texts)
     if refit:
         embedder = choose_embedder(*args)
     else:
-        embedder = embedder_for_index(*args, set().union(*stored.values()) if stored else set())
-    todo = [
-        (row, doc, chunks)
-        for row, doc, chunks in visible
-        if force or row.content_hash != doc.content_hash or stored.get(row.id) != {embedder.name}
-    ]
-    if todo:
-        db.execute(delete(KbChunk).where(KbChunk.document_id.in_([row.id for row, _, _ in todo])))
-        pending = [(row, chunk) for row, _, chunks in todo for chunk in chunks]
-        # One large batch: the LSA embedder has a high fixed cost per call.
-        for start in range(0, len(pending), BATCH):
-            batch = pending[start : start + BATCH]
-            vectors = embedder.embed_documents([chunk.text for _, chunk in batch])
-            db.add_all(
-                KbChunk(
-                    document_id=row.id,
-                    chunk_index=chunk.index,
-                    section=chunk.section[:200],
-                    text=chunk.text,
-                    embedding=vector.tolist(),
-                    embedding_model=embedder.name,
-                )
-                for (row, chunk), vector in zip(batch, vectors, strict=True)
-            )
-        for row, doc, _ in todo:
-            _describe(row, doc)
-            row.content_hash = doc.content_hash
-    changed = len(todo)
-    db.flush()
-    if changed or hidden:
-        reset_retriever()
-    return {
-        "documents": len(visible),
-        "reindexed": changed,
-        "chunks": sum(len(c) for _, _, c in visible),
-        "embedder": embedder.name,
-        "seconds": round(time.perf_counter() - started, 1),
-    }
+        embedder = embedder_for_index(*args, set().union(*plan.stored.values()) if plan.stored else set())
+    todo, embedded = _embed(plan, embedder, force)
+    _write(db, plan, todo, embedded, embedder.name)
+    return _result(plan, todo, embedder.name, started)
+
+
+def reindex_without_holding_a_transaction(
+    factory: sessionmaker, chunker: str = "structure", force: bool = False
+) -> dict:
+    """``reindex`` for the start-up step, in three parts: read, then fit and embed with no transaction open,
+    then write in one short transaction. Fitting the LSA embedder can take minutes on a small instance, and
+    a transaction left idle that long is ended by the database (Neon); through its pooler the next COMMIT then
+    failed with "received 2 results from command 'COMMIT'" (D-130)."""
+    started = time.perf_counter()
+    settings = get_settings()
+    with factory() as db:  # closing (not committing) keeps the rows' loaded values
+        plan = _plan(db, chunker)
+    embedder = choose_embedder(
+        settings.embedding_backend, settings.embedding_model, settings.model_cache_dir, plan.texts
+    )
+    todo, embedded = _embed(plan, embedder, force)
+    with factory() as db:
+        _write(db, plan, todo, embedded, embedder.name)
+        db.commit()
+    return _result(plan, todo, embedder.name, started)

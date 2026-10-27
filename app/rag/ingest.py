@@ -12,9 +12,9 @@ from pathlib import Path
 
 from sqlalchemy.orm import Session
 
-from app.db.session import session_scope
+from app.db.session import session_factory, session_scope
 from app.rag.chunking import Chunk, Document
-from app.rag.kb import CHUNKERS, DEFAULT_ROOT, reindex, sync_templates
+from app.rag.kb import CHUNKERS, DEFAULT_ROOT, reindex, reindex_without_holding_a_transaction, sync_templates
 from app.safety.privacy import install_log_masking
 from app.tools.policy_settings import load_policy
 
@@ -42,10 +42,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--chunker", choices=sorted(CHUNKERS), default="structure")
     parser.add_argument("--if-needed", action="store_true", help="re-embed only documents that changed")
     args = parser.parse_args(argv)
+    # The templates in one short transaction; the slow part (fitting and embedding) holds none (D-130).
     with session_scope() as db:
         load_policy(db)
-        result = ingest(db, args.root, args.chunker, args.if_needed)
-    print(result)
+        templates = sync_templates(db, args.root)
+    result = reindex_without_holding_a_transaction(session_factory(), args.chunker, force=not args.if_needed)
+    unchanged = args.if_needed and not result["reindexed"] and not any(templates.values())
+    print({"status": "up to date" if unchanged else "ingested", **templates, **result, "chunker": args.chunker})
     return 0
 
 

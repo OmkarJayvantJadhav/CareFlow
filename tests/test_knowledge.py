@@ -209,3 +209,23 @@ def test_dense_search_ignores_vectors_from_another_embedder(kb, factory):
             assert retriever.search(db, "lipid profile fasting", language="en")
         finally:
             retriever.embedder = real
+
+
+def test_start_up_indexing_holds_no_transaction_while_fitting(engine, kb, monkeypatch):
+    """Fitting can take minutes on a small instance; a transaction left idle that long is ended by the
+    database, and behind a pooler the next COMMIT failed (D-130)."""
+    from sqlalchemy.orm import sessionmaker
+
+    from app.rag import kb as kb_module
+
+    real = kb_module.choose_embedder
+    checked_out = []
+
+    def fitting(*args, **kwargs):
+        checked_out.append(engine.pool.checkedout())
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(kb_module, "choose_embedder", fitting)
+    factory = sessionmaker(bind=engine, expire_on_commit=False)
+    result = kb_module.reindex_without_holding_a_transaction(factory)
+    assert checked_out == [0] and result["documents"] == kb["documents"] and result["reindexed"] == 0

@@ -14,10 +14,9 @@ check the limits when you deploy.
 2. Copy the connection string from **Connect**. It can be pasted as it is
    (`postgresql://USER:PASSWORD@HOST/neondb?sslmode=require…`); the app switches it to the psycopg driver.
    This is your `DATABASE_URL`. Keep it secret. The pooled string (host with `-pooler`) and the direct one
-   both work: CareFlow uses neither server-side prepared statements nor pipelined batches, which a pooler
-   in transaction mode cannot carry (D-128, D-129). If a deployment ever fails while committing (for
-   example "received 2 results from command 'COMMIT'"), switch to the direct string (the host without
-   `-pooler`), which bypasses the pooler.
+   both work: CareFlow does not use server-side prepared statements, which a pooler in transaction mode
+   cannot carry (D-128), and never keeps a transaction open during slow work, which the database would end
+   (D-130).
 
 The first start enables pgvector, migrates the database, seeds the fictional hospital (~20 s; demo mode only)
 and loads the knowledge base. Neon's free plan suspends compute when idle; the first request after a pause takes a few
