@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from app.db.models import LANGUAGES, AppUser, KbDocument
 from app.rag.chunking import parse_document, render, unknown_placeholders
 from app.rag.kb import DEFAULT_ROOT, reindex
+from app.rag.setup_docs import templates_for
 from app.timeutil import iso, resolve_now
 from app.tools import policy
 from app.tools.audit import write_tool
@@ -251,10 +252,10 @@ def revert_document(
     row = _row(db, document_id, for_update=True)
     if row.origin != "edited":
         raise ToolError("INVALID_STATE", "Only a shipped document that was edited can be reverted.")
-    path = root.parent / row.source_path
-    if not path.is_file():
+    shipped, _ = templates_for(db, root, now.date())  # on a hospital's deployment some come from its setup
+    if row.source_path not in shipped:
         raise ToolError("NOT_FOUND", "The shipped version of this document no longer exists.")
-    row.template = path.read_text(encoding="utf-8")
+    row.template = shipped[row.source_path]
     doc = parse_document(render(row.template), row.source_path)
     row.title, row.last_verified = doc.title, doc.last_verified
     row.origin, row.edited_at, row.edited_by, row.updated_at = "template", now, _username(db, actor), now

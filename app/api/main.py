@@ -64,9 +64,10 @@ def _keep_slots_open(stop: threading.Event) -> None:
 
 
 def _close_past_days(stop: threading.Event) -> None:
-    """Days that are over get their queues closed and no-shows recorded, if the desk did not (D-127).
-    Checked at start-up and then every hour, so it happens soon after midnight."""
+    """Days that are over get their queues closed and no-shows recorded, if the desk did not (D-127), and a
+    hospital's setup documents follow the calendar. Checked at start-up and then every hour."""
     from app.queue.engine import close_past_days
+    from app.rag.setup_docs import refresh_setup_documents
 
     while not stop.is_set():
         try:
@@ -77,6 +78,15 @@ def _close_past_days(stop: threading.Event) -> None:
                     log.info("closed past days: %s", result)
         except Exception:  # noqa: BLE001 - try again next time
             log.exception("closing past days failed")
+        try:
+            # A hospital's doctor pages drop a doctor whose last day has passed (D-139).
+            with session_factory()() as db:
+                changes = refresh_setup_documents(db, now_ist().date())
+                db.commit()
+                if changes and changes.get("reindexed"):
+                    log.info("setup documents updated: %s", changes)
+        except Exception:  # noqa: BLE001 - try again next time
+            log.exception("updating the setup documents failed")
         stop.wait(3600)
 
 

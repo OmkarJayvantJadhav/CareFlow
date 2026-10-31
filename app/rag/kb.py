@@ -10,6 +10,7 @@ everything when the embedder itself changed (the local LSA embedder is fitted on
 import time
 from collections import defaultdict
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 
 from sqlalchemy import delete, select
@@ -17,9 +18,10 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import get_settings
 from app.db.models import KbChunk, KbDocument
-from app.rag.chunking import Document, fixed_chunks, parse_document, read_templates, render, structure_chunks
+from app.rag.chunking import Document, fixed_chunks, parse_document, render, structure_chunks
 from app.rag.embeddings import choose_embedder, embedder_for_index
 from app.rag.retriever import reset_retriever
+from app.rag.setup_docs import same_apart_from_date, templates_for
 from app.timeutil import now_ist
 
 DEFAULT_ROOT = Path(__file__).resolve().parents[2] / "knowledge"
@@ -32,9 +34,10 @@ def _describe(row: KbDocument, doc: Document) -> None:
     row.last_verified, row.doc_key = doc.last_verified, doc.doc_key
 
 
-def sync_templates(db: Session, root: Path = DEFAULT_ROOT) -> dict:
-    """Load the shipped templates. Documents admins edited, added or hid are left as they are."""
-    templates = dict(read_templates(root))
+def sync_templates(db: Session, root: Path = DEFAULT_ROOT, today: date | None = None) -> dict:
+    """Load the shipped templates. Documents admins edited, added or hid are left as they are. On a hospital's
+    own deployment the department, doctor and some facility pages come from its setup (app.rag.setup_docs)."""
+    templates, from_setup = templates_for(db, root, today or now_ist().date())
     if not templates:
         raise SystemExit(f"no documents found under {root}")
     rows = {row.source_path: row for row in db.scalars(select(KbDocument))}
@@ -47,6 +50,8 @@ def sync_templates(db: Session, root: Path = DEFAULT_ROOT) -> dict:
             db.add(row)
             added += 1
         elif row.origin == "template" and row.template != raw:
+            if source in from_setup and same_apart_from_date(row.template, raw):
+                continue
             row.template = raw
             _describe(row, parse_document(render(raw), source))
             row.updated_at = now_ist()

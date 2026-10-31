@@ -90,10 +90,14 @@ free plans). Decide whether that is acceptable for your patients. If not, use a 
 data-processing agreement with, or a local model (`LLM_PRIMARY=ollama:<model>`, `OLLAMA_BASE_URL`). Booking,
 queues and every other screen work without it.
 
-Then **Hospital setup → Booking and queue rules** for your cut-offs and windows, and **Documents**: the
-information documents start as the demo hospital's. Edit the ones that apply (policy numbers follow your
-rules automatically), hide the ones that do not (the demo's departments, doctors, facilities and insurers),
-and add your own. Changes are live at once. The demo reset and the demo roles are switched off in this mode.
+Then **Hospital setup → Booking and queue rules** for your cut-offs and windows, and **Documents**. The
+pages for your departments and doctors, the floor guide, the OPD hours, the location page and the
+emergency-department page are written from Hospital setup in English, Hindi and Marathi, and change by
+themselves whenever you add, edit or remove a department or doctor or change the hospital's details (D-139);
+you can still edit or hide one, and "undo changes" brings back the version written from the setup. The other
+documents start as the demo hospital's: edit the ones that apply (policy numbers follow your rules
+automatically), hide the ones that do not (the demo's other facilities and insurers), and add your own.
+Changes are live at once. The demo reset and the demo roles are switched off in this mode.
 
 ### Messages by SMS and e-mail
 

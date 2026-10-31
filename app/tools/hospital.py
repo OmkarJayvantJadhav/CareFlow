@@ -42,6 +42,15 @@ PHONE_RE = re.compile(r"^[0-9+()\- ]{6,30}$")
 # --------------------------------------------------------------------------- the hospital's details
 
 
+def _documents_follow(db: Session, now: datetime) -> None:
+    """On a hospital's own deployment the department, doctor and some facility pages are written from the
+    setup, so every change re-writes them and updates the index (D-139)."""
+    from app.rag.setup_docs import refresh_setup_documents
+
+    db.flush()
+    refresh_setup_documents(db, now.date())
+
+
 def get_profile(db: Session) -> HospitalProfile | None:
     return db.get(HospitalProfile, 1)
 
@@ -175,6 +184,7 @@ def update_profile(
     profile.updated_at, profile.updated_by = now, actor.user_id
     db.add(profile)
     db.flush()
+    _documents_follow(db, now)
     return profile_view(profile)
 
 
@@ -315,6 +325,7 @@ def create_department(
     db.add(dept)
     db.flush()
     db.refresh(dept)
+    _documents_follow(db, now)
     return department_view(dept, now.date(), {})
 
 
@@ -351,12 +362,13 @@ def update_department(
         db.flush()
         timetable = rebuild_slots(db, [d.id for d in current], now)
     db.flush()
+    _documents_follow(db, now)
     return {**department_view(dept, now.date(), {}), "timetable": timetable}
 
 
 @write_tool("delete_department")
 def delete_department(db: Session, actor: Actor, department_id: int, now: datetime | None = None) -> dict:
-    resolve_now(now)
+    now = resolve_now(now)
     require_role(actor, "admin")
     dept = db.get(Department, department_id)
     if dept is None:
@@ -366,6 +378,7 @@ def delete_department(db: Session, actor: Actor, department_id: int, now: dateti
     name = dept.name
     db.delete(dept)
     db.flush()
+    _documents_follow(db, now)
     return {"department_id": department_id, "name": name, "deleted": True}
 
 
@@ -428,6 +441,7 @@ def create_doctor(
     db.refresh(doctor)
     first, last = _horizon(now)
     created = ensure_slots(db, first, last, [doctor.id])
+    _documents_follow(db, now)
     return {**doctor_view(doctor, now.date(), {}), "slots_created": created, "from": first.isoformat()}
 
 
@@ -466,6 +480,7 @@ def update_doctor(
     db.flush()
     db.refresh(doctor)
     timetable = rebuild_slots(db, [doctor.id], now) if changed and doctor.is_current(now.date()) else None
+    _documents_follow(db, now)
     return {**doctor_view(doctor, now.date(), {}), "timetable": timetable}
 
 
@@ -483,6 +498,7 @@ def set_last_day(db: Session, actor: Actor, doctor_id: int, last_day: date | Non
         doctor.last_day = None
         db.flush()
         created = ensure_slots(db, first, last, [doctor.id])
+        _documents_follow(db, now)
         return {**doctor_view(doctor, now.date(), {}), "slots_created": created, "moved": [], "waiting_list": 0}
     if last_day < now.date():
         raise ToolError("VALIDATION_ERROR", "The last day cannot be in the past.")
@@ -537,13 +553,14 @@ def set_last_day(db: Session, actor: Actor, doctor_id: int, last_day: date | Non
             kind="unavailable",
         )
     db.flush()
+    _documents_follow(db, now)
     return {**doctor_view(doctor, now.date(), {}), "slots_retired": retired, "moved": moved, "waiting_list": closed}
 
 
 @write_tool("delete_doctor")
 def delete_doctor(db: Session, actor: Actor, doctor_id: int, now: datetime | None = None) -> dict:
     """Only a doctor nobody has booked, queued for or linked an account to (an entry made by mistake)."""
-    resolve_now(now)
+    now = resolve_now(now)
     require_role(actor, "admin")
     doctor = db.get(Doctor, doctor_id)
     if doctor is None:
@@ -574,4 +591,5 @@ def delete_doctor(db: Session, actor: Actor, doctor_id: int, now: datetime | Non
         raise ToolError(
             "INVALID_STATE", "This doctor is referred to by other records; set a last day instead."
         ) from None
+    _documents_follow(db, now)
     return {"doctor_id": doctor_id, "name": name, "deleted": True}
