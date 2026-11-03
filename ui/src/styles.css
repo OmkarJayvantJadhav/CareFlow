@@ -2470,11 +2470,11 @@ label.check input {
     display: none;
   }
 
-  /* Phones: the brand, the bell (patients) and the language; in large text the language may move below. */
+  /* Phones: one row with the brand, the bell (patients) and the language; the brand's text shortens first. */
   .topbar {
     position: static;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: space-between;
     padding: 0.5rem 1rem;
   }
@@ -3596,5 +3596,41 @@ textarea.doc-body {
   .stack-on-phone .meter-cell {
     flex: 1 1 8rem;
     min-width: 0;
+  }
+}
+
+@media (max-width: 860px) {
+  /* One header row: the hospital's name gives way (shortened) before the bell or the language wrap. */
+  .topbar > span.mobile-only:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .topbar .language-menu {
+    padding: 0 1.75rem 0 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .topbar .brand,
+  .topbar .brand-text {
+    min-width: 0;
+  }
+
+  .topbar .brand-name,
+  .topbar .brand-sub {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 860px) {
+  /* Large text: the brand on its own row, the language (and the bell) below it. */
+  .large-text .topbar {
+    flex-wrap: wrap;
+  }
+
+  .large-text .topbar > span.mobile-only:first-child {
+    flex: 1 0 100%;
   }
 }

@@ -4,9 +4,9 @@
 
 # 🏥 CareFlow
 
-### Your OPD visit, without the wait
+### See your doctor without the long wait
 
-**Appointments, hospital information, check-in, a live queue and messages to patients — in English, हिन्दी and मराठी.**
+**Book a doctor's appointment, get answers about the hospital and see when it's your turn — in English, हिन्दी and मराठी.**
 
 [![Live demo](https://img.shields.io/badge/▶%20live%20demo-careflow--zy87.onrender.com-0f766e?style=for-the-badge)](https://careflow-zy87.onrender.com)
 [![Hospital site](https://img.shields.io/badge/🏥%20hospital%20site-omkar--general--hospital-1e40af?style=for-the-badge)](https://omkar-general-hospital.onrender.com)
@@ -16,7 +16,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20pgvector-4169E1?logo=postgresql&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-464%20Python%20·%2044%20browser%20·%2012%20UI-15803d)
+![Tests](https://img.shields.io/badge/tests-473%20Python%20·%2045%20browser%20·%2013%20UI-15803d)
 ![Accessibility](https://img.shields.io/badge/WCAG-A%2FAA%20checked-1e40af)
 
 [Features](#-features-in-action) •
@@ -33,6 +33,18 @@
 > real hospital and not for medical use. The **demo** lets you try every role without an account; the **hospital
 > site** (`DEMO_MODE=false`) is how a real hospital would run it: its own homepage, accounts, departments, doctors,
 > rules and documents.
+
+## 🙋 CareFlow in plain words
+
+| You are… | CareFlow lets you… |
+| --- | --- |
+| **A patient or family member** | book a time with a doctor (by chatting or by picking a slot), check in from your phone, and see how many people are ahead of you and how long you'll wait |
+| **At the reception desk** | check patients in, add walk-ins and call the next patient, with every phone updating at once |
+| **A doctor** | see only your own patients, who is next, and requests from the desk |
+| **Running the hospital** | set up departments, doctors and timings, staff accounts, rules and the information patients read |
+
+It works in English, Hindi and Marathi, on a phone or a computer, and the assistant never books or cancels
+anything until you tap **Confirm**.
 
 ---
 
@@ -181,7 +193,9 @@ are refused before any model call.
 
 #### 🏗️ Hospital setup
 Name and address in three languages, reception hours, emergency directions, booking and queue rules, departments,
-doctors and OPD timetables. Changes apply from tomorrow and never cancel a booking.
+doctors and their timetables. Changes apply from tomorrow and never cancel a booking. On a hospital's own site the
+department, doctor, floor-guide, hours, location and emergency pages are written from this setup in all three
+languages and update by themselves.
 
 <img src="docs/gifs/hospital-setup.gif" alt="Adding a Neurology department and a doctor" width="100%">
 
@@ -254,7 +268,9 @@ flowchart LR
   documents live in the database and apply at once; a document edit is re-indexed in about a second.
 - **Background work** — threads in the server send reminders (every 10 minutes), keep 21 days of slots
   open (every 6 hours), close days that are over if the desk did not (every hour: no-shows recorded,
-  rebooking offered) and deliver the SMS and e-mail outbox (every 20 seconds).
+  rebooking offered; on a hospital's own site the department and doctor pages are refreshed at the same
+  time), pass a lapsed waiting-list offer to the next patient (every 5 minutes) and deliver the SMS and
+  e-mail outbox (every 20 seconds).
 - **Privacy** — phone numbers and e-mail addresses are encrypted with AES-GCM and masked on every screen,
   log, trace, audit row and model prompt; secrets live only in the environment.
 - **Analytics** — reporting views without names or phone numbers, a SELECT-only database role, a SQL
@@ -357,7 +373,7 @@ INITIAL_ADMIN_NAME="Dr. Sharma"
 ```
 
 At start-up the first admin is created only if no admin can sign in yet, and must choose a new password at the
-first sign-in. That admin enters the hospital's details, departments, doctors and OPD timetables under
+first sign-in. That admin enters the hospital's details, departments, doctors and timetables under
 **Hospital setup**, then creates the front-desk, doctor and other admin accounts under **Accounts**. Each new
 account gets a temporary password shown once, which must be replaced at its first sign-in. Patients and
 caregivers sign up at `/login` or are registered at the desk. Visitors land on the hospital's homepage at `/`. With a shell you can also run
@@ -421,10 +437,10 @@ and a stand-in language model, so no API key is needed.
 
 ```bash
 export TEST_DATABASE_URL=postgresql+psycopg://careflow:careflow@localhost:5432/careflow_test
-pytest                                     # 464 tests
+pytest                                     # 473 tests
 ruff check . && ruff format --check .
 cd ui && npm run lint && npm test && npm run build && cd ..
-pytest -m e2e tests/e2e                    # 44 browser tests, including accessibility and 360 px
+pytest -m e2e tests/e2e                    # 45 browser tests, including accessibility and 360 px
 ```
 
 GitHub Actions runs all of these and a Docker build on every push; Render redeploys from `develop`.
@@ -499,7 +515,7 @@ waiting-list rules are also stated, with the same numbers, in the hospital's doc
 | ⏳ Waiting list | A freed slot is held for the first matching patient for up to 2 hours |
 | 📲 Online check-in | From 1 hour before the slot until 15 minutes after it starts |
 | 🕒 Late arrival | More than 15 minutes after the slot start → queued by arrival time |
-| 📱 Online queue | From 1 hour before OPD opens until 30 minutes before it closes; one queue per patient; at most 10 online patients not yet arrived per doctor |
+| 📱 Online queue | From 1 hour before the doctor's clinic hours begin until 30 minutes before they end; one queue per patient; at most 10 online patients not yet arrived per doctor |
 | ⭐ Priority | Set or approved by the patient's doctor; category priority counts from a booked patient's slot time |
 | 🔀 Moving patients | The patient keeps their check-in time and priority and is told the new token |
 | 🚑 Emergencies | Guidance (112 / 108) before anything else; nothing is written in that turn |
@@ -611,5 +627,5 @@ docs/         specification, decisions, deployment guide, gifs/ (the README's cl
 | [`eval/results/README.md`](eval/results/README.md) | The generated results table with sample sizes |
 
 <div align="center">
-<sub>Omkar General Hospital (the live demo) and everyone in it are fictional. CareFlow helps run an OPD; it is not a medical device and gives no medical advice.</sub>
+<sub>Omkar General Hospital (the live demo) and everyone in it are fictional. CareFlow helps a hospital run its outpatient clinics (OPD); it is not a medical device and gives no medical advice.</sub>
 </div>
