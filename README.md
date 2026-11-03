@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/gifs/homepage.gif" alt="A hospital's homepage built with CareFlow: departments, doctors, hours and an emergency strip" width="100%">
+<!-- <img src="docs/gifs/homepage.gif" alt="A hospital's homepage built with CareFlow: departments, doctors, hours and an emergency strip" width="100%"> -->
 
 # 🏥 CareFlow
 
