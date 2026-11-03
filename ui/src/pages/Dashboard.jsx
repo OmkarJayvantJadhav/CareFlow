@@ -21,6 +21,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
 import { longDate } from "../format";
 import { useSession } from "../session";
+import TableWrap from "../components/TableWrap";
 
 const pct = (x) => (x === null || x === undefined ? "—" : `${(100 * x).toFixed(1)}%`);
 const SAFETY_LABELS = {
@@ -152,7 +153,7 @@ export default function Dashboard() {
                   {t("departmentsTitle")}
                 </h2>
               </div>
-              <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="dept-h">
+              <TableWrap tabIndex={0} role="region" aria-labelledby="dept-h">
                 <table>
                   <caption className="sr-only">{t("departmentsTitle")}</caption>
                   <thead>
@@ -198,7 +199,7 @@ export default function Dashboard() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </TableWrap>
             </section>
           </div>
 
@@ -229,7 +230,7 @@ export default function Dashboard() {
                 ))}
               </div>
               <section className="card">
-                <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="usage-table-h">
+                <TableWrap tabIndex={0} role="region" aria-labelledby="usage-table-h">
                   <table>
                     <caption id="usage-table-h" className="sr-only">
                       {t("utilizationTable")}
@@ -280,7 +281,7 @@ export default function Dashboard() {
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </TableWrap>
                 <details style={{ marginTop: "0.75rem" }}>
                   <summary>{t("byDoctor")}</summary>
                   <ul className="booking-list">

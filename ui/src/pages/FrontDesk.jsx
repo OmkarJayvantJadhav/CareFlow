@@ -28,6 +28,7 @@ import { byDepartment } from "../format";
 import { LANGS } from "../i18n";
 import { useSession } from "../session";
 import { followSession } from "../staff";
+import TableWrap from "../components/TableWrap";
 
 const MAX_PRIORITY = 3;
 const ENTRY_TONE = { waiting: "", called: "ok", in_consultation: "brand", missed: "danger" };
@@ -245,7 +246,7 @@ export default function FrontDesk() {
               </div>
             )}
             {visible.length > 0 && (
-              <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="queue-h">
+              <TableWrap tabIndex={0} role="region" aria-labelledby="queue-h">
                 <table>
                   <thead>
                     <tr>
@@ -379,7 +380,7 @@ export default function FrontDesk() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </TableWrap>
             )}
           </section>
           <div className="desk-side">

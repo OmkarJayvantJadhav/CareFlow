@@ -5,6 +5,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
 import { clockTime } from "../format";
 import { useSession } from "../session";
+import TableWrap from "../components/TableWrap";
 
 const STATE_TONE = {
   available: "ok",
@@ -109,7 +110,7 @@ export default function Coordination() {
                 <Clock size={13} aria-hidden="true" /> OPD {dept.opd_start}–{dept.opd_end}
               </span>
             </div>
-            <div className="table-wrap" tabIndex={0} role="region" aria-labelledby={`dept-${dept.department_id}`}>
+            <TableWrap tabIndex={0} role="region" aria-labelledby={`dept-${dept.department_id}`}>
               <table>
                 <thead>
                   <tr>
@@ -155,7 +156,7 @@ export default function Coordination() {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableWrap>
             <h3 className="sub-head">
               <Scale size={16} aria-hidden="true" />
               {t("balancing")}

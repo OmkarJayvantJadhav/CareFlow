@@ -919,7 +919,7 @@ usable on a phone for every role). Every change is visible and confirmed.
 ### Accessibility and language
 
 - All text in English, Hindi and Marathi, including dates; the assistant replies in the user's language.
-- Large-text mode doubles the base size; tap targets at least 44 px; a bottom tab bar on phones.
+- Large-text mode doubles the base size; tap targets at least 44 px; on phones four bottom tabs (two in large text) and a "More" menu listing every other page by its full name, and table rows shown as labelled cards.
 - Colour is never the only signal (icon + text); contrast meets WCAG AA.
 - Every screen is checked by axe-core (no serious or critical issues) and at 360 px in large text in the
   browser tests.

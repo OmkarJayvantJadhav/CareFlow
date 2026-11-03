@@ -114,7 +114,7 @@ def log_in(page: Page, username: str, password: str) -> None:
 
 def test_admin_creates_a_staff_account_that_chooses_its_own_password(page: Page):
     username = f"desk-{uuid.uuid4().hex[:6]}"
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.get_by_role("link", name="Accounts", exact=True).click()
     page.get_by_role("button", name="New account").click()
     dialog = page.get_by_role("dialog", name="New account")
@@ -140,7 +140,7 @@ def test_admin_creates_a_staff_account_that_chooses_its_own_password(page: Page)
     expect(page.get_by_role("heading", name="Front desk", level=1)).to_be_visible()
     page.get_by_role("button", name="Sign out (Kavya Shetty)").click()
 
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.get_by_role("link", name="Accounts", exact=True).click()
     page.get_by_label("Name or username").fill(username)
     page.get_by_role("button", name="Search", exact=True).click()
@@ -187,7 +187,7 @@ def test_staff_correct_a_record_and_an_admin_erases_it_on_request(page: Page):
     expect(page.get_by_role("button", name="Erase this patient's details")).to_have_count(0)  # admins only
     page.get_by_role("button", name=re.compile("^Sign out")).click()
 
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.get_by_role("link", name="Patients", exact=True).click()
     page.get_by_label("Name, mobile number or record number").fill("leela a. kulkarni")
     page.get_by_role("button", name="Search", exact=True).click()
@@ -481,7 +481,7 @@ def test_walk_in_finds_the_existing_record(page: Page):
 
 def test_admin_adds_a_registration_question_asked_at_sign_up(page: Page):
     question = f"Blood group {uuid.uuid4().hex[:4]}"  # the form keeps its questions between runs
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.get_by_role("link", name="Registration form").click()
     page.get_by_label("Question in English").fill(question)
     page.get_by_label("Question in Hindi").fill("रक्त समूह")
@@ -576,7 +576,7 @@ def test_coordination_suggests_and_makes_a_balancing_move(page: Page, staff_api:
 
 
 def test_admin_sets_priority_rules(page: Page):
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.get_by_role("link", name="Priority rules").click()
     page.get_by_label("Priority for Pregnant").select_option(label="2 — High")
     page.get_by_role("button", name="Save").click()
@@ -601,7 +601,7 @@ def test_doctor_marked_unavailable_informs_patients(page: Page):
 
 
 def test_dashboard_shows_departments_and_evaluation(page: Page):
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     table = page.get_by_role("table", name="Departments right now")
     expect(table.get_by_role("row")).to_have_count(9)  # header + 8 departments
     expect(page.get_by_role("table", name="Utilization by department")).to_be_visible()
@@ -610,7 +610,7 @@ def test_dashboard_shows_departments_and_evaluation(page: Page):
 
 
 def test_analytics_answers_with_sql_and_refuses_writes(page: Page):
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.get_by_role("link", name="Analytics").click()
     page.get_by_label("Analytics").fill("How many appointments per department?")
     page.get_by_role("button", name="Ask").click()
@@ -655,7 +655,7 @@ def _axe_violations(page: Page) -> list[dict]:
         ),
         ("Front desk", ["Front desk", "Calendar", "Doctor status", "Coordination", "Patients", "My account"]),
         (
-            "OPD admin",
+            "Hospital admin",
             [
                 "Dashboard",
                 "Analytics",
@@ -718,7 +718,7 @@ def _overflow(page: Page) -> int:
         ("Front desk", ["/desk", "/calendar", "/doctors", "/coordination", "/patients", "/account"]),
         ("Doctor", ["/my-queue", "/account"]),
         (
-            "OPD admin",
+            "Hospital admin",
             [
                 "/admin",
                 "/analytics",
@@ -745,12 +745,25 @@ def test_staff_screens_fit_a_360_px_phone_in_large_text(phone: Page, role, paths
         assert _overflow(phone) <= 0, f"{role} {path}: {_overflow(phone)}px of horizontal scroll"
 
 
+def _open_on_phone(phone: Page, link: str) -> None:
+    """A bottom tab, or (in large text there are only two) the same page from the "More" sheet."""
+    tabs = phone.get_by_role("navigation", name="Main")
+    expect(tabs).to_be_visible()
+    tab = tabs.get_by_role("link", name=link, exact=True)
+    if tab.count():
+        tab.click()
+        return
+    phone.get_by_role("button", name="More").click()
+    phone.get_by_role("dialog").get_by_role("link", name=link, exact=True).click()
+    expect(phone.get_by_role("dialog")).to_be_hidden()
+
+
 def test_patient_screens_fit_a_360_px_phone_in_large_text(phone: Page):
     phone.goto("/")
     phone.get_by_label("Large text").check()
     phone.get_by_role("button", name=re.compile("^Patient")).click()
     for link in ("Assistant", "Book", "My appointments", "Queue status", "Profile"):
-        phone.get_by_role("link", name=link, exact=True).click()
+        _open_on_phone(phone, link)
         expect(phone.get_by_role("heading", level=1)).to_be_visible()
         assert _overflow(phone) <= 0, f"{link}: {_overflow(phone)}px of horizontal scroll"
     # A checkbox counts with its label (the whole label is the tap target).
@@ -765,7 +778,7 @@ def test_patient_screens_fit_a_360_px_phone_in_large_text(phone: Page):
 
 
 def test_admin_edits_a_document_and_a_rule_and_the_library_follows(page: Page):
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.get_by_role("link", name="Documents", exact=True).click()
     page.get_by_label("Title contains").fill("cancellation")
     page.get_by_role("button", name="Search", exact=True).click()
@@ -801,7 +814,7 @@ def test_admin_edits_a_document_and_a_rule_and_the_library_follows(page: Page):
 
 
 def test_admin_turns_on_sms_and_a_patient_chooses_email(page: Page):
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.get_by_role("link", name="SMS and e-mail", exact=True).click()
     expect(page.get_by_role("heading", name="Messages by SMS and e-mail")).to_be_visible()
     expect(page.get_by_text("Test mode: written to the server log only").first).to_be_visible()
@@ -828,7 +841,7 @@ def test_admin_turns_on_sms_and_a_patient_chooses_email(page: Page):
     expect(page.get_by_role("status").first).to_contain_text("Saved")
     page.get_by_role("button", name=re.compile("^Sign out")).first.click()
 
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.goto("/messaging")
     sending = page.get_by_role("form", name="Sending")
     sending.get_by_label("Send messages by SMS and e-mail").uncheck()
@@ -840,7 +853,7 @@ def test_admin_turns_on_sms_and_a_patient_chooses_email(page: Page):
 
 
 def test_admin_sets_up_a_department_and_doctor_that_patients_can_book(page: Page):
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.get_by_role("link", name="Hospital setup", exact=True).click()
     details = page.get_by_role("form", name="Hospital details")
     details.get_by_label("Hospital name (English)").fill("Omkar General Hospital and Research Centre")
@@ -882,7 +895,7 @@ def test_admin_sets_up_a_department_and_doctor_that_patients_can_book(page: Page
     page.get_by_role("button", name=re.compile("^Sign out")).click()
 
     # The doctor leaves after today: the patient's visit is moved off and they are told.
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.get_by_role("link", name="Hospital setup", exact=True).click()
     page.get_by_role("button", name="Last day: Dr. Kiran Patkar").click()
     dialog = page.get_by_role("dialog", name="Last day")
@@ -899,9 +912,30 @@ def test_admin_sets_up_a_department_and_doctor_that_patients_can_book(page: Page
 
 
 def test_zz_demo_reset_from_the_dashboard(page: Page, admin_api: Api):
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     page.once("dialog", lambda dialog: dialog.accept())
     page.get_by_role("button", name="Reset demo data").click()
     expect(page.get_by_role("status").filter(has_text="Demo data reset.")).to_be_visible(timeout=60000)
     waiting = sum(d["waiting"] for d in admin_api.get("/admin/dashboard")["departments"])
     assert waiting == 0  # the queues created by the earlier tests are gone
+
+
+def test_phone_shows_four_tabs_and_the_rest_under_more(phone: Page):
+    phone.goto("/login")
+    phone.get_by_role("button", name=re.compile("^Hospital admin")).click()
+    tabs = phone.get_by_role("navigation", name="Main")
+    expect(tabs.get_by_role("link")).to_have_count(4)
+    expect(tabs.get_by_role("link", name="Dashboard")).to_be_visible()
+    phone.get_by_role("button", name="More").click()
+    sheet = phone.get_by_role("dialog")
+    for name in ("Patients", "Analytics", "SMS and e-mail", "Coordination", "Hospital information", "My account"):
+        expect(sheet.get_by_role("link", name=name, exact=True)).to_be_visible()
+    sheet.get_by_role("link", name="Analytics", exact=True).click()
+    expect(phone.get_by_role("heading", level=1, name="Analytics")).to_be_visible()
+    expect(sheet).to_be_hidden()
+    phone.get_by_role("combobox", name="Choose a language").select_option("hi")
+    tabs = phone.get_by_role("navigation", name="मुख्य मेनू")  # its name is translated too
+    expect(tabs.get_by_role("link", name="डैशबोर्ड")).to_be_visible()
+    phone.get_by_role("button", name="और").click()
+    phone.get_by_role("dialog").get_by_role("button", name="साइन आउट").click()
+    expect(phone.get_by_role("navigation", name="मुख्य मेनू")).to_have_count(0)

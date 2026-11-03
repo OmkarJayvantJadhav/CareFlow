@@ -3,6 +3,7 @@ import { useState } from "react";
 import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
 import { useSession } from "../session";
+import TableWrap from "../components/TableWrap";
 
 function csvCell(value) {
   const text = value === null || value === undefined ? "" : String(value);
@@ -119,8 +120,8 @@ export default function Analytics() {
                 {t("rows", { count: answer.row_count })}{" "}
                 {answer.truncated ? t("truncated", { count: answer.row_count }) : ""}
               </p>
-              <div
-                className="table-wrap card"
+              <TableWrap
+                className="card"
                 tabIndex={0}
                 role="region"
                 aria-labelledby="answer-h"
@@ -146,7 +147,7 @@ export default function Analytics() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              </TableWrap>
             </>
           )}
           {answer.sql && (

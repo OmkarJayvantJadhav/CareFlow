@@ -4,6 +4,7 @@ import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
 import { useSession } from "../session";
+import TableWrap from "../components/TableWrap";
 
 const CHANNELS = [
   { key: "sms", icon: MessageSquareText },
@@ -275,7 +276,7 @@ function Delivery({ data, onChange }) {
       {data.problems.length === 0 ? (
         <p className="muted small">{t("msgNoProblems")}</p>
       ) : (
-        <div className="table-wrap">
+        <TableWrap>
           <table>
             <thead>
               <tr>
@@ -300,7 +301,7 @@ function Delivery({ data, onChange }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
       )}
     </section>
   );

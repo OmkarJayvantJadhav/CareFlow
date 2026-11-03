@@ -137,7 +137,7 @@ remove caregivers, download all your data or delete your account.
     <td width="40%" align="center"><img src="docs/gifs/phone.gif" alt="CareFlow on a phone: joining a queue by chat, the live token and My appointments" width="300"></td>
     <td width="60%" valign="middle">
       <h4>📲 Made for phones</h4>
-      A bottom tab bar, large-text mode and 44 px tap targets. Every screen is checked automatically at 360 px wide
+      Four bottom tabs and a "More" menu, rows shown as cards, large-text mode and 44 px tap targets. Every screen is checked automatically at 360 px wide
       in large text, and with <b>axe-core</b> for WCAG A/AA issues.
     </td>
   </tr>
@@ -177,7 +177,7 @@ Today's numbers, utilization, attendance and no-show rates, and the latest evalu
 language are answered with one validated, read-only SQL query — shown, with CSV export; requests to change data
 are refused before any model call.
 
-<img src="docs/gifs/dashboard-analytics.gif" alt="The OPD dashboard, then an analytics question answered with a table and the generated SQL" width="100%">
+<img src="docs/gifs/dashboard-analytics.gif" alt="The hospital dashboard, then an analytics question answered with a table and the generated SQL" width="100%">
 
 #### 🏗️ Hospital setup
 Name and address in three languages, reception hours, emergency directions, booking and queue rules, departments,
@@ -605,7 +605,7 @@ docs/         specification, decisions, deployment guide, gifs/ (the README's cl
 | Document | Contents |
 | --- | --- |
 | [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md) | The specification (version 2.0): problem, requirements (FR-01–FR-74), architecture, database, API, screens, tests, roadmap, security, operations, risks and evaluation |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-139), with the reason |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-140), with the reason |
 | [`docs/DEPLOY.md`](docs/DEPLOY.md) | Free deployment on Render and Neon, monitoring and runbook |
 | [`eval/README.md`](eval/README.md) | How the evaluation works and how to run it |
 | [`eval/results/README.md`](eval/results/README.md) | The generated results table with sample sizes |

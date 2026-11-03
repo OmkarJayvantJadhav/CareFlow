@@ -6,6 +6,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
 import { byDepartment, clockTime, longDate } from "../format";
 import { useSession } from "../session";
+import TableWrap from "../components/TableWrap";
 
 const ROLES = ["staff", "doctor", "admin", "caregiver", "patient"];
 const CREATABLE = ["staff", "doctor", "admin", "caregiver"];
@@ -322,7 +323,7 @@ export default function Accounts() {
           {data === null && error === null && <Loading />}
           {data && data.accounts.length === 0 && <p className="muted">{t("noAccounts")}</p>}
           {data && data.accounts.length > 0 && (
-            <div className="table-wrap" tabIndex={0} role="region" aria-labelledby="accounts-h">
+            <TableWrap tabIndex={0} role="region" aria-labelledby="accounts-h">
               <table className="accounts-table">
                 <caption className="sr-only">{t("accountsList")}</caption>
                 <thead>
@@ -370,6 +371,7 @@ export default function Accounts() {
                                 onClick={() => open("edit", a)}
                               >
                                 <Pencil size={16} aria-hidden="true" />
+                                {t("editAccount")}
                               </button>
                             )}
                             {!self && (
@@ -382,6 +384,7 @@ export default function Accounts() {
                                   onClick={() => open("reset", a)}
                                 >
                                   <KeyRound size={16} aria-hidden="true" />
+                                  {t("resetPassword")}
                                 </button>
                                 <button
                                   type="button"
@@ -391,6 +394,7 @@ export default function Accounts() {
                                   onClick={() => open("toggle", a)}
                                 >
                                   <Power size={16} aria-hidden="true" />
+                                  {a.active ? t("turnOff") : t("turnOn")}
                                 </button>
                               </>
                             )}
@@ -401,7 +405,7 @@ export default function Accounts() {
                   })}
                 </tbody>
               </table>
-            </div>
+            </TableWrap>
           )}
           {data?.more && <p className="muted small">{t("accountsMore")}</p>}
         </section>

@@ -424,7 +424,7 @@ def coordination(clip: Clip, base_url: str) -> None:
 
 def dashboard_and_analytics(clip: Clip) -> None:
     page = clip.page
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     clip.start()
     clip.pause(1500)
     clip.scroll(700)
@@ -439,7 +439,7 @@ def dashboard_and_analytics(clip: Clip) -> None:
 
 def hospital_setup(clip: Clip) -> None:
     page = clip.page
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     clip.start()
     page.get_by_role("link", name="Hospital setup", exact=True).click()
     clip.pause()
@@ -463,7 +463,7 @@ def hospital_setup(clip: Clip) -> None:
 
 def documents(clip: Clip) -> None:
     page = clip.page
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     clip.start()
     page.get_by_role("link", name="Documents", exact=True).click()
     clip.type(page.get_by_label("Title contains"), "cancellation")
@@ -480,7 +480,7 @@ def documents(clip: Clip) -> None:
 
 def accounts(clip: Clip) -> None:
     page = clip.page
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     clip.start()
     page.get_by_role("link", name="Accounts", exact=True).click()
     clip.pause()
@@ -498,7 +498,7 @@ def accounts(clip: Clip) -> None:
 
 def messaging(clip: Clip) -> None:
     page = clip.page
-    sign_in(page, "OPD admin")
+    sign_in(page, "Hospital admin")
     clip.start()
     page.get_by_role("link", name="SMS and e-mail", exact=True).click()
     clip.pause()
