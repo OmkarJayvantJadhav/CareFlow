@@ -54,34 +54,51 @@ export default function Home() {
   return (
     <main className="home">
       <section className="home-hero" aria-labelledby="home-h">
-        {hospital?.address && (
-          <span className="eyebrow">
-            <MapPin size={15} aria-hidden="true" />
-            {hospital.address}
-          </span>
-        )}
-        <h1 id="home-h">{hospitalName || t("homeFallbackName")}</h1>
-        <p className="lead">{t("homeTagline")}</p>
-        <div className="home-actions">
-          <Link to="/book" className="button">
-            <CalendarPlus size={18} aria-hidden="true" />
-            {t("homeBook")}
-          </Link>
-          <Link to="/queue" className="button secondary">
-            <ListOrdered size={18} aria-hidden="true" />
-            {t("homeQueue")}
-          </Link>
-          <Link to="/library" className="button secondary">
-            <BookOpen size={18} aria-hidden="true" />
-            {t("homeInfo")}
-          </Link>
-          {config?.demo_site_url && (
-            <a href={config.demo_site_url} target="_blank" rel="noopener noreferrer" className="button secondary">
-              <MonitorPlay size={18} aria-hidden="true" />
-              {t("tryDemoSite")}
-            </a>
+        <div className="home-hero-text">
+          {hospital?.address && (
+            <span className="eyebrow">
+              <MapPin size={15} aria-hidden="true" />
+              {hospital.address}
+            </span>
           )}
+          <h1 id="home-h">{hospitalName || t("homeFallbackName")}</h1>
+          <p className="lead">{t("homeTagline")}</p>
+          <div className="home-actions">
+            <Link to="/book" className="button">
+              <CalendarPlus size={18} aria-hidden="true" />
+              {t("homeBook")}
+            </Link>
+            <Link to="/queue" className="button secondary">
+              <ListOrdered size={18} aria-hidden="true" />
+              {t("homeQueue")}
+            </Link>
+            <Link to="/library" className="button secondary">
+              <BookOpen size={18} aria-hidden="true" />
+              {t("homeInfo")}
+            </Link>
+            {config?.demo_site_url && (
+              <a href={config.demo_site_url} target="_blank" rel="noopener noreferrer" className="button secondary">
+                <MonitorPlay size={18} aria-hidden="true" />
+                {t("tryDemoSite")}
+              </a>
+            )}
+          </div>
         </div>
+        {directory && directory.departments.length > 0 && (
+          <aside className="home-glance" aria-labelledby="home-glance-h">
+            <h2 id="home-glance-h">{t("homeGlance")}</h2>
+            <dl>
+              <div>
+                <dt>{t("homeDepartments")}</dt>
+                <dd>{directory.departments.length}</dd>
+              </div>
+              <div>
+                <dt>{t("homeDoctors")}</dt>
+                <dd>{doctors.length}</dd>
+              </div>
+            </dl>
+          </aside>
+        )}
       </section>
 
       <section className="home-facts" aria-label={t("homeFacts")}>
@@ -168,9 +185,9 @@ export default function Home() {
                 <p className="small">
                   <strong>{t("homeOpdDays")}:</strong> {doc.opd_days.map((d) => weekdayName(d, lang)).join(", ")}
                 </p>
-                <Link to="/book" className="button secondary small-button">
-                  <CalendarPlus size={16} aria-hidden="true" />
+                <Link to="/book" className="text-link">
                   {t("homeBook")}
+                  <ChevronRight size={16} aria-hidden="true" />
                 </Link>
               </li>
             ))}

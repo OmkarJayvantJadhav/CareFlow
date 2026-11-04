@@ -3,9 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { api, ApiError } from "../api";
 import ConfirmDialog from "../components/ConfirmDialog";
+import Steps from "../components/Steps";
 import ErrorMessage from "../components/ErrorMessage";
 import Loading from "../components/Loading";
-import { initials, longDate } from "../format";
+import { dateTile, longDate } from "../format";
 import { LANGS } from "../i18n";
 import { useSession } from "../session";
 
@@ -134,6 +135,12 @@ export default function Book() {
         </div>
       </div>
 
+      <Steps
+        label={t("bookSteps")}
+        steps={[t("stepNeed"), t("stepPick"), t("stepConfirm")]}
+        current={done ? 3 : chosen ? 2 : results ? 1 : 0}
+      />
+
       {done && (
         <div className="notice" role="status">
           <CalendarCheck size={18} aria-hidden="true" />
@@ -152,7 +159,13 @@ export default function Book() {
         </div>
       )}
 
-      <section className="card" aria-label={t("findSlots")}>
+      <section className="card book-card" aria-labelledby="bk-h">
+        <div className="card-head">
+          <h2 id="bk-h">
+            <Search size={18} aria-hidden="true" />
+            {t("stepNeed")}
+          </h2>
+        </div>
         {departments === null && error === null && <Loading />}
         {departments && (
           <form
@@ -225,7 +238,7 @@ export default function Book() {
               <label htmlFor="bk-to">{t("toDate")}</label>
               <input id="bk-to" type="date" value={form.to} min={form.from || undefined} onChange={set("to")} />
             </div>
-            <div className="field span-all">
+            <div className="field">
               <span className="field-label" id="bk-tod">
                 {t("timeOfDay")}
               </span>
@@ -273,11 +286,9 @@ export default function Book() {
           <ul className="slot-list">
             {results.slots.map((s) => (
               <li key={s.slot_id} className="card slot-card">
-                <span className="avatar lg" aria-hidden="true">
-                  {initials(s.doctor_name)}
-                </span>
+                <SlotTile date={s.date} time={s.time} lang={lang} />
                 <div className="info">
-                  <strong>{s.doctor_name}</strong>
+                  <strong className="slot-doctor">{s.doctor_name}</strong>
                   <div className="meta">
                     <span>
                       <Stethoscope size={15} aria-hidden="true" />
@@ -285,7 +296,7 @@ export default function Book() {
                     </span>
                     <span>
                       <Clock size={15} aria-hidden="true" />
-                      {longDate(s.date, lang)} · {s.time}
+                      {longDate(s.date, lang)}
                     </span>
                     <span>
                       <Timer size={15} aria-hidden="true" />
@@ -348,5 +359,20 @@ export default function Book() {
         )}
       </ConfirmDialog>
     </main>
+  );
+}
+
+/** The date and time of a free slot, as a small calendar tile with the time below it. */
+function SlotTile({ date, time, lang }) {
+  const tile = dateTile(date, lang);
+  return (
+    <div className="slot-tile" aria-hidden="true">
+      <div className="date-tile">
+        <span className="m">{tile.month}</span>
+        <span className="d">{tile.day}</span>
+        <span className="w">{tile.weekday}</span>
+      </div>
+      <span className="slot-time">{time}</span>
+    </div>
   );
 }

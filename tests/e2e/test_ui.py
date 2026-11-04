@@ -514,7 +514,7 @@ def test_caregiver_joins_a_queue_online_and_leaves_it(page: Page):
     join.get_by_role("button", name="Join queue: Dr. Snehal Gokhale").click()
     card = page.locator("section.token-card").filter(has_text="Dr. Snehal Gokhale")
     expect(card).to_contain_text("V01")
-    expect(card).to_contain_text("Please reach the OPD desk on floor 2")
+    expect(card).to_contain_text("Please reach the department's desk on floor 2")
     card.get_by_role("button", name="Leave the queue").click()
     page.get_by_role("dialog", name="Leave the queue (V01)?").get_by_role("button", name="Leave the queue").click()
     expect(card).to_have_count(0)

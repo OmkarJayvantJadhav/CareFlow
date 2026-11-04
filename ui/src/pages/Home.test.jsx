@@ -42,7 +42,7 @@ describe("home page", () => {
     expect(await screen.findByRole("heading", { level: 1, name: "Omkar General Hospital" })).toBeInTheDocument();
     expect(await screen.findByText("Dr. Meera Joshi")).toBeInTheDocument();
     expect(screen.getByText("Reception: 08:00–18:00", { selector: "p" })).toBeInTheDocument();
-    expect(screen.getByText("Floor 2 · OPD 09:00–13:00")).toBeInTheDocument();
+    expect(screen.getByText("Floor 2 · 09:00–13:00")).toBeInTheDocument();
     expect(screen.getAllByRole("link", { name: /Book an appointment/ })[0]).toHaveAttribute("href", "/book");
     expect(screen.getByRole("link", { name: /Emergency 112/ })).toHaveAttribute("href", "tel:112");
     expect(screen.getByText("Emergency department at Gate 1.")).toBeInTheDocument();

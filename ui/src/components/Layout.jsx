@@ -334,6 +334,9 @@ export default function Layout() {
       <div className="app with-nav">
         <aside className="sidebar">
           <Brand />
+          <p className="nav-label" aria-hidden="true">
+            {t("menu")}
+          </p>
           <nav className="main-nav" aria-label={t("mainMenu")}>
             {NAV[user.role].map(({ to, label, icon: Icon }) => (
               <NavLink key={to} to={to} className={({ isActive }) => (isActive ? "active" : "")}>

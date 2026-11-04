@@ -205,18 +205,19 @@ export default function FrontDesk() {
                 <span className="dot" aria-hidden="true" />
                 {t(`doctor_${doctor.doctor_status}`, { minutes: doctor.delay_minutes })}
               </span>
-              <span className="badge">
-                {t("bookedToday")}: {doctor.bookings.length}
-              </span>
-              <span className="badge">
-                {t("checkedIn")}: {checkedIn}
-              </span>
-              <span className="badge">
-                {t("waitingNow")}: {waiting}
-              </span>
-              <span className="badge">
-                {t("seen")}: {seen}
-              </span>
+              <dl className="desk-figures">
+                {[
+                  ["bookedToday", doctor.bookings.length],
+                  ["checkedIn", checkedIn],
+                  ["waitingNow", waiting],
+                  ["seen", seen],
+                ].map(([label, value]) => (
+                  <div key={label}>
+                    <dt>{t(label)}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           )}
         </div>

@@ -122,7 +122,7 @@ export default function DoctorQueue() {
       {session && (
         <div className="desk-grid">
           <div className="desk-main">
-            <section className="card" aria-labelledby="room-h">
+            <section className={`card room-card${inRoom ? " active" : ""}`} aria-labelledby="room-h">
               <div className="card-head">
                 <h2 id="room-h">
                   <Stethoscope size={20} aria-hidden="true" />
@@ -139,7 +139,8 @@ export default function DoctorQueue() {
               {inRoom && (
                 <div className="current-patient">
                   <div>
-                    <span className="token-pill">{inRoom.token}</span> <strong>{inRoom.patient_name}</strong>
+                    <span className="token-pill lg">{inRoom.token}</span>{" "}
+                    <strong className="current-name">{inRoom.patient_name}</strong>
                     <div className="row" style={{ gap: "0.25rem", marginTop: "0.35rem" }}>
                       <span className="badge brand">{t(`entry_${inRoom.status}`)}</span>
                       <EntryBadges entry={inRoom} />

@@ -25,6 +25,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { api } from "../api";
 import ErrorMessage from "../components/ErrorMessage";
+import PatientOverview from "../components/PatientOverview";
 import { initials } from "../format";
 import { useSession } from "../session";
 
@@ -319,6 +320,7 @@ export default function Chat() {
           <p className="lead">{t("chatIntro")}</p>
         </div>
       </div>
+      {(user?.role === "patient" || user?.role === "caregiver") && <PatientOverview />}
       <div className="chat-shell">
         <div className="chat-head">
           <AssistantAvatar />

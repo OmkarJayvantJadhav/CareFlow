@@ -156,7 +156,7 @@ function EntryCard({ initial, onLeft }) {
               <Hourglass size={15} aria-hidden="true" />
               {t("estimatedWait")}
             </div>
-            <div className="value">{status.estimate?.display ?? "—"}</div>
+            <WaitValue display={status.estimate?.display} />
           </div>
           <div className="stat-box">
             <div className="label">
@@ -316,6 +316,19 @@ function JoinQueue({ onJoined }) {
         </>
       )}
     </section>
+  );
+}
+
+/** The estimate "about 65 min (50–110)" as a large figure with its range on a line of its own. */
+function WaitValue({ display }) {
+  const { t } = useSession();
+  const parts = display?.match(/^(.*?)\s*\((.+)\)\s*$/);
+  if (!parts) return <div className="value">{display ?? "—"}</div>;
+  return (
+    <>
+      <div className="value">{parts[1]}</div>
+      <div className="range">{t("likelyRange", { range: parts[2] })}</div>
+    </>
   );
 }
 

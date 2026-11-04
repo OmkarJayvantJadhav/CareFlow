@@ -25,11 +25,11 @@ import TableWrap from "../components/TableWrap";
 
 const pct = (x) => (x === null || x === undefined ? "—" : `${(100 * x).toFixed(1)}%`);
 const SAFETY_LABELS = {
-  emergency_holdout2: "Emergency redirect (held-out)",
-  medical_advice: "Medical-advice bait",
-  permission: "Permission attacks",
-  injection: "Prompt injection",
-  analytics: "Unsafe analytics",
+  emergency_holdout2: "evEmergency",
+  medical_advice: "evMedical",
+  permission: "evPermission",
+  injection: "evInjection",
+  analytics: "evAnalytics",
 };
 
 /** S8: queues by department, delays, no-shows, latest evaluation results, latency and cost; demo reset. */
@@ -106,6 +106,9 @@ export default function Dashboard() {
       {data === null && error === null && <Loading />}
       {data && (
         <>
+          <div className="dash-section">
+            <span className="eyebrow">{t("hospitalOperations")}</span>
+          </div>
           <div className="kpis">
             {kpis.map(({ label, value, icon: Icon, tone }) => (
               <div key={label} className="card kpi">
@@ -302,113 +305,116 @@ export default function Dashboard() {
             </section>
           )}
 
-          <div className="section-title">
-            <div>
-              <h2>{t("evaluationTitle")}</h2>
-              <p className="muted small">{t("evaluationNote")}</p>
+          <section className="ai-band" aria-labelledby="ai-h">
+            <div className="section-title">
+              <div>
+                <span className="eyebrow">{t("aiPerformance")}</span>
+                <h2 id="ai-h">{t("evaluationTitle")}</h2>
+                <p className="muted small">{t("evaluationNote")}</p>
+              </div>
             </div>
-          </div>
-          <div className="grid">
-            <section className="card" aria-labelledby="ev-agent">
-              <div className="card-head">
-                <h3 id="ev-agent">
-                  <Bot size={18} aria-hidden="true" />
-                  Agent
-                </h3>
-              </div>
-              {agent ? (
-                <>
-                  <div className="big-number">{pct(agent.pass_1)}</div>
-                  <div className="muted small">
-                    pass^1 · {agent.runs} runs of {agent.scenarios_run}/{agent.scenarios_total} scenarios
-                  </div>
-                  <div className="mini-stats" style={{ marginTop: "1rem" }}>
-                    <div>
-                      <strong>{pct(agent.wrong_action_rate)}</strong>
-                      <span className="muted small">Wrong actions</span>
+            <div className="grid">
+              <section className="card" aria-labelledby="ev-agent">
+                <div className="card-head">
+                  <h3 id="ev-agent">
+                    <Bot size={18} aria-hidden="true" />
+                    {t("evAgent")}
+                  </h3>
+                </div>
+                {agent ? (
+                  <>
+                    <div className="big-number">{pct(agent.pass_1)}</div>
+                    <div className="muted small">
+                      {t("evRuns", { runs: agent.runs, run: agent.scenarios_run, total: agent.scenarios_total })}
                     </div>
-                    <div>
-                      <strong>{agent.median_turn_latency_s ?? "—"} s</strong>
-                      <span className="muted small">Median turn</span>
-                    </div>
-                    <div>
-                      <strong>${agent.mean_cost_per_conversation_usd?.toFixed(5) ?? "—"}</strong>
-                      <span className="muted small">Per conversation</span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <p className="muted">not run</p>
-              )}
-            </section>
-            <section className="card" aria-labelledby="ev-safety">
-              <div className="card-head">
-                <h3 id="ev-safety">
-                  <ShieldCheck size={18} aria-hidden="true" />
-                  Safety
-                </h3>
-              </div>
-              {Object.entries(SAFETY_LABELS).map(([key, label]) => {
-                const r = ev?.safety?.[key];
-                return (
-                  <div key={key} className="metric">
-                    <div className="top">
-                      <span>{r ? `${label}: ${r.passed}/${r.run}` : `${label}: not run`}</span>
-                      <strong>{r ? pct(r.pass_rate) : "—"}</strong>
-                    </div>
-                    {r && (
-                      <div className="meter" aria-hidden="true">
-                        <span style={{ width: `${100 * r.pass_rate}%` }} />
+                    <div className="mini-stats" style={{ marginTop: "1rem" }}>
+                      <div>
+                        <strong>{pct(agent.wrong_action_rate)}</strong>
+                        <span className="muted small">{t("evWrong")}</span>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </section>
-            <section className="card" aria-labelledby="ev-rag">
-              <div className="card-head">
-                <h3 id="ev-rag">
-                  <Search size={18} aria-hidden="true" />
-                  Retrieval and wait time
-                </h3>
-              </div>
-              <div className="metric">
-                <div className="top">
-                  <span>Recall@5 (cross-validated)</span>
-                  <strong>{pct(ev?.rag?.recall_at_5)}</strong>
-                </div>
-                {ev?.rag?.recall_at_5 != null && (
-                  <div className="meter" aria-hidden="true">
-                    <span style={{ width: `${100 * ev.rag.recall_at_5}%` }} />
-                  </div>
+                      <div>
+                        <strong>{agent.median_turn_latency_s ?? "—"} s</strong>
+                        <span className="muted small">{t("evMedianTurn")}</span>
+                      </div>
+                      <div>
+                        <strong>${agent.mean_cost_per_conversation_usd?.toFixed(5) ?? "—"}</strong>
+                        <span className="muted small">{t("evPerConversation")}</span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p className="muted">{t("notRun")}</p>
                 )}
-              </div>
-              <div className="metric">
-                <div className="top">
-                  <span>Faithfulness</span>
-                  <strong>
-                    {ev?.rag?.answers?.faithfulness != null
-                      ? `${pct(ev.rag.answers.faithfulness)} (${ev.rag.answers.graded} answers)`
-                      : "not run"}
-                  </strong>
+              </section>
+              <section className="card" aria-labelledby="ev-safety">
+                <div className="card-head">
+                  <h3 id="ev-safety">
+                    <ShieldCheck size={18} aria-hidden="true" />
+                    {t("evSafety")}
+                  </h3>
                 </div>
-              </div>
-              <div className="metric">
-                <div className="top">
-                  <span>Wait-time MAE (model vs baseline)</span>
-                  <strong>
-                    {ev?.wait_time?.model_mae ?? "—"} vs {ev?.wait_time?.baseline_mae ?? "—"} min
-                  </strong>
+                {Object.entries(SAFETY_LABELS).map(([key, label]) => {
+                  const r = ev?.safety?.[key];
+                  return (
+                    <div key={key} className="metric">
+                      <div className="top">
+                        <span>{r ? `${t(label)}: ${r.passed}/${r.run}` : `${t(label)}: ${t("notRun")}`}</span>
+                        <strong>{r ? pct(r.pass_rate) : "—"}</strong>
+                      </div>
+                      {r && (
+                        <div className="meter" aria-hidden="true">
+                          <span style={{ width: `${100 * r.pass_rate}%` }} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </section>
+              <section className="card" aria-labelledby="ev-rag">
+                <div className="card-head">
+                  <h3 id="ev-rag">
+                    <Search size={18} aria-hidden="true" />
+                    {t("evRetrieval")}
+                  </h3>
                 </div>
-              </div>
-              <div className="metric">
-                <div className="top">
-                  <span>Range coverage</span>
-                  <strong>{pct(ev?.wait_time?.range_coverage)}</strong>
+                <div className="metric">
+                  <div className="top">
+                    <span>{t("evRecall")}</span>
+                    <strong>{pct(ev?.rag?.recall_at_5)}</strong>
+                  </div>
+                  {ev?.rag?.recall_at_5 != null && (
+                    <div className="meter" aria-hidden="true">
+                      <span style={{ width: `${100 * ev.rag.recall_at_5}%` }} />
+                    </div>
+                  )}
                 </div>
-              </div>
-            </section>
-          </div>
+                <div className="metric">
+                  <div className="top">
+                    <span>{t("evFaithfulness")}</span>
+                    <strong>
+                      {ev?.rag?.answers?.faithfulness != null
+                        ? t("evAnswers", { pct: pct(ev.rag.answers.faithfulness), count: ev.rag.answers.graded })
+                        : t("notRun")}
+                    </strong>
+                  </div>
+                </div>
+                <div className="metric">
+                  <div className="top">
+                    <span>{t("evMae")}</span>
+                    <strong>
+                      {ev?.wait_time?.model_mae ?? "—"} vs {ev?.wait_time?.baseline_mae ?? "—"} min
+                    </strong>
+                  </div>
+                </div>
+                <div className="metric">
+                  <div className="top">
+                    <span>{t("evCoverage")}</span>
+                    <strong>{pct(ev?.wait_time?.range_coverage)}</strong>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </section>
 
           <div className="ops-grid">
             <section className="card" aria-labelledby="ops-h">
@@ -421,23 +427,23 @@ export default function Dashboard() {
               <div className="mini-stats">
                 <div>
                   <strong>{data.operations.turns}</strong>
-                  <span className="muted small">turns</span>
+                  <span className="muted small">{t("opsTurns")}</span>
                 </div>
                 <div>
                   <strong>{data.operations.median_latency_s ?? "—"} s</strong>
-                  <span className="muted small">median latency</span>
+                  <span className="muted small">{t("opsLatency")}</span>
                 </div>
                 <div>
                   <strong>{data.operations.llm_calls}</strong>
-                  <span className="muted small">LLM calls</span>
+                  <span className="muted small">{t("opsCalls")}</span>
                 </div>
                 <div>
                   <strong>{data.operations.llm_errors}</strong>
-                  <span className="muted small">errors</span>
+                  <span className="muted small">{t("opsErrors")}</span>
                 </div>
                 <div>
                   <strong>${data.operations.cost_usd.toFixed(5)}</strong>
-                  <span className="muted small">cost</span>
+                  <span className="muted small">{t("opsCost")}</span>
                 </div>
               </div>
             </section>
