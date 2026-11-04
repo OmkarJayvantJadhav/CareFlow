@@ -2510,10 +2510,6 @@ label.check input {
     order: 4;
   }
 
-  .large-text .brand-sub {
-    display: none;
-  }
-
   .with-nav main {
     padding-bottom: calc(var(--nav-h) + 2rem);
   }
@@ -3616,11 +3612,15 @@ textarea.doc-body {
     min-width: 0;
   }
 
-  .topbar .brand-name,
-  .topbar .brand-sub {
+  .topbar .brand-name {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  /* The hospital's name wraps rather than being cut. */
+  .topbar .brand-sub {
+    overflow-wrap: break-word;
   }
 }
 
@@ -3631,6 +3631,32 @@ textarea.doc-body {
   }
 
   .large-text .topbar > span.mobile-only:first-child {
+    flex: 1 0 100%;
+  }
+}
+
+@media (max-width: 860px) {
+  /* Signed out: the logo and the hospital's full name on their own row, the language and buttons below. */
+  .topbar.start-top {
+    flex-wrap: wrap;
+  }
+
+  .topbar.start-top > .brand {
+    flex: 1 1 auto;
+  }
+
+  .topbar.start-top .brand-name,
+  .topbar.start-top .brand-sub {
+    overflow: visible;
+    white-space: normal;
+  }
+
+  /* The language drop-down joins the brand's row when it fits; the buttons take the next row. */
+  .topbar.start-top > .row {
+    display: contents;
+  }
+
+  .topbar.start-top .top-actions {
     flex: 1 0 100%;
   }
 }

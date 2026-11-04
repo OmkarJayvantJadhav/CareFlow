@@ -258,6 +258,7 @@ export default function Layout() {
   );
 
   if (!user) {
+    const showLanguages = !(pathname === "/login" || (pathname === "/" && demo));
     return (
       <>
         {banner}
@@ -271,8 +272,18 @@ export default function Layout() {
                 {t("navLibrary")}
               </NavLink>
             )}
-            {/* The start page has its own language picker; the other pages need one here. */}
-            <Preferences languages={!(pathname === "/login" || (pathname === "/" && demo))} largeTextSwitch={demo} />
+            {/* The start page has its own language picker; the other pages need one here (a drop-down on phones). */}
+            {showLanguages && (
+              <span className="desktop-only">
+                <Preferences largeTextSwitch={false} />
+              </span>
+            )}
+            {showLanguages && (
+              <span className="mobile-only">
+                <LanguageMenu />
+              </span>
+            )}
+            {demo && <Preferences languages={false} />}
             {!demo && (
               <span className="top-actions">
                 <a href="tel:112" className="button danger">
