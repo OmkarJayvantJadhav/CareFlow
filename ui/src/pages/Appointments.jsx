@@ -189,24 +189,33 @@ export default function Appointments() {
     if (items.length === 0) return <p className="muted">{t("none")}</p>;
     return (
       <ul className="card past-list">
-        {items.map((a) => (
-          <li key={a.appointment_id}>
-            <div className="grow">
-              <strong>{a.doctor_name}</strong>
-              <div className="muted small">
-                {a.department} · {longDate(a.date, lang)} · {a.time}
+        {items.map((a) => {
+          const tile = dateTile(a.date, lang);
+          return (
+            <li key={a.appointment_id}>
+              <div className="date-tile sm" aria-hidden="true">
+                <span className="m">{tile.month}</span>
+                <span className="d">{tile.day}</span>
               </div>
-            </div>
-            {badge(a)}
-            {checkInControl(a)}
-            {a.status === "no_show" && (
-              <button type="button" className="secondary" onClick={() => navigate("/book", { state: { rebook: a } })}>
-                <RotateCcw size={16} aria-hidden="true" />
-                {t("rebook")}
-              </button>
-            )}
-          </li>
-        ))}
+              <div className="grow">
+                <div className="past-head">
+                  <strong>{a.doctor_name}</strong>
+                  {badge(a)}
+                </div>
+                <div className="muted small">
+                  {a.department} · {longDate(a.date, lang)} · {a.time}
+                </div>
+              </div>
+              {checkInControl(a)}
+              {a.status === "no_show" && (
+                <button type="button" className="secondary" onClick={() => navigate("/book", { state: { rebook: a } })}>
+                  <RotateCcw size={16} aria-hidden="true" />
+                  {t("rebook")}
+                </button>
+              )}
+            </li>
+          );
+        })}
       </ul>
     );
   }
