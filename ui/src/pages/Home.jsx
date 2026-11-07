@@ -6,7 +6,6 @@ import {
   Layers,
   ListOrdered,
   MapPin,
-  MonitorPlay,
   Phone,
   Siren,
   Smartphone,
@@ -76,12 +75,6 @@ export default function Home() {
               <BookOpen size={18} aria-hidden="true" />
               {t("homeInfo")}
             </Link>
-            {config?.demo_site_url && (
-              <a href={config.demo_site_url} target="_blank" rel="noopener noreferrer" className="button secondary">
-                <MonitorPlay size={18} aria-hidden="true" />
-                {t("tryDemoSite")}
-              </a>
-            )}
           </div>
         </div>
         {directory && directory.departments.length > 0 && (
@@ -260,11 +253,6 @@ export default function Home() {
         <nav aria-label={t("homeFooterLinks")}>
           <Link to="/library">{t("homeInfo")}</Link>
           <Link to="/login">{t("homeStaffLogin")}</Link>
-          {config?.demo_site_url && (
-            <a href={config.demo_site_url} target="_blank" rel="noopener noreferrer">
-              <MonitorPlay size={15} aria-hidden="true" /> {t("tryDemoSite")}
-            </a>
-          )}
         </nav>
       </footer>
     </main>

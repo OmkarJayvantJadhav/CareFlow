@@ -138,7 +138,7 @@ assistant's behaviour is checked by an automated evaluation suite.
   75% (targets; partly measured, see section 14).
 - Retrieval: the right source in the top five for at least 90% of questions (target; measured 85.9%).
 - Wait-time predictions beat both simple baselines on mean absolute error (met: 17.9 vs 29.4 minutes).
-- Usable by the people it serves: three languages, phone-first, large text, screen readers (checked on
+- Usable by the people it serves: three languages, phone-first, screen readers (checked on
   every screen by automated accessibility tests).
 
 ### Scope boundary
@@ -233,7 +233,7 @@ displays. Inbound SMS replies are not read.
 - Every feature passes its automated tests (unit, integration, browser), and CI is green.
 - Every safety set passes completely; other evaluation targets are met, or the gap is documented
   (section 14).
-- Every screen passes automated accessibility checks and works at 360 px in large text.
+- Every screen passes automated accessibility checks and works at 360 px.
 - The demo runs on free tiers with a visible "fictional hospital, not for medical use" banner. A hospital's own
   deployment shows no demo features.
 
@@ -388,7 +388,7 @@ phases 6 and 7.
 | NFR-09 | Cost | Runs on free tiers; per-session and per-address message caps protect the model quota. |
 | NFR-10 | Cost | Prompts budgeted to stay within provider tokens-per-minute limits. |
 | NFR-11 | Availability | Provider fallback when the primary model is rate-limited or down. |
-| NFR-12 | Usability | Every screen usable at 360 px in large-text mode; 44 px tap targets. |
+| NFR-12 | Usability | Every screen usable at 360 px; 44 px tap targets. |
 | NFR-13 | Accessibility | No serious or critical WCAG A/AA issues (axe-core) on any screen; screen-reader labels on all controls. |
 | NFR-14 | Observability | Every model and tool call traced (masked) with latency and cost. |
 | NFR-15 | Maintainability | One-command local run with Docker Compose; CI on every push. |
@@ -588,7 +588,7 @@ flowchart TB
 
 | Component | Responsibility | Technology | Code |
 | --- | --- | --- | --- |
-| Web interface | Every screen for every role, three languages, large-text mode | React 18, Vite 5, hand-written CSS | `ui/` |
+| Web interface | Every screen for every role, three languages | React 18, Vite 5, hand-written CSS | `ui/` |
 | API layer | REST, WebSocket, sign-in tokens, roles, rate limits, serving the built UI | FastAPI | `app/api/` |
 | Safety | Emergency check, language detection, medical-advice guard, injection filter, masking, encryption | Rules, a small classifier, `cryptography` | `app/safety/` |
 | Agent | Tool-calling loop with validation, a step limit, a token budget, confirmation cards and traces | Hand-written | `app/agent/` |
@@ -919,9 +919,9 @@ usable on a phone for every role). Every change is visible and confirmed.
 ### Accessibility and language
 
 - All text in English, Hindi and Marathi, including dates; the assistant replies in the user's language.
-- Large-text mode doubles the base size; tap targets at least 44 px; on phones four bottom tabs (two in large text) and a "More" menu listing every other page by its full name, and table rows shown as labelled cards.
+- Tap targets at least 44 px; sizes in rem, so the browser's own text size scales every screen; on phones four bottom tabs and a "More" menu listing every other page by its full name, and table rows shown as labelled cards.
 - Colour is never the only signal (icon + text); contrast meets WCAG AA.
-- Every screen is checked by axe-core (no serious or critical issues) and at 360 px in large text in the
+- Every screen is checked by axe-core (no serious or critical issues) and at 360 px in the
   browser tests.
 
 ### Visual style
@@ -942,7 +942,7 @@ Conventional tests prove the deterministic code; the Evaluation Plan (section 14
 | Unit and integration | Tools, rules, queue engine, merge rule, SQL validator, API endpoints, migrations, encryption, messaging | pytest against a real PostgreSQL | Every push (CI) | 463 |
 | Concurrency | Two bookings for one slot at the same moment | pytest with parallel sessions | Every push | (included) |
 | Agent | Fixed scenarios with a scripted model (tool calls, cards, refusals) | pytest | Every push | (included) |
-| Browser | Every screen and main flow for every role, live queue, accessibility (axe-core), 360 px large text | Playwright, with a fixed clock and a rule-based stand-in model | Every push | 44 |
+| Browser | Every screen and main flow for every role, live queue, accessibility (axe-core), 360 px | Playwright, with a fixed clock and a rule-based stand-in model | Every push | 44 |
 | Interface unit | Text in three languages with matching placeholders; components | Vitest | Every push | 8 |
 | Lint | Python and JavaScript | ruff, ESLint, Prettier | Every push | — |
 | Image | Docker build; the wait-time model loads and the UI is inside | GitHub Actions | Every push | — |
@@ -959,8 +959,7 @@ Conventional tests prove the deterministic code; the Evaluation Plan (section 14
 ### Entry and exit criteria
 
 - **Entry:** a feature comes with its tests; migrations apply cleanly.
-- **Exit (every phase):** all tests, lint and the image build pass; screenshots checked at 1366 px, 390 px and 360 px with
-  large text; decisions, README and the deployment guide updated.
+- **Exit (every phase):** all tests, lint and the image build pass; screenshots checked at 1366 px, 390 px and 360 px; decisions, README and the deployment guide updated.
 
 ### Test cases
 

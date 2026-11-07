@@ -215,8 +215,8 @@ in or join a queue the same way — or tap **Talk to a person**.
       <ul>
         <li>Four bottom tabs and a <b>More</b> menu that lists every other page by its full name</li>
         <li>Table rows become labelled cards; words never break apart</li>
-        <li>Large-text mode and 44 px tap targets</li>
-        <li>Every screen checked automatically at 360 px wide in large text, and with <b>axe-core</b> for WCAG A/AA</li>
+        <li>44 px tap targets</li>
+        <li>Every screen checked automatically at 360 px wide, and with <b>axe-core</b> for WCAG A/AA</li>
       </ul>
     </td>
   </tr>
@@ -312,7 +312,7 @@ are refused before any model call.
 | **Front desk** | Today at a glance · check-in by code or QR · kiosk · walk-ins with duplicate detection · queue control · priority requests to the doctor · moving patients between doctors and departments · coordination and balancing · patient records (masked numbers, each look recorded) · doctor calendar and leave · doctor status (break, delay, emergency, unavailable) |
 | **Doctors** | Own queue · call, start, end, missed turn, forward · clinical priority and approving requests · own status |
 | **Administrators** | Dashboard · priority rules by patient category · analytics in plain language · registration questions · evaluation results · hospital setup and timetables · booking and queue rules · SMS and e-mail · information documents · accounts · demo reset (demo only) |
-| **Everyone** | English, हिन्दी and मराठी · large-text mode · 44 px tap targets · keyboard and screen-reader support · checked with axe-core and at 360 px |
+| **Everyone** | English, हिन्दी and मराठी · 44 px tap targets · keyboard and screen-reader support · checked with axe-core and at 360 px |
 
 </details>
 
@@ -593,7 +593,6 @@ GitHub Actions runs all of these and a Docker build on every push; Render redepl
 | `TRACE_DIR` | `traces` | JSON-lines traces of every turn (masked) |
 | `WARM_UP_RETRIEVER` | `true` | Load retrieval at start-up; also starts the slot top-up, reminder and end-of-day threads (the message sender always runs) |
 | `QUEUE_MERGE_RULE` | `slot_order` | `slot_order` (booked keep slot order, walk-ins fill gaps) or `alternate` |
-| `DEMO_SITE_URL` | — | A hospital's own deployment: show "Try the demo" on the homepage (top and footer) and the sign-in page, linking to this demo site |
 | `DEMO_NOTICE` | `true` | In demo mode, say on every page that the hospital is fictional; `false` keeps the try-a-role buttons without labels (the live site) |
 | `DEMO_MODE`, `SIMULATOR_SEED` | `true`, `42` | `true`: the fictional hospital, demo roles, demo reset and banner; `false`: a hospital's own deployment. Seed for the synthetic data |
 
@@ -698,7 +697,7 @@ docs/         specification, decisions, deployment guide, gifs/ (the README's cl
 | NFR-07 roles in tools | every service function | `test_permissions.py`, s14, s15 |
 | NFR-08 masking | `app/safety/privacy.py`, traces | TC-18, s29 |
 | NFR-09–11 quotas, token budget, fallback | `app/api/routes.py`, `app/agent/budget.py`, `app/agent/llm.py` | `test_api.py`, `test_llm.py`, TC-19 |
-| NFR-12/13 phone, large text, accessibility | `ui/src/styles.css`, `ui/src/components/` | e2e (axe-core, 360 px) |
+| NFR-12/13 phone, accessibility | `ui/src/styles.css`, `ui/src/components/` | e2e (axe-core, 360 px) |
 | NFR-14 tracing | `app/agent/tracing.py` | s29 |
 | NFR-17 encryption at rest | `app/safety/pii.py` | `test_patient_data.py`, `test_messaging.py` |
 
@@ -726,7 +725,7 @@ docs/         specification, decisions, deployment guide, gifs/ (the README's cl
 | Document | Contents |
 | --- | --- |
 | 📘 [`docs/CareFlow-Project-Documentation.md`](docs/CareFlow-Project-Documentation.md) | The specification (version 2.0): problem, requirements (FR-01–FR-74), architecture, database, API, screens, tests, roadmap, security, operations, risks and evaluation |
-| 🧭 [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-142), with the reason |
+| 🧭 [`docs/DECISIONS.md`](docs/DECISIONS.md) | Every decision, phase by phase (D-00a to D-143), with the reason |
 | 🚀 [`docs/DEPLOY.md`](docs/DEPLOY.md) | Free deployment on Render and Neon, monitoring and runbook |
 | 📏 [`eval/README.md`](eval/README.md) | How the evaluation works and how to run it |
 | 📊 [`eval/results/README.md`](eval/results/README.md) | The generated results table with sample sizes |

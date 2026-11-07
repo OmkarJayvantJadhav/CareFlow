@@ -51,7 +51,6 @@ export function SessionProvider({ children }) {
     return null;
   });
   const [lang, setLangState] = useState(() => load("careflow.lang") || "en");
-  const [largeText, setLargeTextState] = useState(() => load("careflow.large") === "1");
   // What this deployment offers (demo roles, sign-up); null until known, and then demo features stay hidden.
   const [config, setConfig] = useState(null);
 
@@ -83,8 +82,7 @@ export function SessionProvider({ children }) {
   }, [loadConfig]);
   useEffect(() => {
     document.documentElement.lang = lang;
-    document.documentElement.classList.toggle("large-text", largeText);
-  }, [lang, largeText]);
+  }, [lang]);
 
   /** Re-read the signed-in user (after a profile change, so names update everywhere). */
   const refreshUser = useCallback(async () => {
@@ -108,14 +106,9 @@ export function SessionProvider({ children }) {
       rules: config?.policy ?? DEFAULT_RULES,
       reloadConfig: loadConfig,
       lang,
-      largeText,
       setLang: (next) => {
         setLangState(next);
         save("careflow.lang", next);
-      },
-      setLargeText: (on) => {
-        setLargeTextState(on);
-        save("careflow.large", on ? "1" : "0");
       },
       signIn: async (role) => accept(await api("/auth/demo-login", { method: "POST", body: { role } })),
       logIn: async (username, password) =>
@@ -135,7 +128,7 @@ export function SessionProvider({ children }) {
       signOut,
       t: (key, vars) => translate(lang, key, vars),
     }),
-    [user, config, lang, largeText, signOut, accept, refreshUser, loadConfig],
+    [user, config, lang, signOut, accept, refreshUser, loadConfig],
   );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }

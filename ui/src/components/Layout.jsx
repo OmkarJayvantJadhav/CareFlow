@@ -35,10 +35,9 @@ import { useNotifications } from "../notifications";
 import { PasswordGate } from "../pages/Account";
 import { useSession } from "../session";
 
-// The first few items of each list are the phone's bottom tabs (four, or two in large text so the names
-// still fit); the rest are under "More". On a wider screen the sidebar lists them all, in this order.
+// The first four items of each list are the phone's bottom tabs; the rest are under "More". On a wider
+// screen the sidebar lists them all, in this order.
 const TABS = 4;
-const TABS_LARGE_TEXT = 2;
 const NAV = {
   patient: [
     { to: "/chat", label: "navChat", icon: MessageCircle },
@@ -93,37 +92,17 @@ function Brand() {
   );
 }
 
-/** Language and large-text switches. The start page has its own language picker, so it shows only the switch. */
-function Preferences({ languages = true, largeTextSwitch = true }) {
-  const { lang, setLang, largeText, setLargeText, t } = useSession();
+/** The language buttons. */
+function Preferences() {
+  const { lang, setLang, t } = useSession();
   return (
-    <>
-      {languages && (
-        <div className="segmented" role="group" aria-label={t("chooseLanguage")}>
-          {LANGS.map((l) => (
-            <button
-              key={l.code}
-              type="button"
-              aria-pressed={lang === l.code}
-              onClick={() => setLang(l.code)}
-              lang={l.code}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
-      )}
-      {largeTextSwitch && <LargeTextSwitch largeText={largeText} setLargeText={setLargeText} t={t} />}
-    </>
-  );
-}
-
-function LargeTextSwitch({ largeText, setLargeText, t }) {
-  return (
-    <label className="toggle">
-      <input type="checkbox" checked={largeText} onChange={(e) => setLargeText(e.target.checked)} />
-      {t("largeText")}
-    </label>
+    <div className="segmented" role="group" aria-label={t("chooseLanguage")}>
+      {LANGS.map((l) => (
+        <button key={l.code} type="button" aria-pressed={lang === l.code} onClick={() => setLang(l.code)} lang={l.code}>
+          {l.label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -193,9 +172,9 @@ function PatientTools() {
 }
 
 /** The phone's "More" sheet: every page that is not a bottom tab, with its full name, then the account,
- * the large-text switch and signing out. */
+ * then signing out. */
 function MoreMenu({ dialog, items, onSignOut }) {
-  const { user, largeText, setLargeText, t } = useSession();
+  const { user, t } = useSession();
   const staff = user.role !== "patient" && user.role !== "caregiver";
   const extras = staff
     ? [
@@ -233,7 +212,6 @@ function MoreMenu({ dialog, items, onSignOut }) {
         ))}
       </nav>
       <div className="more-foot">
-        <LargeTextSwitch largeText={largeText} setLargeText={setLargeText} t={t} />
         <button type="button" className="quiet" onClick={onSignOut}>
           <LogOut size={18} aria-hidden="true" />
           {t("signOut")}
@@ -244,7 +222,7 @@ function MoreMenu({ dialog, items, onSignOut }) {
 }
 
 export default function Layout() {
-  const { user, demo, notice, signOut, largeText, t } = useSession();
+  const { user, demo, notice, signOut, t } = useSession();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const more = useRef(null);
@@ -275,7 +253,7 @@ export default function Layout() {
             {/* The start page has its own language picker; the other pages need one here (a drop-down on phones). */}
             {showLanguages && (
               <span className="desktop-only">
-                <Preferences largeTextSwitch={false} />
+                <Preferences />
               </span>
             )}
             {showLanguages && (
@@ -283,7 +261,6 @@ export default function Layout() {
                 <LanguageMenu />
               </span>
             )}
-            {demo && <Preferences languages={false} />}
             {!demo && (
               <span className="top-actions">
                 <a href="tel:112" className="button danger">
@@ -309,7 +286,6 @@ export default function Layout() {
     navigate("/");
   };
   const signOutLabel = `${t("signOut")} (${user.display_name})`;
-  const tabs = largeText ? TABS_LARGE_TEXT : TABS;
   if (user.must_change_password) {
     return (
       <>
@@ -359,7 +335,7 @@ export default function Layout() {
           </div>
         </aside>
         <nav className="tab-bar" aria-label={t("mainMenu")}>
-          {NAV[user.role].slice(0, tabs).map(({ to, label, icon: Icon }) => (
+          {NAV[user.role].slice(0, TABS).map(({ to, label, icon: Icon }) => (
             <NavLink key={to} to={to} className={({ isActive }) => (isActive ? "active" : "")}>
               <Icon size={22} aria-hidden="true" />
               <span>{t(label)}</span>
@@ -370,7 +346,7 @@ export default function Layout() {
             <span>{t("more")}</span>
           </button>
         </nav>
-        <MoreMenu dialog={more} items={NAV[user.role].slice(tabs)} onSignOut={leave} />
+        <MoreMenu dialog={more} items={NAV[user.role].slice(TABS)} onSignOut={leave} />
         <div className="main-col">
           <header className="topbar">
             <span className="mobile-only">

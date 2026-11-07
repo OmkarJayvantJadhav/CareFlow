@@ -37,13 +37,7 @@ describe("start page", () => {
     renderStart({ demo_mode: false, allow_registration: true });
     expect(await screen.findByText(/created by the hospital's administrator/)).toBeInTheDocument();
     expect(screen.queryByText("Or try the demo without an account")).not.toBeInTheDocument();
-  });
-
-  it("links a hospital's deployment to its demo site when one is set", async () => {
-    renderStart({ demo_mode: false, allow_registration: true, demo_site_url: "https://demo.example.org" });
-    const link = await screen.findByRole("link", { name: /Try the demo/ });
-    expect(link).toHaveAttribute("href", "https://demo.example.org");
-    expect(link).toHaveAttribute("target", "_blank");
+    expect(screen.queryByRole("link", { name: /Try the demo/ })).not.toBeInTheDocument();
   });
 
   it("signs a caregiver up without a birth year or phone number", async () => {

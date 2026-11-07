@@ -1,6 +1,6 @@
 /* Calm and clinical (docs §8): light surfaces, one teal brand colour, red only for emergencies,
    a sans-serif with Devanagari support, 44 px tap targets and WCAG AA contrast.
-   Sizes are in rem so that large-text mode (which doubles the root size) scales everything. */
+   Sizes are in rem so that the browser's own text size scales everything. */
 
 :root {
   /* Palette (D-141): one teal brand colour, slate text, status colours used only for status. Where a status
@@ -56,11 +56,6 @@
   line-height: 1.5;
   color: var(--text);
   background: var(--bg);
-}
-
-/* Large-text mode doubles the base size (docs §8). */
-:root.large-text {
-  --base: 32px;
 }
 
 * {
@@ -1024,14 +1019,6 @@ tbody tr:hover {
   border-color: var(--primary-line);
 }
 
-/* "Try the demo" on a hospital's deployment: a link that looks like the role buttons. */
-a.role {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  font-weight: inherit;
-}
-
 .role .role-text {
   display: flex;
   flex-direction: column;
@@ -1039,7 +1026,7 @@ a.role {
   min-width: 0;
 }
 
-/* Too narrow for the icon and the text side by side (a phone in large-text mode): the text goes below. */
+/* Too narrow for the icon and the text side by side: the text goes below. */
 .role {
   flex-wrap: wrap;
 }
@@ -3414,7 +3401,7 @@ fieldset.plain legend {
   margin: 0;
 }
 
-/* ------------------------------------------------------------------ narrow phones in large text (360 px) */
+/* ------------------------------------------------------------------ narrow phones (360 px) */
 
 .day-head {
   flex-wrap: wrap;
@@ -3717,7 +3704,7 @@ textarea.doc-body {
 .home .fact > div,
 .home .dept > div,
 .home .doctor-head > div {
-  min-width: 0; /* long names wrap inside their card on a phone in large text */
+  min-width: 0; /* long names wrap inside their card on a narrow phone */
   overflow-wrap: anywhere;
 }
 
@@ -3745,7 +3732,7 @@ textarea.doc-body {
 .home .button {
   max-width: 100%;
   white-space: normal;
-  overflow-wrap: anywhere; /* a phone in large text: a long word wraps rather than pushing the page sideways */
+  overflow-wrap: anywhere; /* a long word wraps rather than pushing the page sideways */
   text-align: center;
 }
 
@@ -3918,7 +3905,7 @@ textarea.doc-body {
 
 .tab-bar a,
 .tab-bar button {
-  /* Wider names take more room, so a long single word (Dashboard in large text) still fits. */
+  /* Wider names take more room, so a long single word (Dashboard, or a Marathi label) still fits. */
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -3953,11 +3940,6 @@ textarea.doc-body {
   color: var(--primary-strong);
   box-shadow: inset 0 3px 0 var(--primary);
   background: var(--primary-soft);
-}
-
-.large-text .tab-bar a,
-.large-text .tab-bar button {
-  font-size: 0.7rem;
 }
 
 .more-sheet {
@@ -4180,17 +4162,6 @@ textarea.doc-body {
 }
 
 @media (max-width: 860px) {
-  /* Large text: the brand on its own row, the language (and the bell) below it. */
-  .large-text .topbar {
-    flex-wrap: wrap;
-  }
-
-  .large-text .topbar > span.mobile-only:first-child {
-    flex: 1 0 100%;
-  }
-}
-
-@media (max-width: 860px) {
   /* Signed out: the logo and the hospital's full name on their own row, the language and buttons below. */
   .topbar.start-top {
     flex-wrap: wrap;
@@ -4249,7 +4220,7 @@ textarea.doc-body {
 }
 
 @media (max-width: 560px) {
-  /* Large text doubles every rem: on a phone the desk's figures and row actions take the width they have. */
+  /* On a phone the desk's figures and row actions take the width they have. */
   .queue-actions {
     min-width: 0;
     justify-content: flex-start;

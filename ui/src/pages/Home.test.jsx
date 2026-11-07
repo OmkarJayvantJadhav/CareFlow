@@ -38,7 +38,7 @@ function renderRoot(config) {
 
 describe("home page", () => {
   it("shows a hospital's own homepage to visitors", async () => {
-    renderRoot({ demo_mode: false, allow_registration: true, hospital: HOSPITAL, demo_site_url: null });
+    renderRoot({ demo_mode: false, allow_registration: true, hospital: HOSPITAL });
     expect(await screen.findByRole("heading", { level: 1, name: "Omkar General Hospital" })).toBeInTheDocument();
     expect(await screen.findByText("Dr. Meera Joshi")).toBeInTheDocument();
     expect(screen.getByText("Reception: 08:00–18:00", { selector: "p" })).toBeInTheDocument();
@@ -47,19 +47,6 @@ describe("home page", () => {
     expect(screen.getByRole("link", { name: /Emergency 112/ })).toHaveAttribute("href", "tel:112");
     expect(screen.getByText("Emergency department at Gate 1.")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /Try the demo/ })).not.toBeInTheDocument();
-  });
-
-  it("links to the demo site from the top of the page and the footer when one is set", async () => {
-    renderRoot({
-      demo_mode: false,
-      allow_registration: true,
-      hospital: HOSPITAL,
-      demo_site_url: "https://demo.example.org",
-    });
-    await screen.findByText("Dr. Meera Joshi");
-    const links = screen.getAllByRole("link", { name: /Try the demo/ });
-    expect(links).toHaveLength(2);
-    for (const link of links) expect(link).toHaveAttribute("href", "https://demo.example.org");
   });
 
   it("keeps the demo's start page", async () => {

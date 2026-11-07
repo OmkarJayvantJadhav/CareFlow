@@ -733,9 +733,8 @@ def _overflow(page: Page) -> int:
         ),
     ],
 )
-def test_staff_screens_fit_a_360_px_phone_in_large_text(phone: Page, role, paths):
+def test_staff_screens_fit_a_360_px_phone(phone: Page, role, paths):
     phone.goto("/")
-    phone.get_by_label("Large text").check()
     phone.get_by_role("button", name=re.compile(f"^{role}")).click()
     expect(phone.get_by_role("navigation", name="Main")).to_be_visible()
     for path in paths:
@@ -746,7 +745,7 @@ def test_staff_screens_fit_a_360_px_phone_in_large_text(phone: Page, role, paths
 
 
 def _open_on_phone(phone: Page, link: str) -> None:
-    """A bottom tab, or (in large text there are only two) the same page from the "More" sheet."""
+    """A bottom tab, or the same page from the "More" sheet."""
     tabs = phone.get_by_role("navigation", name="Main")
     expect(tabs).to_be_visible()
     tab = tabs.get_by_role("link", name=link, exact=True)
@@ -758,9 +757,8 @@ def _open_on_phone(phone: Page, link: str) -> None:
     expect(phone.get_by_role("dialog")).to_be_hidden()
 
 
-def test_patient_screens_fit_a_360_px_phone_in_large_text(phone: Page):
+def test_patient_screens_fit_a_360_px_phone(phone: Page):
     phone.goto("/")
-    phone.get_by_label("Large text").check()
     phone.get_by_role("button", name=re.compile("^Patient")).click()
     for link in ("Assistant", "Book", "My appointments", "Queue status", "Profile"):
         _open_on_phone(phone, link)

@@ -12,4 +12,3 @@ doc_key: facilities/accessibility
 - Free wheelchairs at the main entrance; ask the security staff.
 - Ramps at all entrances and accessible restrooms on every floor.
 - A staff escort for patients who need help moving between departments.
-- CareFlow's large-text mode for easier reading on phones.
