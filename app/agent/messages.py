@@ -7,17 +7,17 @@ M: dict[str, dict[str, str]] = {
     "emergency": {
         "en": (
             "This may be a medical emergency. Please call 112 or 108 for an ambulance now, or go to the nearest "
-            "emergency department immediately.{note} Do not wait for an OPD appointment.\n"
+            "emergency department immediately.{note} Do not wait for an appointment.\n"
             "If this is not an emergency, tell me and I will help you with an appointment."
         ),
         "hi": (
             "यह मेडिकल इमरजेंसी हो सकती है। कृपया अभी एम्बुलेंस के लिए 112 या 108 पर कॉल करें, या तुरंत नज़दीकी "
-            "इमरजेंसी विभाग जाएं।{note} ओपीडी अपॉइंटमेंट का इंतज़ार न करें।\n"
+            "इमरजेंसी विभाग जाएं।{note} अपॉइंटमेंट का इंतज़ार न करें।\n"
             "अगर यह इमरजेंसी नहीं है, तो मुझे बताएं, मैं अपॉइंटमेंट में आपकी मदद करूंगा।"
         ),
         "mr": (
             "ही वैद्यकीय आपत्कालीन स्थिती असू शकते. कृपया आत्ताच रुग्णवाहिकेसाठी 112 किंवा 108 वर कॉल करा, किंवा "
-            "लगेच जवळच्या आपत्कालीन विभागात जा.{note} ओपीडी अपॉइंटमेंटची वाट पाहू नका.\n"
+            "लगेच जवळच्या आपत्कालीन विभागात जा.{note} अपॉइंटमेंटची वाट पाहू नका.\n"
             "ही आपत्कालीन स्थिती नसल्यास मला सांगा, मी अपॉइंटमेंटसाठी मदत करेन."
         ),
     },

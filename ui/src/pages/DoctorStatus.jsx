@@ -111,24 +111,39 @@ export default function DoctorStatus() {
                         onChange={(e) => setMinutes({ ...minutes, [d.doctor_id]: e.target.value })}
                       />
                     </div>
+                    <div className="status-actions">
+                      <button
+                        type="button"
+                        className="secondary"
+                        disabled={busy !== null}
+                        onClick={() => event(d, "break")}
+                      >
+                        <Coffee size={16} aria-hidden="true" />
+                        {t("markBreak")}
+                      </button>
+                      <button
+                        type="button"
+                        className="secondary"
+                        disabled={busy !== null}
+                        onClick={() => event(d, "delay")}
+                      >
+                        <Timer size={16} aria-hidden="true" />
+                        {t("markDelay")}
+                      </button>
+                    </div>
+                  </div>
+                  {d.doctor_status !== "available" && (
                     <button
                       type="button"
-                      className="secondary"
+                      className="resume"
                       disabled={busy !== null}
-                      onClick={() => event(d, "break")}
+                      onClick={() => event(d, "resume")}
                     >
-                      <Coffee size={16} aria-hidden="true" />
-                      {t("markBreak")}
+                      <Play size={16} aria-hidden="true" />
+                      {t("markResume")}
                     </button>
-                    <button
-                      type="button"
-                      className="secondary"
-                      disabled={busy !== null}
-                      onClick={() => event(d, "delay")}
-                    >
-                      <Timer size={16} aria-hidden="true" />
-                      {t("markDelay")}
-                    </button>
+                  )}
+                  <div className="status-secondary">
                     <button
                       type="button"
                       className="danger-outline"
@@ -138,17 +153,9 @@ export default function DoctorStatus() {
                       <Siren size={16} aria-hidden="true" />
                       {t("markEmergency")}
                     </button>
-                  </div>
-                  <div className="row">
-                    {d.doctor_status !== "available" && (
-                      <button type="button" disabled={busy !== null} onClick={() => event(d, "resume")}>
-                        <Play size={16} aria-hidden="true" />
-                        {t("markResume")}
-                      </button>
-                    )}
                     <button
                       type="button"
-                      className="danger-outline"
+                      className="quiet"
                       disabled={busy !== null}
                       onClick={() => {
                         setReassign(true);

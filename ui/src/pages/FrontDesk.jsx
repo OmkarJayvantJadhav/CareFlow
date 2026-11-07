@@ -349,6 +349,7 @@ export default function FrontDesk() {
                                 }
                               >
                                 <Star size={16} aria-hidden="true" />
+                                {t("shortPriority")}
                               </button>
                             )}
                             {(e.status === "waiting" || e.status === "missed") && (
@@ -361,6 +362,7 @@ export default function FrontDesk() {
                                 onClick={() => setMoving({ entry: e, doctor_id: "", reason: "" })}
                               >
                                 <ArrowRightLeft size={16} aria-hidden="true" />
+                                {t("move")}
                               </button>
                             )}
                             {e.status !== "in_consultation" && (
@@ -373,6 +375,7 @@ export default function FrontDesk() {
                                 onClick={() => setLeaving(e)}
                               >
                                 <DoorOpen size={16} aria-hidden="true" />
+                                {t("shortLeft")}
                               </button>
                             )}
                           </div>
@@ -393,7 +396,7 @@ export default function FrontDesk() {
                 </h2>
               </div>
               {doctor.bookings.length === 0 && <p className="muted">{t("none")}</p>}
-              <ul className="booking-list">
+              <ul className="booking-list bookings-today">
                 {doctor.bookings.map((b) => (
                   <li key={b.appointment_id}>
                     <span className="booking-who">

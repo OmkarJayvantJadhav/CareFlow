@@ -2024,9 +2024,16 @@ button.wide {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
+  gap: 0.5rem 0.75rem;
+  padding: 0.625rem 0;
   border-bottom: 1px solid var(--border);
+}
+
+/* Today's bookings: keep the status badge beside the name instead of on a line of its own. */
+.bookings-today li > .row:last-child {
+  flex: 0 1 auto;
+  max-width: 100%;
+  margin-left: auto;
 }
 
 .booking-list li:last-child {
@@ -2065,8 +2072,33 @@ button.wide {
 }
 
 .doctor-card .controls .field {
-  width: 7rem;
+  width: 6.5rem;
   margin: 0;
+}
+
+/* Break and delay use the minutes beside them; they share the rest of the row. */
+.doctor-card .status-actions {
+  flex: 1 1 12rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.doctor-card .resume {
+  width: 100%;
+}
+
+/* Less frequent actions, set apart below a line. */
+.doctor-card .status-secondary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--border);
+}
+
+.doctor-card .status-secondary button {
+  flex: 1 1 9rem;
 }
 
 .bars {
@@ -2694,7 +2726,7 @@ dl.summary .policy {
   display: grid;
   gap: 0.25rem;
   min-width: 0;
-  flex: 1 1 12rem;
+  flex: 1 1 9rem;
 }
 
 label.check {
